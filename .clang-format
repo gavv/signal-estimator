@@ -1,0 +1,13 @@
+BasedOnStyle: WebKit
+
+UseTab: Never
+IndentWidth: 4
+ColumnLimit: 90
+MaxEmptyLinesToKeep: 1
+PenaltyBreakComment: 0
+
+NamespaceIndentation: None
+
+AllowShortLoopsOnASingleLine: false
+
+BreakBeforeBraces: Attach
