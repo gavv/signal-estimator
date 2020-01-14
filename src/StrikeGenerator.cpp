@@ -17,31 +17,34 @@ StrikeGenerator::StrikeGenerator(const Config& config)
     , warmup_countdown_(config.n_periods) {
 }
 
-void StrikeGenerator::generate(int16_t* buf, size_t bufsz) {
-    memset(buf, 0, bufsz * sizeof(buf[0]));
+void StrikeGenerator::generate(Frame& frame) {
+    auto frame_data = frame.data();
+    auto frame_size = frame.size();
+
+    memset(frame_data, 0, frame_size * sizeof(frame_data[0]));
 
     if (warmup_countdown_ != 0) {
         warmup_countdown_--;
         return;
     }
 
-    while (bufsz != 0) {
+    while (frame_size != 0) {
         if (strike_countdown_ != 0) {
-            const size_t n_frames = bufsz / config_.n_channels;
+            const size_t n_samples = frame_size / config_.n_channels;
 
-            if (strike_countdown_ >= n_frames) {
-                strike_countdown_ -= n_frames;
+            if (strike_countdown_ >= n_samples) {
+                strike_countdown_ -= n_samples;
                 return;
             }
 
-            if (strike_countdown_ < n_frames) {
-                buf += strike_countdown_ * config_.n_channels;
-                bufsz -= strike_countdown_ * config_.n_channels;
+            if (strike_countdown_ < n_samples) {
+                frame_data += strike_countdown_ * config_.n_channels;
+                frame_size -= strike_countdown_ * config_.n_channels;
                 strike_countdown_ = 0;
             }
         }
 
-        while (bufsz != 0) {
+        while (frame_size != 0) {
             if (++strike_pos_ == strike_length_) {
                 strike_pos_ = 0;
                 strike_countdown_ = strike_period_;
@@ -49,10 +52,10 @@ void StrikeGenerator::generate(int16_t* buf, size_t bufsz) {
             }
 
             for (size_t cn = 0; cn < config_.n_channels; cn++) {
-                *buf = int16_t(
-                    32767 * std::sin(2 * M_PI / config_.sample_rate * 880 * strike_pos_));
-                buf++;
-                bufsz--;
+                *frame_data = sample_t(MaxSample
+                    * std::sin(2 * M_PI / config_.sample_rate * 880 * strike_pos_));
+                frame_data++;
+                frame_size--;
             }
         }
     }

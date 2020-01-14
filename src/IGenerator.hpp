@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "Frame.hpp"
+
 #include <cstdint>
 #include <cstdlib>
 
@@ -14,7 +16,7 @@ class IGenerator {
 public:
     virtual ~IGenerator() = default;
 
-    virtual void generate(int16_t* buf, size_t bufsz) = 0;
+    virtual void generate(Frame& frame) = 0;
 };
 
 } // namespace signal_estimator

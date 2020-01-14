@@ -15,16 +15,18 @@ LatencyEstimator::StrikeTrigger::StrikeTrigger(const Config& config)
     , schmitt_(config.strike_threshold) {
 }
 
-void LatencyEstimator::StrikeTrigger::add_signal(
-    Dir dir, nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
-    for (size_t n = 0; n < bufsz; n++) {
-        auto s = double(buf[n]);
+void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {
+    auto frame_data = frame.data();
+    auto frame_size = frame.size();
+
+    for (size_t n = 0; n < frame_size; n++) {
+        auto s = double(frame_data[n]);
 
         s = std::abs(s);
         s = runmax_.add(s);
 
         if (schmitt_.add(s)) {
-            trigger_ts_msec_ = double(ts + sample_offset(config_, dir, n)) / 1000000.0;
+            trigger_ts_msec_ = (double)frame.sample_time(n) / 1000000.0;
         }
     }
 }
@@ -44,8 +46,8 @@ LatencyEstimator::LatencyEstimator(const Config& config)
     , sma_(config.sma_window) {
 }
 
-void LatencyEstimator::add_output(nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
-    output_trigger_.add_signal(Dir::Playback, ts, buf, bufsz);
+void LatencyEstimator::add_output(Frame& frame) {
+    output_trigger_.add_frame(frame);
 
     Report report;
 
@@ -54,8 +56,8 @@ void LatencyEstimator::add_output(nanoseconds_t ts, const int16_t* buf, size_t b
     }
 }
 
-void LatencyEstimator::add_input(nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
-    input_trigger_.add_signal(Dir::Recording, ts, buf, bufsz);
+void LatencyEstimator::add_input(Frame& frame) {
+    input_trigger_.add_frame(frame);
 
     Report report;
 

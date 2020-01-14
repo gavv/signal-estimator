@@ -29,8 +29,8 @@ void AlsaReader::close() {
     }
 }
 
-bool AlsaReader::read(int16_t *buf, size_t bufsz) {
-    int err = snd_pcm_readi(pcm_, buf, bufsz / config_.n_channels);
+bool AlsaReader::read(Frame& frame) {
+    int err = snd_pcm_readi(pcm_, frame.data(), frame.size() / config_.n_channels);
 
     if (err < 0) {
         if ((err = snd_pcm_recover(pcm_, err, 1)) == 0) {
@@ -42,6 +42,9 @@ bool AlsaReader::read(int16_t *buf, size_t bufsz) {
         se_log_error("alsa reader: %s", snd_strerror(err));
         return false;
     }
+
+    frame.set_timestamp();
+    frame.set_type(FrameType::Input);
 
     return true;
 }

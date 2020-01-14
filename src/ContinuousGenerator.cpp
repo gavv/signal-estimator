@@ -14,11 +14,14 @@ ContinuousGenerator::ContinuousGenerator(const Config& config)
     : config_(config) {
 }
 
-void ContinuousGenerator::generate(int16_t* buf, size_t bufsz) {
-    for (size_t sn = 0; sn < bufsz;) {
+void ContinuousGenerator::generate(Frame& frame) {
+    auto frame_data = frame.data();
+    auto frame_size = frame.size();
+
+    for (size_t sn = 0; sn < frame_size;) {
         for (size_t cn = 0; cn < config_.n_channels; cn++) {
-            buf[sn++]
-                = int16_t(20000 * std::sin(2 * M_PI / config_.sample_rate * 500 * pos_));
+            frame_data[sn++] = sample_t(
+                MaxSample * 0.6 * std::sin(2 * M_PI / config_.sample_rate * 500 * pos_));
         }
         pos_++;
     }

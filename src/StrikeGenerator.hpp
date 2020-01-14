@@ -17,7 +17,7 @@ public:
     StrikeGenerator(const StrikeGenerator&) = delete;
     StrikeGenerator& operator=(const StrikeGenerator&) = delete;
 
-    void generate(int16_t* buf, size_t bufsz) override;
+    void generate(Frame& frame) override;
 
 private:
     const Config config_;

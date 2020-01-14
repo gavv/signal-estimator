@@ -14,6 +14,22 @@
 
 namespace signal_estimator {
 
+namespace {
+
+sample_t find_max(const sample_t* buf, size_t bufsz) {
+    auto max_val = buf[0];
+
+    for (size_t n = 1; n < bufsz; n++) {
+        if (std::abs(buf[n]) > std::abs(max_val)) {
+            max_val = buf[n];
+        }
+    }
+
+    return max_val;
+}
+
+} // namespace
+
 FileDumper::FileDumper(const Config& config)
     : config_(config) {
 }
@@ -40,35 +56,26 @@ void FileDumper::close() {
     }
 }
 
-void FileDumper::write(Dir dir, nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
+void FileDumper::write(Frame& frame) {
     if (!fp_) {
         return;
     }
 
-    size_t off = 0;
+    for (size_t off = 0; off < frame.size();) {
+        const auto subframe_ts = frame.sample_time(off);
 
-    while (off < bufsz) {
-        const nanoseconds_t frame_ts = ts + sample_offset(config_, dir, off);
+        const auto subframe_data = frame.data() + off;
+        const auto subframe_sz = std::min(config_.dump_frame, frame.size() - off);
 
-        const auto frame_data = buf + off;
-        const auto frame_sz = std::min(config_.dump_frame, bufsz - off);
+        write_subframe_(subframe_ts, subframe_data, subframe_sz);
 
-        write_frame_(frame_ts, frame_data, frame_sz);
-
-        off += frame_sz;
+        off += subframe_sz;
     }
 }
 
-void FileDumper::write_frame_(nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
-    int16_t max_val = buf[0];
-
-    for (size_t n = 1; n < bufsz; n++) {
-        if (std::abs(buf[n]) > std::abs(max_val)) {
-            max_val = buf[n];
-        }
-    }
-
-    int new_val = int(max_val / config_.dump_rounding * config_.dump_rounding);
+void FileDumper::write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz) {
+    const int new_val
+        = int(find_max(buf, bufsz) / config_.dump_rounding * config_.dump_rounding);
 
     const bool changed = (new_val != last_val_);
 

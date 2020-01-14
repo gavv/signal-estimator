@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Time.hpp"
+#include "Frame.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -16,8 +16,8 @@ class IEstimator {
 public:
     virtual ~IEstimator() = default;
 
-    virtual void add_output(nanoseconds_t ts, const int16_t* buf, size_t bufsz) = 0;
-    virtual void add_input(nanoseconds_t ts, const int16_t* buf, size_t bufsz) = 0;
+    virtual void add_output(Frame& frame) = 0;
+    virtual void add_input(Frame& frame) = 0;
 };
 
 } // namespace signal_estimator

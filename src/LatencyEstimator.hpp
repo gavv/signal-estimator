@@ -6,7 +6,6 @@
 #pragma once
 
 #include "Config.hpp"
-#include "Direction.hpp"
 #include "IEstimator.hpp"
 #include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
@@ -23,15 +22,15 @@ public:
     LatencyEstimator(const LatencyEstimator&) = delete;
     LatencyEstimator& operator=(const LatencyEstimator&) = delete;
 
-    void add_output(nanoseconds_t ts, const int16_t* buf, size_t bufsz) override;
-    void add_input(nanoseconds_t ts, const int16_t* buf, size_t bufsz) override;
+    void add_output(Frame& frame) override;
+    void add_input(Frame& frame) override;
 
 private:
     class StrikeTrigger {
     public:
         StrikeTrigger(const Config& config);
 
-        void add_signal(Dir direction, nanoseconds_t ts, const int16_t* buf, size_t bufsz);
+        void add_frame(Frame& frame);
 
         bool is_triggered() const;
         double trigger_ts_msec() const;

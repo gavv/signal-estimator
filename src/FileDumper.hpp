@@ -6,8 +6,7 @@
 #pragma once
 
 #include "Config.hpp"
-#include "Direction.hpp"
-#include "Time.hpp"
+#include "Frame.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -25,10 +24,10 @@ public:
     bool open(const char* filename);
     void close();
 
-    void write(Dir direction, nanoseconds_t ts, const int16_t* buf, size_t bufsz);
+    void write(Frame& frame);
 
 private:
-    void write_frame_(nanoseconds_t ts, const int16_t* buf, size_t bufsz);
+    void write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz);
 
     void print_last_maybe_();
 

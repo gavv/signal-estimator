@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Config.hpp"
+#include "Frame.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -25,7 +26,7 @@ public:
     bool open(Config& config, const char *device);
     void close();
 
-    bool read(int16_t* buf, size_t bufsz);
+    bool read(Frame& frame);
 
 private:
     Config config_;

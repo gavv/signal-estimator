@@ -29,8 +29,8 @@ void AlsaWriter::close() {
     }
 }
 
-bool AlsaWriter::write(const int16_t *buf, size_t bufsz) {
-    int err = snd_pcm_writei(pcm_, buf, bufsz / config_.n_channels);
+bool AlsaWriter::write(Frame& frame) {
+    int err = snd_pcm_writei(pcm_, frame.data(), frame.size() / config_.n_channels);
 
     if (err < 0) {
         if ((err = snd_pcm_recover(pcm_, err, 1)) == 0) {
@@ -42,6 +42,9 @@ bool AlsaWriter::write(const int16_t *buf, size_t bufsz) {
         se_log_error("alsa writer: %s", snd_strerror(err));
         return false;
     }
+
+    frame.set_timestamp();
+    frame.set_type(FrameType::Output);
 
     return true;
 }

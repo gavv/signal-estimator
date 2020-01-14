@@ -17,7 +17,6 @@
 #include <cxxopts.hpp>
 
 #include <future>
-#include <vector>
 #include <memory>
 
 using namespace signal_estimator;
@@ -28,23 +27,21 @@ void output_loop(const Config& config, IGenerator& generator, IEstimator* estima
     AlsaWriter& writer, FileDumper* dumper) {
     set_realtime();
 
-    std::vector<int16_t> buf(config.period_size);
+    Frame frame(config);
 
-    for (size_t n = 0; n < config.total_samples() / buf.size(); n++) {
-        generator.generate(&buf[0], buf.size());
+    for (size_t n = 0; n < config.total_samples() / frame.size(); n++) {
+        generator.generate(frame);
 
-        if (!writer.write(&buf[0], buf.size())) {
+        if (!writer.write(frame)) {
             exit(1);
         }
 
-        const auto ts = monotonic_timestamp_ns();
-
         if (estimator) {
-            estimator->add_output(ts, &buf[0], buf.size());
+            estimator->add_output(frame);
         }
 
         if (dumper) {
-            dumper->write(Dir::Playback, ts, &buf[0], buf.size());
+            dumper->write(frame);
         }
     }
 }
@@ -53,21 +50,19 @@ void input_loop(
     const Config& config, IEstimator* estimator, AlsaReader& reader, FileDumper* dumper) {
     set_realtime();
 
-    std::vector<int16_t> buf(config.period_size);
+    Frame frame(config);
 
-    for (size_t n = 0; n < config.total_samples() / buf.size(); n++) {
-        if (!reader.read(&buf[0], buf.size())) {
+    for (size_t n = 0; n < config.total_samples() / frame.size(); n++) {
+        if (!reader.read(frame)) {
             exit(1);
         }
 
-        const auto ts = monotonic_timestamp_ns();
-
         if (estimator) {
-            estimator->add_input(ts, &buf[0], buf.size());
+            estimator->add_input(frame);
         }
 
         if (dumper) {
-            dumper->write(Dir::Recording, ts, &buf[0], buf.size());
+            dumper->write(frame);
         }
     }
 }
@@ -78,11 +73,11 @@ int main(int argc, char** argv) {
     Config config;
 
     cxxopts::Options opts(
-        "signal-estimator", "Measure characteristics of a looped signal");
+        "signal-estimator", "Measure characteristics of a looped back signal");
 
     opts.add_options("General")
         ("h,help", "Print help message and exit")
-        ("m,mode", "Mode: noop|latency|loss",
+        ("m,mode", "Mode: noop|latency|losses",
          cxxopts::value<std::string>()->default_value("latency"))
         ("o,output", "Output device",
          cxxopts::value<std::string>())
@@ -152,7 +147,7 @@ int main(int argc, char** argv) {
 
         mode = res["mode"].as<std::string>();
 
-        if (mode != "noop" && mode != "latency" && mode != "loss") {
+        if (mode != "noop" && mode != "latency" && mode != "losses") {
             se_log_error("unknown --mode value");
             exit(1);
         }
@@ -226,7 +221,7 @@ int main(int argc, char** argv) {
 
     if (mode == "latency") {
         estimator = std::make_unique<LatencyEstimator>(config);
-    } else if (mode == "loss") {
+    } else if (mode == "losses") {
         estimator = std::make_unique<LossEstimator>(config);
     }
 

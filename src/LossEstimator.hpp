@@ -22,10 +22,12 @@ public:
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
 
-    void add_output(nanoseconds_t ts, const int16_t* buf, size_t bufsz) override;
-    void add_input(nanoseconds_t ts, const int16_t* buf, size_t bufsz) override;
+    void add_output(Frame& frame) override;
+    void add_input(Frame& frame) override;
 
 private:
+    void report_losses_();
+
     const Config config_;
 
     GradientCounter gradient_;

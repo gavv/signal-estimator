@@ -17,7 +17,7 @@ public:
     ContinuousGenerator(const ContinuousGenerator&) = delete;
     ContinuousGenerator& operator=(const ContinuousGenerator&) = delete;
 
-    void generate(int16_t* buf, size_t bufsz) override;
+    void generate(Frame& frame) override;
 
 private:
     const Config config_;

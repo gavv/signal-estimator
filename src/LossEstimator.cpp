@@ -17,13 +17,16 @@ LossEstimator::LossEstimator(const Config& config)
     , sma_(config.sma_window) {
 }
 
-void LossEstimator::add_output(nanoseconds_t, const int16_t*, size_t) {
+void LossEstimator::add_output(Frame&) {
     // noop
 }
 
-void LossEstimator::add_input(nanoseconds_t, const int16_t* buf, size_t bufsz) {
-    for (size_t n = 0; n < bufsz; n++) {
-        auto s = double(buf[n]);
+void LossEstimator::add_input(Frame& frame) {
+    auto frame_data = frame.data();
+    auto frame_size = frame.size();
+
+    for (size_t n = 0; n < frame_size; n++) {
+        auto s = double(frame_data[n]);
 
         s = gradient_.add(s);
         s = std::abs(s);
@@ -34,6 +37,10 @@ void LossEstimator::add_input(nanoseconds_t, const int16_t* buf, size_t bufsz) {
         }
     }
 
+    report_losses_();
+}
+
+void LossEstimator::report_losses_() {
     const auto elapsed = limiter_.allow();
 
     if (elapsed > 0) {

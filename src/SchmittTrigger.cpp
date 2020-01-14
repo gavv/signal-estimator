@@ -4,15 +4,15 @@
  */
 
 #include "SchmittTrigger.hpp"
-#include "Time.hpp"
+#include "Frame.hpp"
 
 #include <algorithm>
 
 namespace signal_estimator {
 
 SchmittTrigger::SchmittTrigger(double threshold)
-    : lower_threshold_(32767 * threshold / 2)
-    , upper_threshold_(32767 * threshold) {
+    : lower_threshold_(MaxSample * threshold / 2)
+    , upper_threshold_(MaxSample * threshold) {
 }
 
 bool SchmittTrigger::add(double s) {

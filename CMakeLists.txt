@@ -49,6 +49,7 @@ add_executable(signal-estimator
   src/AlsaWriter.cpp
   src/ContinuousGenerator.cpp
   src/FileDumper.cpp
+  src/Frame.cpp
   src/GradientCounter.cpp
   src/LatencyEstimator.cpp
   src/LossEstimator.cpp
