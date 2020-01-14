@@ -21,10 +21,6 @@ Features:
 
 * Linux / ALSA
 
-## Using as a library
-
-It is also possible to use the code from this tool as a library. There is no API compatibility promise for now, so please use some kind of vendoring.
-
 ## Dependencies
 
 * C++17 compiler

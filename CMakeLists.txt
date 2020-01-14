@@ -7,9 +7,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
@@ -41,12 +38,15 @@ endif()
 
 include_directories(src)
 
-add_library(SignalEstimator STATIC
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
+add_executable(signal-estimator
   src/AlsaReader.cpp
   src/AlsaUtils.cpp
   src/AlsaWriter.cpp
   src/FileDumper.cpp
   src/LatencyEstimator.cpp
+  src/Main.cpp
   src/Realtime.cpp
   src/RunMaxCounter.cpp
   src/SchmittTrigger.cpp
@@ -55,16 +55,9 @@ add_library(SignalEstimator STATIC
   src/Time.cpp
 )
 
-add_executable(signal-estimator
-  src/Main.cpp)
-
-add_dependencies(signal-estimator
-  SignalEstimator)
-
 find_package(Threads)
 
 target_link_libraries(signal-estimator
-  SignalEstimator
   asound
   m
   ${CMAKE_THREAD_LIBS_INIT}
