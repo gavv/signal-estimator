@@ -14,7 +14,7 @@ AlsaReader::~AlsaReader() {
 }
 
 bool AlsaReader::open(Config& config, const char *device) {
-    log_info("opening alsa reader for device %s", device);
+    se_log_info("opening alsa reader for device %s", device);
 
     pcm_ = alsa_open(device, SND_PCM_STREAM_CAPTURE, config);
     config_ = config;
@@ -34,12 +34,12 @@ bool AlsaReader::read(int16_t *buf, size_t bufsz) {
 
     if (err < 0) {
         if ((err = snd_pcm_recover(pcm_, err, 1)) == 0) {
-            log_info("alsa reader: recovered after xrun");
+            se_log_info("alsa reader: recovered after xrun");
         }
     }
 
     if (err < 0) {
-        log_error("alsa reader: %s", snd_strerror(err));
+        se_log_error("alsa reader: %s", snd_strerror(err));
         return false;
     }
 

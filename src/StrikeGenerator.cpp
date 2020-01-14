@@ -3,21 +3,21 @@
  * This code is licensed under the MIT License.
  */
 
-#include "SignalGenerator.hpp"
+#include "StrikeGenerator.hpp"
 
 #include <cstring>
 #include <cmath>
 
 namespace signal_estimator {
 
-SignalGenerator::SignalGenerator(const Config& config)
+StrikeGenerator::StrikeGenerator(const Config& config)
     : config_(config)
     , strike_period_(size_t(config.sample_rate * config.strike_period))
     , strike_length_(size_t(config.sample_rate * config.strike_length))
     , warmup_countdown_(config.n_periods) {
 }
 
-void SignalGenerator::generate(int16_t* buf, size_t bufsz) {
+void StrikeGenerator::generate(int16_t* buf, size_t bufsz) {
     memset(buf, 0, bufsz * sizeof(buf[0]));
 
     if (warmup_countdown_ != 0) {

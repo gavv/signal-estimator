@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Config.hpp"
+#include "Direction.hpp"
 #include "Time.hpp"
 
 #include <cstdint>

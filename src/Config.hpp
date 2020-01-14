@@ -9,11 +9,6 @@
 
 namespace signal_estimator {
 
-enum class Dir {
-    Playback,
-    Recording,
-};
-
 struct Config {
     // interleaved samples (L R L R ...)
     snd_pcm_access_t access { SND_PCM_ACCESS_RW_INTERLEAVED };
@@ -50,6 +45,12 @@ struct Config {
 
     // strike detection threshold
     float strike_threshold { 0.4 };
+
+    // glitch detection window
+    size_t glitch_window { 32 };
+
+    // glitch detection threshold
+    float glitch_threshold { 0.05 };
 
     // latency SMA window
     size_t sma_window { 5 };

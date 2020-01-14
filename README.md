@@ -12,10 +12,14 @@ Features:
 
 - [x] send test signal to output device
 - [x] receive looped back signal from input device
-- [x] dump output and input streams to files
+- [x] dump output and input streams to text files
 - [x] measure signal latency (the shift between output and input signal)
-- [ ] measure signal loss ratio (number of glitches per second in the input signal)
+- [x] measure signal loss ratio (number of glitches per second in the input signal)
 - [ ] measure mean opinion score (MOS)
+
+## Use cases
+
+*TODO*
 
 ## Supported platforms
 
@@ -51,11 +55,7 @@ cmake ..
 make -j4
 ```
 
-## Options
-
-*TODO*
-
-## Dump signal to files
+## Command-line options
 
 *TODO*
 
@@ -68,6 +68,10 @@ make -j4
 *TODO*
 
 ## Measure MOS
+
+*TODO*
+
+## Manually inspect streams
 
 *TODO*
 

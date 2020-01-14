@@ -6,20 +6,18 @@
 #pragma once
 
 #include "Config.hpp"
-
-#include <cstdint>
-#include <cstdlib>
+#include "IGenerator.hpp"
 
 namespace signal_estimator {
 
-class SignalGenerator {
+class StrikeGenerator : public IGenerator {
 public:
-    SignalGenerator(const Config& config);
+    StrikeGenerator(const Config& config);
 
-    SignalGenerator(const SignalGenerator&) = delete;
-    SignalGenerator& operator=(const SignalGenerator&) = delete;
+    StrikeGenerator(const StrikeGenerator&) = delete;
+    StrikeGenerator& operator=(const StrikeGenerator&) = delete;
 
-    void generate(int16_t* buf, size_t bufsz);
+    void generate(int16_t* buf, size_t bufsz) override;
 
 private:
     const Config config_;

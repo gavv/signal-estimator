@@ -5,24 +5,27 @@
 
 #include "AlsaReader.hpp"
 #include "AlsaWriter.hpp"
+#include "ContinuousGenerator.hpp"
 #include "FileDumper.hpp"
 #include "LatencyEstimator.hpp"
+#include "LossEstimator.hpp"
 #include "Log.hpp"
 #include "Realtime.hpp"
-#include "SignalGenerator.hpp"
+#include "StrikeGenerator.hpp"
 #include "Time.hpp"
 
 #include <cxxopts.hpp>
 
 #include <future>
 #include <vector>
+#include <memory>
 
 using namespace signal_estimator;
 
 namespace {
 
-void writer_loop(const Config& config, SignalGenerator& generator,
-    LatencyEstimator& latency_estimator, AlsaWriter& writer, FileDumper& dumper) {
+void output_loop(const Config& config, IGenerator& generator, IEstimator* estimator,
+    AlsaWriter& writer, FileDumper* dumper) {
     set_realtime();
 
     std::vector<int16_t> buf(config.period_size);
@@ -36,14 +39,18 @@ void writer_loop(const Config& config, SignalGenerator& generator,
 
         const auto ts = monotonic_timestamp_ns();
 
-        latency_estimator.add_output(ts, &buf[0], buf.size());
+        if (estimator) {
+            estimator->add_output(ts, &buf[0], buf.size());
+        }
 
-        dumper.write(Dir::Playback, ts, &buf[0], buf.size());
+        if (dumper) {
+            dumper->write(Dir::Playback, ts, &buf[0], buf.size());
+        }
     }
 }
 
-void reader_loop(const Config& config, LatencyEstimator& latency_estimator,
-    AlsaReader& reader, FileDumper& dumper) {
+void input_loop(
+    const Config& config, IEstimator* estimator, AlsaReader& reader, FileDumper* dumper) {
     set_realtime();
 
     std::vector<int16_t> buf(config.period_size);
@@ -55,9 +62,13 @@ void reader_loop(const Config& config, LatencyEstimator& latency_estimator,
 
         const auto ts = monotonic_timestamp_ns();
 
-        latency_estimator.add_input(ts, &buf[0], buf.size());
+        if (estimator) {
+            estimator->add_input(ts, &buf[0], buf.size());
+        }
 
-        dumper.write(Dir::Recording, ts, &buf[0], buf.size());
+        if (dumper) {
+            dumper->write(Dir::Recording, ts, &buf[0], buf.size());
+        }
     }
 }
 
@@ -71,6 +82,8 @@ int main(int argc, char** argv) {
 
     opts.add_options("General")
         ("h,help", "Print help message and exit")
+        ("m,mode", "Mode: noop|latency|loss",
+         cxxopts::value<std::string>()->default_value("latency"))
         ("o,output", "Output device",
          cxxopts::value<std::string>())
         ("i,input", "Input device",
@@ -103,6 +116,13 @@ int main(int argc, char** argv) {
          cxxopts::value<float>()->default_value(std::to_string(config.strike_threshold)))
         ;
 
+    opts.add_options("Loss ratio estimation")
+        ("glitch-window", "Glitch detection running maximum window, in samples",
+         cxxopts::value<size_t>()->default_value(std::to_string(config.glitch_window)))
+        ("glitch-threshold", "Glitch detection threshold, from 0 to 1",
+         cxxopts::value<float>()->default_value(std::to_string(config.glitch_threshold)))
+        ;
+
     opts.add_options("File dumping")
         ("O,dump-output", "File to dump output stream",
          cxxopts::value<std::string>())
@@ -114,7 +134,7 @@ int main(int argc, char** argv) {
          cxxopts::value<size_t>()->default_value(std::to_string(config.dump_rounding)))
         ;
 
-    std::string input, output, input_dump, output_dump;
+    std::string mode, input_dev, output_dev, input_dump, output_dump;
 
     try {
         auto res = opts.parse(argc, argv);
@@ -124,23 +144,31 @@ int main(int argc, char** argv) {
                     "General",
                     "Reporting",
                     "Latency estimation",
+                    "Loss ratio estimation",
                     "File dumping",
                 }) << std::endl;
             exit(0);
         }
 
+        mode = res["mode"].as<std::string>();
+
+        if (mode != "noop" && mode != "latency" && mode != "loss") {
+            se_log_error("unknown --mode value");
+            exit(1);
+        }
+
         if (!res.count("output")) {
-            log_error("missing --output device");
+            se_log_error("missing --output device");
             exit(1);
         }
 
         if (!res.count("input")) {
-            log_error("missing --output device");
+            se_log_error("missing --output device");
             exit(1);
         }
 
-        output = res["output"].as<std::string>();
-        input = res["input"].as<std::string>();
+        output_dev = res["output"].as<std::string>();
+        input_dev = res["input"].as<std::string>();
 
         config.sample_rate = res["rate"].as<unsigned int>();
         config.n_channels = res["chans"].as<unsigned int>();
@@ -155,6 +183,9 @@ int main(int argc, char** argv) {
         config.strike_window = res["strike-window"].as<size_t>();
         config.strike_threshold = res["strike-threshold"].as<float>();
 
+        config.glitch_window = res["glitch-window"].as<size_t>();
+        config.glitch_threshold = res["glitch-threshold"].as<float>();
+
         config.dump_frame = res["dump-frame"].as<size_t>();
         config.dump_rounding = res["dump-rounding"].as<size_t>();
 
@@ -167,49 +198,65 @@ int main(int argc, char** argv) {
         }
     }
     catch (std::exception& exc) {
-        log_error("%s", exc.what());
+        se_log_error("%s", exc.what());
         exit(1);
     }
 
-    AlsaWriter writer;
+    AlsaWriter output_writer;
 
-    if (!writer.open(config, output.c_str())) {
+    if (!output_writer.open(config, output_dev.c_str())) {
         exit(1);
     }
 
-    AlsaReader reader;
+    AlsaReader input_reader;
 
-    if (!reader.open(config, input.c_str())) {
+    if (!input_reader.open(config, input_dev.c_str())) {
         exit(1);
     }
 
-    LatencyEstimator latency_estimator(config);
+    std::unique_ptr<IGenerator> generator;
 
-    FileDumper writer_file(config);
+    if (mode == "noop" || mode == "latency") {
+        generator = std::make_unique<StrikeGenerator>(config);
+    } else {
+        generator = std::make_unique<ContinuousGenerator>(config);
+    }
+
+    std::unique_ptr<IEstimator> estimator;
+
+    if (mode == "latency") {
+        estimator = std::make_unique<LatencyEstimator>(config);
+    } else if (mode == "loss") {
+        estimator = std::make_unique<LossEstimator>(config);
+    }
+
+    std::unique_ptr<FileDumper> output_dumper;
 
     if (!output_dump.empty()) {
-        if (!writer_file.open(output_dump.c_str())) {
+        output_dumper = std::make_unique<FileDumper>(config);
+
+        if (!output_dumper->open(output_dump.c_str())) {
             exit(1);
         }
     }
 
-    FileDumper reader_file(config);
+    std::unique_ptr<FileDumper> input_dumper;
 
     if (!input_dump.empty()) {
-        if (!reader_file.open(input_dump.c_str())) {
+        input_dumper = std::make_unique<FileDumper>(config);
+
+        if (!input_dumper->open(input_dump.c_str())) {
             exit(1);
         }
     }
 
-    SignalGenerator generator(config);
-
-    auto reader_thread = std::async(std::launch::async, [&]() {
-        reader_loop(config, latency_estimator, reader, reader_file);
+    auto input_thread = std::async(std::launch::async, [&]() {
+        input_loop(config, estimator.get(), input_reader, input_dumper.get());
     });
 
-    writer_loop(config, generator, latency_estimator, writer, writer_file);
+    output_loop(config, *generator, estimator.get(), output_writer, output_dumper.get());
 
-    reader_thread.wait();
+    input_thread.wait();
 
     return 0;
 }

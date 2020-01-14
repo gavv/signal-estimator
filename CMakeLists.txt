@@ -47,14 +47,18 @@ add_executable(signal-estimator
   src/AlsaReader.cpp
   src/AlsaUtils.cpp
   src/AlsaWriter.cpp
+  src/ContinuousGenerator.cpp
   src/FileDumper.cpp
+  src/GradientCounter.cpp
   src/LatencyEstimator.cpp
+  src/LossEstimator.cpp
   src/Main.cpp
+  src/RateLimiter.cpp
   src/Realtime.cpp
   src/RunMaxCounter.cpp
   src/SchmittTrigger.cpp
-  src/SignalGenerator.cpp
   src/SmaCounter.cpp
+  src/StrikeGenerator.cpp
   src/Time.cpp
 )
 

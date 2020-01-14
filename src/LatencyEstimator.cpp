@@ -9,15 +9,43 @@
 
 namespace signal_estimator {
 
+LatencyEstimator::StrikeTrigger::StrikeTrigger(const Config& config)
+    : config_(config)
+    , runmax_(config.strike_window)
+    , schmitt_(config.strike_threshold) {
+}
+
+void LatencyEstimator::StrikeTrigger::add_signal(
+    Dir dir, nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
+    for (size_t n = 0; n < bufsz; n++) {
+        auto s = double(buf[n]);
+
+        s = std::abs(s);
+        s = runmax_.add(s);
+
+        if (schmitt_.add(s)) {
+            trigger_ts_msec_ = double(ts + sample_offset(config_, dir, n)) / 1000000.0;
+        }
+    }
+}
+
+bool LatencyEstimator::StrikeTrigger::is_triggered() const {
+    return schmitt_.is_triggered();
+}
+
+double LatencyEstimator::StrikeTrigger::trigger_ts_msec() const {
+    return trigger_ts_msec_;
+}
+
 LatencyEstimator::LatencyEstimator(const Config& config)
     : config_(config)
-    , output_trigger_(config)
-    , input_trigger_(config)
+    , output_trigger_(config_)
+    , input_trigger_(config_)
     , sma_(config.sma_window) {
 }
 
 void LatencyEstimator::add_output(nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
-    output_trigger_.add_signal(ts, Dir::Playback, buf, bufsz);
+    output_trigger_.add_signal(Dir::Playback, ts, buf, bufsz);
 
     Report report;
 
@@ -27,7 +55,7 @@ void LatencyEstimator::add_output(nanoseconds_t ts, const int16_t* buf, size_t b
 }
 
 void LatencyEstimator::add_input(nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
-    input_trigger_.add_signal(ts, Dir::Recording, buf, bufsz);
+    input_trigger_.add_signal(Dir::Recording, ts, buf, bufsz);
 
     Report report;
 
@@ -90,7 +118,7 @@ bool LatencyEstimator::check_triggers_(Report& report) {
 }
 
 void LatencyEstimator::print_report_(const Report& report) {
-    log_info("latency:  cur %7.3fms  avg%d %7.3fms", report.latency_msec,
+    se_log_info("latency:  cur %7.3fms  avg%d %7.3fms", report.latency_msec,
         (int)config_.sma_window, report.avg_latency_msec);
 }
 

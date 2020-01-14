@@ -6,27 +6,43 @@
 #pragma once
 
 #include "Config.hpp"
+#include "Direction.hpp"
+#include "IEstimator.hpp"
+#include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
 #include "SmaCounter.hpp"
-#include "Time.hpp"
 
-#include <cstdint>
-#include <cstdlib>
 #include <mutex>
 
 namespace signal_estimator {
 
-class LatencyEstimator {
+class LatencyEstimator : public IEstimator {
 public:
     LatencyEstimator(const Config& config);
 
     LatencyEstimator(const LatencyEstimator&) = delete;
     LatencyEstimator& operator=(const LatencyEstimator&) = delete;
 
-    void add_output(nanoseconds_t ts, const int16_t* buf, size_t bufsz);
-    void add_input(nanoseconds_t ts, const int16_t* buf, size_t bufsz);
+    void add_output(nanoseconds_t ts, const int16_t* buf, size_t bufsz) override;
+    void add_input(nanoseconds_t ts, const int16_t* buf, size_t bufsz) override;
 
 private:
+    class StrikeTrigger {
+    public:
+        StrikeTrigger(const Config& config);
+
+        void add_signal(Dir direction, nanoseconds_t ts, const int16_t* buf, size_t bufsz);
+
+        bool is_triggered() const;
+        double trigger_ts_msec() const;
+
+    private:
+        const Config& config_;
+        RunMaxCounter runmax_;
+        SchmittTrigger schmitt_;
+        double trigger_ts_msec_ {};
+    };
+
     struct Report {
         double latency_msec {};
         double avg_latency_msec {};
@@ -41,10 +57,10 @@ private:
     const Config config_;
 
     // accessed only by output thread
-    SchmittTrigger output_trigger_;
+    StrikeTrigger output_trigger_;
 
     // accessed only by input thread
-    SchmittTrigger input_trigger_;
+    StrikeTrigger input_trigger_;
 
     // all fields below are accessed by both threads and are guarded by mutex
     bool output_triggered_ {};

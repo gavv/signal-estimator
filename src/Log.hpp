@@ -7,8 +7,8 @@
 
 #include <cstdio>
 
-#define log_error(fmt, ...)                                                              \
+#define se_log_error(fmt, ...)                                                              \
     fprintf(stderr, "error: " fmt "\n", ##__VA_ARGS__)
 
-#define log_info(fmt, ...)                                                               \
+#define se_log_info(fmt, ...)                                                               \
     fprintf(stderr, fmt "\n", ##__VA_ARGS__)

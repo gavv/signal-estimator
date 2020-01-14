@@ -26,7 +26,7 @@ bool FileDumper::open(const char* filename) {
     fp_ = fopen(filename, "w");
 
     if (!fp_) {
-        log_error("can't open output file %s: %s", filename, strerror(errno));
+        se_log_error("can't open output file %s: %s", filename, strerror(errno));
         return false;
     }
 
