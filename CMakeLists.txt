@@ -36,7 +36,10 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
      -Wno-switch-enum")
 endif()
 
-include_directories(src)
+include_directories(
+  3rdparty/cxxopts/include
+  src
+)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 

@@ -36,26 +36,29 @@ struct Config {
     // number of samples per period
     size_t period_size { 0 };
 
+    // test duration
+    float duration { 10 };
+
     // interval between strikes in seconds
     float strike_period { 1 };
 
     // strike length in seconds
     float strike_length { 0.1 };
 
-    // test duration
-    float duration { 10 };
+    // running maximum window for strike detection
+    size_t strike_window { 96 };
 
-    // beep detection threshold
-    float threshold { 0.4 };
+    // strike detection threshold
+    float strike_threshold { 0.4 };
 
     // latency SMA window
     size_t sma_window { 5 };
 
-    // running maximum window for striek detection
-    size_t runmax_window { 96 };
-
     // file dumper frame
     size_t dump_frame { 64 };
+
+    // file dumper rounding
+    size_t dump_rounding { 10 };
 
     // get test duration in samples
     size_t total_samples() const {

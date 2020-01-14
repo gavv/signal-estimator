@@ -12,9 +12,9 @@ namespace signal_estimator {
 
 SchmittTrigger::SchmittTrigger(const Config& config)
     : config_(config)
-    , lower_threshold_(32767 * config.threshold / 2)
-    , upper_threshold_(32767 * config.threshold)
-    , runmax_(config.runmax_window) {
+    , lower_threshold_(32767 * config.strike_threshold / 2)
+    , upper_threshold_(32767 * config.strike_threshold)
+    , runmax_(config.strike_window) {
 }
 
 void SchmittTrigger::add_signal(

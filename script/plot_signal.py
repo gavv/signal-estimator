@@ -1,5 +1,6 @@
 #!env python3
 import pylab
+import sys
 import os
 
 fig = pylab.figure()
@@ -15,8 +16,8 @@ def load(filename):
             arr_y.append(abs(y))
     return arr_x, arr_y
 
-wr_x, wr_y = load('writer.txt')
-rd_x, rd_y = load('reader.txt')
+wr_x, wr_y = load(sys.argv[1])
+rd_x, rd_y = load(sys.argv[2])
 
 pylab.plot(wr_x, wr_y, '-o', label='writer')
 pylab.plot(rd_x, rd_y, '-o', label='reader')

@@ -68,7 +68,7 @@ void FileDumper::write_frame_(nanoseconds_t ts, const int16_t* buf, size_t bufsz
         }
     }
 
-    int new_val = int(max_val / 10 * 10);
+    int new_val = int(max_val / config_.dump_rounding * config_.dump_rounding);
 
     const bool changed = (new_val != last_val_);
 
