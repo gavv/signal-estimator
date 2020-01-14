@@ -26,7 +26,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     unsigned int latency_us) {
     int err = 0;
 
-    snd_pcm_hw_params_t *hw_params = NULL;
+    snd_pcm_hw_params_t *hw_params = nullptr;
     snd_pcm_hw_params_alloca(&hw_params);
 
     // initialize hw_params
@@ -84,7 +84,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // set period size in samples
     // ALSA reads 'period_size' samples from circular buffer every period
     *period_size = suggested_buffer_size / n_periods;
-    if ((err = snd_pcm_hw_params_set_period_size_near(pcm, hw_params, period_size, NULL))
+    if ((err = snd_pcm_hw_params_set_period_size_near(pcm, hw_params, period_size, nullptr))
         < 0) {
         log_error("can't set hw params: snd_pcm_hw_params_set_period_size_near(): %s",
             snd_strerror(err));
@@ -93,7 +93,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
 
     // get period time
     unsigned int period_time = 0;
-    if ((err = snd_pcm_hw_params_get_period_time(hw_params, &period_time, NULL)) < 0) {
+    if ((err = snd_pcm_hw_params_get_period_time(hw_params, &period_time, nullptr)) < 0) {
         log_error("can't set hw params: snd_pcm_hw_params_get_period_time(): %s",
             snd_strerror(err));
         return false;
@@ -110,7 +110,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // get buffer time, i.e. total duration of circular buffer in microseconds,
     // calculated from 'sample_rate' and 'buffer_size'
     unsigned int buffer_time = 0;
-    if ((err = snd_pcm_hw_params_get_buffer_time(hw_params, &buffer_time, NULL)) < 0) {
+    if ((err = snd_pcm_hw_params_get_buffer_time(hw_params, &buffer_time, nullptr)) < 0) {
         log_error("can't set hw params: snd_pcm_hw_params_get_buffer_time(): %s",
             snd_strerror(err));
         return false;
@@ -136,7 +136,7 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
     snd_pcm_uframes_t period_size, snd_pcm_uframes_t buffer_size) {
     int err = 0;
 
-    snd_pcm_sw_params_t *sw_params = NULL;
+    snd_pcm_sw_params_t *sw_params = nullptr;
     snd_pcm_sw_params_alloca(&sw_params);
 
     // initialize sw_params
@@ -176,8 +176,7 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
 
 } // namespace
 
-snd_pcm_t* alsa_open(
-    const char* device, snd_pcm_stream_t mode, const Config& config, size_t* period) {
+snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) {
     snd_pcm_t* pcm = nullptr;
 
     int err = 0;
@@ -197,9 +196,7 @@ snd_pcm_t* alsa_open(
         goto error;
     }
 
-    if (period) {
-        *period = size_t(period_size * config.n_channels);
-    }
+    config.period_size = size_t(period_size * config.n_channels);
 
     return pcm;
 

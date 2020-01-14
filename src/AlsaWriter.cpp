@@ -9,18 +9,16 @@
 
 namespace signal_estimator {
 
-AlsaWriter::AlsaWriter(const Config& config)
-    : config_(config) {
-}
-
 AlsaWriter::~AlsaWriter() {
     close();
 }
 
-bool AlsaWriter::open(const char *device) {
+bool AlsaWriter::open(Config& config, const char *device) {
     log_info("opening alsa writer for device %s", device);
 
-    pcm_ = alsa_open(device, SND_PCM_STREAM_PLAYBACK, config_, &period_size_);
+    pcm_ = alsa_open(device, SND_PCM_STREAM_PLAYBACK, config);
+    config_ = config;
+
     return pcm_;
 }
 

@@ -16,23 +16,20 @@ namespace signal_estimator {
 
 class AlsaReader {
 public:
-    AlsaReader(const Config& config);
+    AlsaReader() = default;
     ~AlsaReader();
 
     AlsaReader(const AlsaReader&) = delete;
     AlsaReader& operator=(const AlsaReader&) = delete;
 
-    size_t period_size() const { return period_size_; }
-
-    bool open(const char *device);
+    bool open(Config& config, const char *device);
     void close();
 
     bool read(int16_t* buf, size_t bufsz);
 
 private:
-    const Config config_;
+    Config config_;
     snd_pcm_t* pcm_ {};
-    size_t period_size_ {};
 };
 
 } // namespace signal_estimator

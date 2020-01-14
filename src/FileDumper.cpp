@@ -3,7 +3,7 @@
  * This code is licensed under the MIT License.
  */
 
-#include "FileWriter.hpp"
+#include "FileDumper.hpp"
 #include "Log.hpp"
 #include "Time.hpp"
 
@@ -14,11 +14,15 @@
 
 namespace signal_estimator {
 
-FileWriter::~FileWriter() {
+FileDumper::FileDumper(const Config& config)
+    : config_(config) {
+}
+
+FileDumper::~FileDumper() {
     close();
 }
 
-bool FileWriter::open(const char* filename) {
+bool FileDumper::open(const char* filename) {
     fp_ = fopen(filename, "w");
 
     if (!fp_) {
@@ -29,20 +33,33 @@ bool FileWriter::open(const char* filename) {
     return true;
 }
 
-void FileWriter::close() {
+void FileDumper::close() {
     if (fp_) {
         fclose(fp_);
         fp_ = nullptr;
     }
 }
 
-void FileWriter::write(const int16_t* buf, size_t bufsz) {
-    if (!fp_ || bufsz == 0) {
+void FileDumper::write(Dir dir, nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
+    if (!fp_) {
         return;
     }
 
-    const auto new_ts = monotonic_timestamp();
+    size_t off = 0;
 
+    while (off < bufsz) {
+        const nanoseconds_t frame_ts = ts + sample_offset(config_, dir, off);
+
+        const auto frame_data = buf + off;
+        const auto frame_sz = std::min(config_.dump_frame, bufsz - off);
+
+        write_frame_(frame_ts, frame_data, frame_sz);
+
+        off += frame_sz;
+    }
+}
+
+void FileDumper::write_frame_(nanoseconds_t ts, const int16_t* buf, size_t bufsz) {
     int16_t max_val = buf[0];
 
     for (size_t n = 1; n < bufsz; n++) {
@@ -59,7 +76,7 @@ void FileWriter::write(const int16_t* buf, size_t bufsz) {
         print_last_maybe_();
     }
 
-    last_ts_ = new_ts;
+    last_ts_ = ts;
     last_val_ = new_val;
 
     if (changed) {
@@ -67,7 +84,7 @@ void FileWriter::write(const int16_t* buf, size_t bufsz) {
     }
 }
 
-void FileWriter::print_last_maybe_() {
+void FileDumper::print_last_maybe_() {
     if (last_ts_ == 0) {
         return;
     }

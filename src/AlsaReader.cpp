@@ -9,18 +9,16 @@
 
 namespace signal_estimator {
 
-AlsaReader::AlsaReader(const Config& config)
-    : config_(config) {
-}
-
 AlsaReader::~AlsaReader() {
     close();
 }
 
-bool AlsaReader::open(const char *device) {
+bool AlsaReader::open(Config& config, const char *device) {
     log_info("opening alsa reader for device %s", device);
 
-    pcm_ = alsa_open(device, SND_PCM_STREAM_CAPTURE, config_, &period_size_);
+    pcm_ = alsa_open(device, SND_PCM_STREAM_CAPTURE, config);
+    config_ = config;
+
     return pcm_;
 }
 

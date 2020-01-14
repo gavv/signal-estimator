@@ -10,11 +10,12 @@
 
 Features:
 
-- [x] send signal to output device (short periodical beep)
-- [x] receive signal from input device
+- [x] send test signal to output device
+- [x] receive looped back signal from input device
 - [x] dump output and input streams to files
-- [ ] measure signal latency (the shift of the beep between output and input)
-- [ ] measure signal quality (percent of losses)
+- [x] measure signal latency (the shift between output and input signal)
+- [ ] measure signal loss ratio (number of glitches per second in the input signal)
+- [ ] measure mean opinion score (MOS)
 
 ## Supported platforms
 
@@ -58,11 +59,19 @@ make -j4
 
 *TODO*
 
-## Operation
+## Dump signal to files
 
 *TODO*
 
-## Examples
+## Measure latency
+
+*TODO*
+
+## Measure loss ratio
+
+*TODO*
+
+## Measure MOS
 
 *TODO*
 

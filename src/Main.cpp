@@ -5,10 +5,12 @@
 
 #include "AlsaReader.hpp"
 #include "AlsaWriter.hpp"
-#include "FileWriter.hpp"
+#include "FileDumper.hpp"
+#include "LatencyEstimator.hpp"
 #include "Log.hpp"
 #include "Realtime.hpp"
 #include "SignalGenerator.hpp"
+#include "Time.hpp"
 
 #include <future>
 #include <vector>
@@ -17,11 +19,11 @@ using namespace signal_estimator;
 
 namespace {
 
-void writer_loop(const Config& config, SignalGenerator& generator, AlsaWriter& writer,
-    FileWriter& file) {
+void writer_loop(const Config& config, SignalGenerator& generator,
+    LatencyEstimator& latency_estimator, AlsaWriter& writer, FileDumper& dumper) {
     set_realtime();
 
-    std::vector<int16_t> buf(writer.period_size());
+    std::vector<int16_t> buf(config.period_size);
 
     for (size_t n = 0; n < config.total_samples() / buf.size(); n++) {
         generator.generate(&buf[0], buf.size());
@@ -30,21 +32,30 @@ void writer_loop(const Config& config, SignalGenerator& generator, AlsaWriter& w
             exit(1);
         }
 
-        file.write(&buf[0], buf.size());
+        const auto ts = monotonic_timestamp_ns();
+
+        latency_estimator.add_output(ts, &buf[0], buf.size());
+
+        dumper.write(Dir::Playback, ts, &buf[0], buf.size());
     }
 }
 
-void reader_loop(const Config& config, AlsaReader& reader, FileWriter& file) {
+void reader_loop(const Config& config, LatencyEstimator& latency_estimator,
+    AlsaReader& reader, FileDumper& dumper) {
     set_realtime();
 
-    std::vector<int16_t> buf(reader.period_size());
+    std::vector<int16_t> buf(config.period_size);
 
     for (size_t n = 0; n < config.total_samples() / buf.size(); n++) {
         if (!reader.read(&buf[0], buf.size())) {
             exit(1);
         }
 
-        file.write(&buf[0], buf.size());
+        const auto ts = monotonic_timestamp_ns();
+
+        latency_estimator.add_input(ts, &buf[0], buf.size());
+
+        dumper.write(Dir::Recording, ts, &buf[0], buf.size());
     }
 }
 
@@ -58,25 +69,27 @@ int main(int argc, char** argv) {
 
     Config config;
 
-    AlsaWriter writer(config);
+    AlsaWriter writer;
 
-    if (!writer.open(argv[1])) {
+    if (!writer.open(config, argv[1])) {
         exit(1);
     }
 
-    AlsaReader reader(config);
+    AlsaReader reader;
 
-    if (!reader.open(argv[2])) {
+    if (!reader.open(config, argv[2])) {
         exit(1);
     }
 
-    FileWriter writer_file;
+    LatencyEstimator latency_estimator(config);
+
+    FileDumper writer_file(config);
 
     if (!writer_file.open("writer.txt")) {
         exit(1);
     }
 
-    FileWriter reader_file;
+    FileDumper reader_file(config);
 
     if (!reader_file.open("reader.txt")) {
         exit(1);
@@ -85,10 +98,10 @@ int main(int argc, char** argv) {
     SignalGenerator generator(config);
 
     auto reader_thread = std::async(std::launch::async, [&]() {
-        reader_loop(config, reader, reader_file);
+        reader_loop(config, latency_estimator, reader, reader_file);
     });
 
-    writer_loop(config, generator, writer, writer_file);
+    writer_loop(config, generator, latency_estimator, writer, writer_file);
 
     reader_thread.wait();
 

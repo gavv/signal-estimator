@@ -9,6 +9,11 @@
 
 namespace signal_estimator {
 
+enum class Dir {
+    Playback,
+    Recording,
+};
+
 struct Config {
     // interleaved samples (L R L R ...)
     snd_pcm_access_t access { SND_PCM_ACCESS_RW_INTERLEAVED };
@@ -26,16 +31,31 @@ struct Config {
     unsigned int n_periods { 2 };
 
     // desired alsa latency in microseconds
-    unsigned int latency_us { 10000 };
+    unsigned int latency_us { 8000 };
+
+    // number of samples per period
+    size_t period_size { 0 };
 
     // interval between strikes in seconds
-    float strike_period { 2 };
+    float strike_period { 1 };
 
     // strike length in seconds
     float strike_length { 0.1 };
 
     // test duration
-    float duration { 5 };
+    float duration { 10 };
+
+    // beep detection threshold
+    float threshold { 0.4 };
+
+    // latency SMA window
+    size_t sma_window { 5 };
+
+    // running maximum window for striek detection
+    size_t runmax_window { 96 };
+
+    // file dumper frame
+    size_t dump_frame { 64 };
 
     // get test duration in samples
     size_t total_samples() const {

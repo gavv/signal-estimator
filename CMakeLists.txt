@@ -45,9 +45,13 @@ add_library(SignalEstimator STATIC
   src/AlsaReader.cpp
   src/AlsaUtils.cpp
   src/AlsaWriter.cpp
-  src/FileWriter.cpp
+  src/FileDumper.cpp
+  src/LatencyEstimator.cpp
   src/Realtime.cpp
+  src/RunMaxCounter.cpp
+  src/SchmittTrigger.cpp
   src/SignalGenerator.cpp
+  src/SmaCounter.cpp
   src/Time.cpp
 )
 

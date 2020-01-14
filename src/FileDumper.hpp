@@ -6,27 +6,32 @@
 #pragma once
 
 #include "Config.hpp"
+#include "Time.hpp"
 
 #include <cstdint>
 #include <cstdlib>
 
 namespace signal_estimator {
 
-class FileWriter {
+class FileDumper {
 public:
-    FileWriter() = default;
-    ~FileWriter();
+    FileDumper(const Config& config);
+    ~FileDumper();
 
-    FileWriter(const FileWriter&) = delete;
-    FileWriter& operator=(const FileWriter&) = delete;
+    FileDumper(const FileDumper&) = delete;
+    FileDumper& operator=(const FileDumper&) = delete;
 
     bool open(const char* filename);
     void close();
 
-    void write(const int16_t* buf, size_t bufsz);
+    void write(Dir direction, nanoseconds_t ts, const int16_t* buf, size_t bufsz);
 
 private:
+    void write_frame_(nanoseconds_t ts, const int16_t* buf, size_t bufsz);
+
     void print_last_maybe_();
+
+    const Config config_;
 
     FILE* fp_ {};
 

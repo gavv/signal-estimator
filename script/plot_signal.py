@@ -1,5 +1,9 @@
 #!env python3
 import pylab
+import os
+
+fig = pylab.figure()
+fig.canvas.mpl_connect('close_event', lambda ev: os._exit(0))
 
 def load(filename):
     arr_x = []

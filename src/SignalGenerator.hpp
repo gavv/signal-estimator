@@ -27,8 +27,10 @@ private:
     const size_t strike_period_;
     const size_t strike_length_;
 
-    size_t countdown_ {};
-    size_t pos_ {};
+    size_t warmup_countdown_ {};
+
+    size_t strike_countdown_ {};
+    size_t strike_pos_ {};
 };
 
 } // namespace signal_estimator
