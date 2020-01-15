@@ -93,6 +93,8 @@ int main(int argc, char** argv) {
          cxxopts::value<unsigned int>()->default_value(std::to_string(config.latency_us)))
         ("d,duration", "Test duration, seconds",
          cxxopts::value<float>()->default_value(std::to_string(config.duration)))
+        ("v,volume", "Test signal volume, from 0 to 1",
+         cxxopts::value<float>()->default_value(std::to_string(config.volume)))
         ;
 
     opts.add_options("Reporting")
@@ -170,6 +172,7 @@ int main(int argc, char** argv) {
         config.n_periods = res["periods"].as<unsigned int>();
         config.latency_us = res["latency"].as<unsigned int>();
         config.duration = res["duration"].as<float>();
+        config.volume = res["volume"].as<float>();
 
         config.sma_window = res["sma"].as<size_t>();
 

@@ -52,7 +52,7 @@ void StrikeGenerator::generate(Frame& frame) {
             }
 
             for (size_t cn = 0; cn < config_.n_channels; cn++) {
-                *frame_data = sample_t(MaxSample * 0.5
+                *frame_data = sample_t(MaxSample * config_.volume
                     * std::sin(2 * M_PI / config_.sample_rate * 880 * strike_pos_));
                 frame_data++;
                 frame_size--;

@@ -93,6 +93,7 @@ Usage:
   -p, --periods arg   Number of periods in buffer (default: 2)
   -l, --latency arg   Input or output latency, us (default: 8000)
   -d, --duration arg  Test duration, seconds (default: 10.000000)
+  -v, --volume arg    Test signal volume, from 0 to 1 (default: 0.500000)
 
  Reporting options:
       --sma arg  Simple moving average window in reports (default: 5)

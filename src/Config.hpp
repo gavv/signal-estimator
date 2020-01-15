@@ -34,6 +34,9 @@ struct Config {
     // test duration
     float duration { 10 };
 
+    // test signal volume
+    float volume { 0.5 };
+
     // interval between strikes in seconds
     float strike_period { 1 };
 
