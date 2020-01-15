@@ -22,6 +22,9 @@ struct Config {
     // stereo (L and R)
     unsigned int n_channels { 2 };
 
+    // test signal volume
+    float volume { 0.5 };
+
     // periods (bursts) per buffer
     unsigned int n_periods { 2 };
 
@@ -34,9 +37,6 @@ struct Config {
     // test duration
     float duration { 10 };
 
-    // test signal volume
-    float volume { 0.5 };
-
     // interval between strikes in seconds
     float strike_period { 1 };
 
@@ -44,16 +44,22 @@ struct Config {
     float strike_length { 0.1 };
 
     // running maximum window for strike detection
-    size_t strike_window { 96 };
+    size_t strike_detection_window { 96 };
 
     // strike detection threshold
-    float strike_threshold { 0.4 };
+    float strike_detection_threshold { 0.4 };
+
+    // running maximum window for signal detection
+    size_t signal_detection_window { 48 };
+
+    // signal detection threshold
+    float signal_detection_threshold { 0.15 };
 
     // glitch detection window
-    size_t glitch_window { 32 };
+    size_t glitch_detection_window { 32 };
 
     // glitch detection threshold
-    float glitch_threshold { 0.05 };
+    float glitch_detection_threshold { 0.05 };
 
     // latency SMA window
     size_t sma_window { 5 };

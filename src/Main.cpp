@@ -79,22 +79,22 @@ int main(int argc, char** argv) {
         ("h,help", "Print help message and exit")
         ("m,mode", "Mode: noop|latency|losses",
          cxxopts::value<std::string>()->default_value("latency"))
-        ("o,output", "Output device",
+        ("o,output", "Output device name, required",
          cxxopts::value<std::string>())
-        ("i,input", "Input device",
+        ("i,input", "Input device name, required",
          cxxopts::value<std::string>())
         ("r,rate", "Sample rate",
          cxxopts::value<unsigned int>()->default_value(std::to_string(config.sample_rate)))
         ("c,chans", "Number of channels",
          cxxopts::value<unsigned int>()->default_value(std::to_string(config.n_channels)))
-        ("p,periods", "Number of periods in buffer",
-         cxxopts::value<unsigned int>()->default_value(std::to_string(config.n_periods)))
-        ("l,latency", "Input or output latency, us",
-         cxxopts::value<unsigned int>()->default_value(std::to_string(config.latency_us)))
-        ("d,duration", "Test duration, seconds",
-         cxxopts::value<float>()->default_value(std::to_string(config.duration)))
-        ("v,volume", "Test signal volume, from 0 to 1",
+        ("v,volume", "Signal volume, from 0 to 1",
          cxxopts::value<float>()->default_value(std::to_string(config.volume)))
+        ("p,periods", "Number of periods in ring buffer",
+         cxxopts::value<unsigned int>()->default_value(std::to_string(config.n_periods)))
+        ("l,latency", "Ring buffer size, microseconds",
+         cxxopts::value<unsigned int>()->default_value(std::to_string(config.latency_us)))
+        ("d,duration", "Measurement duration, seconds",
+         cxxopts::value<float>()->default_value(std::to_string(config.duration)))
         ;
 
     opts.add_options("Reporting")
@@ -107,27 +107,31 @@ int main(int argc, char** argv) {
          cxxopts::value<float>()->default_value(std::to_string(config.strike_period)))
         ("strike-length", "Strike length, seconds",
          cxxopts::value<float>()->default_value(std::to_string(config.strike_length)))
-        ("strike-window", "Strike detection running maximum window, in samples",
-         cxxopts::value<size_t>()->default_value(std::to_string(config.strike_window)))
-        ("strike-threshold", "Strike detection threshold, from 0 to 1",
-         cxxopts::value<float>()->default_value(std::to_string(config.strike_threshold)))
+        ("strike-detection-window", "Strike detection running maximum window, in samples",
+         cxxopts::value<size_t>()->default_value(std::to_string(config.strike_detection_window)))
+        ("strike-detection-threshold", "Strike detection threshold, from 0 to 1",
+         cxxopts::value<float>()->default_value(std::to_string(config.strike_detection_threshold)))
         ;
 
     opts.add_options("Loss ratio estimation")
-        ("glitch-window", "Glitch detection running maximum window, in samples",
-         cxxopts::value<size_t>()->default_value(std::to_string(config.glitch_window)))
-        ("glitch-threshold", "Glitch detection threshold, from 0 to 1",
-         cxxopts::value<float>()->default_value(std::to_string(config.glitch_threshold)))
+        ("signal-detection-window", "Signal detection running maximum window, in samples",
+         cxxopts::value<size_t>()->default_value(std::to_string(config.signal_detection_window)))
+        ("signal-detection-threshold", "Signal detection threshold, from 0 to 1",
+         cxxopts::value<float>()->default_value(std::to_string(config.signal_detection_threshold)))
+        ("glitch-detection-window", "Glitch detection running maximum window, in samples",
+         cxxopts::value<size_t>()->default_value(std::to_string(config.glitch_detection_window)))
+        ("glitch-detection-threshold", "Glitch detection threshold, from 0 to 1",
+         cxxopts::value<float>()->default_value(std::to_string(config.glitch_detection_threshold)))
         ;
 
     opts.add_options("File dumping")
-        ("O,dump-output", "File to dump output stream",
+        ("dump-output", "File to dump output stream",
          cxxopts::value<std::string>())
-        ("I,dump-input", "File to dump input stream",
+        ("dump-input", "File to dump input stream",
          cxxopts::value<std::string>())
-        ("dump-frame", "Frame size",
+        ("dump-frame", "Dump only one maximum value per frame",
          cxxopts::value<size_t>()->default_value(std::to_string(config.dump_frame)))
-        ("dump-rounding", "Rounding",
+        ("dump-rounding", "Round values before dumping and don't dump duplicates",
          cxxopts::value<size_t>()->default_value(std::to_string(config.dump_rounding)))
         ;
 
@@ -169,23 +173,22 @@ int main(int argc, char** argv) {
 
         config.sample_rate = res["rate"].as<unsigned int>();
         config.n_channels = res["chans"].as<unsigned int>();
+        config.volume = res["volume"].as<float>();
         config.n_periods = res["periods"].as<unsigned int>();
         config.latency_us = res["latency"].as<unsigned int>();
         config.duration = res["duration"].as<float>();
-        config.volume = res["volume"].as<float>();
 
         config.sma_window = res["sma"].as<size_t>();
 
         config.strike_period = res["strike-period"].as<float>();
         config.strike_length = res["strike-length"].as<float>();
-        config.strike_window = res["strike-window"].as<size_t>();
-        config.strike_threshold = res["strike-threshold"].as<float>();
+        config.strike_detection_window = res["strike-detection-window"].as<size_t>();
+        config.strike_detection_threshold = res["strike-detection-threshold"].as<float>();
 
-        config.glitch_window = res["glitch-window"].as<size_t>();
-        config.glitch_threshold = res["glitch-threshold"].as<float>();
-
-        config.dump_frame = res["dump-frame"].as<size_t>();
-        config.dump_rounding = res["dump-rounding"].as<size_t>();
+        config.signal_detection_window = res["signal-detection-window"].as<size_t>();
+        config.signal_detection_threshold = res["signal-detection-threshold"].as<float>();
+        config.glitch_detection_window = res["glitch-detection-window"].as<size_t>();
+        config.glitch_detection_threshold = res["glitch-detection-threshold"].as<float>();
 
         if (res.count("dump-output")) {
             output_dump = res["dump-output"].as<std::string>();
@@ -194,6 +197,9 @@ int main(int argc, char** argv) {
         if (res.count("dump-input")) {
             input_dump = res["dump-input"].as<std::string>();
         }
+
+        config.dump_frame = res["dump-frame"].as<size_t>();
+        config.dump_rounding = res["dump-rounding"].as<size_t>();
     }
     catch (std::exception& exc) {
         se_log_error("%s", exc.what());

@@ -33,11 +33,18 @@ private:
 
     const Config config_;
 
-    GradientCounter gradient_;
-    RunMaxCounter runmax_;
-    SchmittTrigger schmitt_;
+    RunMaxCounter signal_runmax_;
 
-    size_t losses_ {};
+    GradientCounter gradient_;
+    RunMaxCounter gradient_runmax_;
+    SchmittTrigger gradient_schmitt_;
+
+    bool leading_zeros_ { true };
+    uint64_t signal_ {};
+    uint64_t no_signal_ {};
+
+    uint64_t losses_ {};
+
     RateLimiter limiter_ { 2 };
     SmaCounter sma_;
 };

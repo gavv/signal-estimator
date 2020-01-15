@@ -11,8 +11,8 @@ namespace signal_estimator {
 
 LatencyEstimator::StrikeTrigger::StrikeTrigger(const Config& config)
     : config_(config)
-    , runmax_(config.strike_window)
-    , schmitt_(config.strike_threshold) {
+    , runmax_(config.strike_detection_window)
+    , schmitt_(config.strike_detection_threshold) {
 }
 
 void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {

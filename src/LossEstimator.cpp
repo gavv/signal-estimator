@@ -12,8 +12,9 @@ namespace signal_estimator {
 
 LossEstimator::LossEstimator(const Config& config)
     : config_(config)
-    , runmax_(config.glitch_window)
-    , schmitt_(config.glitch_threshold)
+    , signal_runmax_(config.signal_detection_window)
+    , gradient_runmax_(config.glitch_detection_window)
+    , gradient_schmitt_(config.glitch_detection_threshold)
     , sma_(config.sma_window) {
 }
 
@@ -28,11 +29,21 @@ void LossEstimator::add_input(Frame& frame) {
     for (size_t n = 0; n < frame_size; n++) {
         auto s = double(frame_data[n]);
 
+        if (signal_runmax_.add(std::abs(s))
+            >= MaxSample * config_.signal_detection_threshold) {
+            signal_++;
+            leading_zeros_ = false;
+        } else {
+            if (!leading_zeros_) {
+                no_signal_++;
+            }
+        }
+
         s = gradient_.add(s);
         s = std::abs(s);
-        s = runmax_.add(s);
+        s = gradient_runmax_.add(s);
 
-        if (schmitt_.add(s)) {
+        if (gradient_schmitt_.add(s)) {
             losses_++;
         }
     }
@@ -44,13 +55,16 @@ void LossEstimator::report_losses_() {
     const auto elapsed = limiter_.allow();
 
     if (elapsed > 0) {
-        const double losses_per_sec = losses_ / elapsed;
-        const double avg_losses_per_sec = sma_.add(losses_per_sec);
+        const double loss_rate = losses_ / elapsed;
+        const double avg_loss_rate = sma_.add(loss_rate);
 
-        se_log_info("losses:  cur %5.1f/sec  avg%d %5.1f/sec", losses_per_sec,
-                    (int)config_.sma_window, avg_losses_per_sec);
+        const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
+
+        se_log_info("losses:  rate %5.1f/sec  rate_avg%d %5.1f/sec  ratio %6.2f%%",
+            loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
 
         losses_ = 0;
+        signal_ = no_signal_ = 0;
     }
 }
 

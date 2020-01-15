@@ -86,37 +86,49 @@ Usage:
  General options:
   -h, --help          Print help message and exit
   -m, --mode arg      Mode: noop|latency|losses (default: latency)
-  -o, --output arg    Output device
-  -i, --input arg     Input device
+  -o, --output arg    Output device name, required
+  -i, --input arg     Input device name, required
   -r, --rate arg      Sample rate (default: 48000)
   -c, --chans arg     Number of channels (default: 2)
-  -p, --periods arg   Number of periods in buffer (default: 2)
-  -l, --latency arg   Input or output latency, us (default: 8000)
-  -d, --duration arg  Test duration, seconds (default: 10.000000)
-  -v, --volume arg    Test signal volume, from 0 to 1 (default: 0.500000)
+  -v, --volume arg    Signal volume, from 0 to 1 (default: 0.500000)
+  -p, --periods arg   Number of periods in ring buffer (default: 2)
+  -l, --latency arg   Ring buffer size, microseconds (default: 8000)
+  -d, --duration arg  Measurement duration, seconds (default: 10.000000)
 
  Reporting options:
       --sma arg  Simple moving average window in reports (default: 5)
 
  Latency estimation options:
-      --strike-period arg     Strike period, seconds (default: 1.000000)
-      --strike-length arg     Strike length, seconds (default: 0.100000)
-      --strike-window arg     Strike detection running maximum window, in
-                              samples (default: 96)
-      --strike-threshold arg  Strike detection threshold, from 0 to 1
-                              (default: 0.400000)
+      --strike-period arg       Strike period, seconds (default: 1.000000)
+      --strike-length arg       Strike length, seconds (default: 0.100000)
+      --strike-detection-window arg
+                                Strike detection running maximum window, in
+                                samples (default: 96)
+      --strike-detection-threshold arg
+                                Strike detection threshold, from 0 to 1
+                                (default: 0.400000)
 
  Loss ratio estimation options:
-      --glitch-window arg     Glitch detection running maximum window, in
-                              samples (default: 32)
-      --glitch-threshold arg  Glitch detection threshold, from 0 to 1
-                              (default: 0.050000)
+      --signal-detection-window arg
+                                Signal detection running maximum window, in
+                                samples (default: 48)
+      --signal-detection-threshold arg
+                                Signal detection threshold, from 0 to 1
+                                (default: 0.150000)
+      --glitch-detection-window arg
+                                Glitch detection running maximum window, in
+                                samples (default: 32)
+      --glitch-detection-threshold arg
+                                Glitch detection threshold, from 0 to 1
+                                (default: 0.050000)
 
  File dumping options:
-  -O, --dump-output arg    File to dump output stream
-  -I, --dump-input arg     File to dump input stream
-      --dump-frame arg     Frame size (default: 64)
-      --dump-rounding arg  Rounding (default: 10)
+      --dump-output arg    File to dump output stream
+      --dump-input arg     File to dump input stream
+      --dump-frame arg     Dump only one maximum value per frame (default:
+                           64)
+      --dump-rounding arg  Round values before dumping and don't dump
+                           duplicates (default: 10)
 ```
 
 ## Measure latency
