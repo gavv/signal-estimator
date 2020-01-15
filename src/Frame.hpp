@@ -19,7 +19,7 @@ using sample_t = int16_t;
 constexpr sample_t MaxSample = +32767;
 constexpr sample_t MinSample = -32767;
 
-enum class FrameType {
+enum class IOType {
     Output,
     Input,
 };
@@ -29,20 +29,24 @@ public:
     Frame(const Config&);
 
     sample_t* data();
-    size_t size();
+    size_t size() const;
 
-    void set_type(FrameType);
-    void set_timestamp();
+    void mark_io_begin(IOType);
+    void mark_io_end();
 
-    // calculate time offset in nanoseconds when the sample will be
-    // actually played or was actually recorded
-    nanoseconds_t sample_time(size_t offset) const;
+    // get time point when the frame is passed to or received from software ring buffer
+    nanoseconds_t sw_frame_time() const;
+
+    // get time point when the sample inside frame is actually played or recorded
+    nanoseconds_t hw_sample_time(size_t offset) const;
 
 private:
     const Config& config_;
 
-    FrameType type_ { FrameType::Output };
-    nanoseconds_t timestamp_ {};
+    IOType io_type_ { IOType::Output };
+
+    nanoseconds_t io_begin_ts_ {};
+    nanoseconds_t io_end_ts_ {};
 
     std::vector<sample_t> data_;
 };

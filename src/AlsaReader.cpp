@@ -30,7 +30,11 @@ void AlsaReader::close() {
 }
 
 bool AlsaReader::read(Frame& frame) {
+    frame.mark_io_begin(IOType::Input);
+
     int err = snd_pcm_readi(pcm_, frame.data(), frame.size() / config_.n_channels);
+
+    frame.mark_io_end();
 
     if (err < 0) {
         if ((err = snd_pcm_recover(pcm_, err, 1)) == 0) {
@@ -42,9 +46,6 @@ bool AlsaReader::read(Frame& frame) {
         se_log_error("alsa reader: %s", snd_strerror(err));
         return false;
     }
-
-    frame.set_timestamp();
-    frame.set_type(FrameType::Input);
 
     return true;
 }

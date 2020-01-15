@@ -26,7 +26,8 @@ void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {
         s = runmax_.add(s);
 
         if (schmitt_.add(s)) {
-            last_trigger_ts_ = (double)frame.sample_time(n) / 1000000.0;
+            last_trigger_ts_.sw_hw = (double)frame.sw_frame_time() / 1000000.0;
+            last_trigger_ts_.hw = (double)frame.hw_sample_time(n) / 1000000.0;
         }
     }
 }
@@ -61,7 +62,7 @@ void LatencyEstimator::add_input(Frame& frame) {
 bool LatencyEstimator::check_output_(LatencyReport& report) {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    if (output_ts_ != output_trigger_.last_trigger_ts()) {
+    if (!output_ts_.is_equal(output_trigger_.last_trigger_ts())) {
         output_ts_ = output_trigger_.last_trigger_ts();
         return check_strike_(report);
     }
@@ -72,7 +73,7 @@ bool LatencyEstimator::check_output_(LatencyReport& report) {
 bool LatencyEstimator::check_input_(LatencyReport& report) {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    if (input_ts_ != input_trigger_.last_trigger_ts()) {
+    if (!input_ts_.is_equal(input_trigger_.last_trigger_ts())) {
         input_ts_ = input_trigger_.last_trigger_ts();
         return check_strike_(report);
     }
@@ -81,23 +82,24 @@ bool LatencyEstimator::check_input_(LatencyReport& report) {
 }
 
 bool LatencyEstimator::check_strike_(LatencyReport& report) {
-    if (output_ts_ == 0 || input_ts_ == 0) {
+    if (output_ts_.is_zero() || input_ts_.is_zero()) {
         return false;
     }
 
-    if (!(output_ts_ < input_ts_)) {
+    if (!(output_ts_.hw < input_ts_.hw)) {
         return false;
     }
 
-    report.latency_msec = (input_ts_ - output_ts_);
-    report.avg_latency_msec = sma_.add(report.latency_msec);
+    report.sw_hw = (input_ts_.sw_hw - output_ts_.sw_hw);
+    report.hw = (input_ts_.hw - output_ts_.hw);
+    report.hw_avg = sma_.add(report.hw);
 
     return true;
 }
 
 void LatencyEstimator::print_report_(const LatencyReport& report) {
-    se_log_info("latency:  cur %7.3fms  avg%d %7.3fms", report.latency_msec,
-        (int)config_.sma_window, report.avg_latency_msec);
+    se_log_info("latency:  sw+hw %7.3fms  hw %7.3fms  hw_avg%d %7.3fms", report.sw_hw,
+        report.hw, (int)config_.sma_window, report.hw_avg);
 }
 
 } // namespace signal_estimator

@@ -15,6 +15,8 @@
 
 namespace signal_estimator {
 
+// estimate signal latency
+// assumes that the output signal was produced by StrikeGenerator
 class LatencyEstimator : public IEstimator {
 public:
     LatencyEstimator(const Config& config);
@@ -26,11 +28,30 @@ public:
     void add_input(Frame& frame) override;
 
 private:
+    struct LatencyReport {
+        double sw_hw {};
+        double hw {};
+        double hw_avg {};
+    };
+
+    struct Timestamp {
+        double sw_hw {};
+        double hw {};
+
+        bool is_zero() const {
+            return sw_hw == 0 && hw == 0;
+        }
+
+        bool is_equal(const Timestamp& other) const {
+            return sw_hw == other.sw_hw && hw == other.hw;
+        }
+    };
+
     class StrikeTrigger {
     public:
         StrikeTrigger(const Config& config);
 
-        double last_trigger_ts() const { return last_trigger_ts_; }
+        Timestamp last_trigger_ts() const { return last_trigger_ts_; }
 
         void add_frame(Frame& frame);
 
@@ -38,12 +59,7 @@ private:
         const Config& config_;
         RunMaxCounter runmax_;
         SchmittTrigger schmitt_;
-        double last_trigger_ts_ {};
-    };
-
-    struct LatencyReport {
-        double latency_msec {};
-        double avg_latency_msec {};
+        Timestamp last_trigger_ts_ {};
     };
 
     bool check_output_(LatencyReport&);
@@ -62,8 +78,8 @@ private:
 
     // accessed by both threads and protected by mutex
     std::mutex mutex_;
-    double output_ts_ {};
-    double input_ts_ {};
+    Timestamp output_ts_ {};
+    Timestamp input_ts_ {};
     SmaCounter sma_;
 };
 

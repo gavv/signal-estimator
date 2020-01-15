@@ -62,7 +62,7 @@ void FileDumper::write(Frame& frame) {
     }
 
     for (size_t off = 0; off < frame.size();) {
-        const auto subframe_ts = frame.sample_time(off);
+        const auto subframe_ts = frame.hw_sample_time(off);
 
         const auto subframe_data = frame.data() + off;
         const auto subframe_sz = std::min(config_.dump_frame, frame.size() - off);
