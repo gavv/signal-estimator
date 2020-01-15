@@ -10,6 +10,7 @@
 
 namespace signal_estimator {
 
+// generate periodic beeps ("strikes")
 class StrikeGenerator : public IGenerator {
 public:
     StrikeGenerator(const Config& config);

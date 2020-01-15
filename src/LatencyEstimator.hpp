@@ -17,6 +17,7 @@ namespace signal_estimator {
 
 // estimate signal latency
 // assumes that the output signal was produced by StrikeGenerator
+// detects strikes in output and input signals and calculates the latency between them
 class LatencyEstimator : public IEstimator {
 public:
     LatencyEstimator(const Config& config);

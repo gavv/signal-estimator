@@ -9,8 +9,8 @@
 
 namespace signal_estimator {
 
-// amortized O(1) running maximum
-// https://stackoverflow.com/a/4802260/3169754
+// running maximum with amortized O(1) push
+// see https://stackoverflow.com/a/4802260/3169754
 class RunMaxCounter {
 public:
     RunMaxCounter(size_t size);

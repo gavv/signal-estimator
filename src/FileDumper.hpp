@@ -13,6 +13,10 @@
 
 namespace signal_estimator {
 
+// dump samples with their timestamps to a text file
+// to reduce file size, dumps only one maximum value among every N samples
+// to reduce file size even more, rounds every dumped value and dumps
+// new sample only if its rounded value was changed
 class FileDumper {
 public:
     FileDumper(const Config& config);

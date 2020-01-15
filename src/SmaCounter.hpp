@@ -9,6 +9,7 @@
 
 namespace signal_estimator {
 
+// simple moving average
 class SmaCounter {
 public:
     SmaCounter(size_t size);

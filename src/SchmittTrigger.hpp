@@ -9,6 +9,7 @@
 
 namespace signal_estimator {
 
+// software schmitt trigger (a comparator with hysteresis)
 class SchmittTrigger {
 public:
     SchmittTrigger(double threshold);

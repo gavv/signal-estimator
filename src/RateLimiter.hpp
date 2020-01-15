@@ -11,6 +11,7 @@
 
 namespace signal_estimator {
 
+// limit events to given rate per second
 class RateLimiter {
 public:
     explicit RateLimiter(float period_sec);

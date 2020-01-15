@@ -10,6 +10,7 @@
 
 namespace signal_estimator {
 
+// generate continuous sine wave
 class ContinuousGenerator : public IGenerator {
 public:
     ContinuousGenerator(const Config& config);

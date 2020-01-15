@@ -15,6 +15,9 @@
 
 namespace signal_estimator {
 
+// estimate signal loss ratio
+// assumes that the output signal is a smooth sine wave produced by ContinuousGenerator
+// detects spikes in the output signal
 class LossEstimator : public IEstimator {
 public:
     LossEstimator(const Config& config);

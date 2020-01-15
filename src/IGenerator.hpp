@@ -12,6 +12,7 @@
 
 namespace signal_estimator {
 
+// generate output signal
 class IGenerator {
 public:
     virtual ~IGenerator() = default;

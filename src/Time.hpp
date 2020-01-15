@@ -11,7 +11,8 @@ namespace signal_estimator {
 
 using nanoseconds_t = long;
 
-// current timestamp
+// current timestamp from monotonic source
+// starts from zero (returned on the first invocation)
 nanoseconds_t monotonic_timestamp_ns();
 
 } // namespace signal_estimator

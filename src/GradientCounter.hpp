@@ -9,6 +9,7 @@
 
 namespace signal_estimator {
 
+// calculate gradient using central difference
 class GradientCounter {
 public:
     GradientCounter() = default;
