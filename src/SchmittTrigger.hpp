@@ -18,8 +18,6 @@ public:
 
     bool add(double);
 
-    bool is_triggered() const { return state_; }
-
 private:
     const double lower_threshold_;
     const double upper_threshold_;

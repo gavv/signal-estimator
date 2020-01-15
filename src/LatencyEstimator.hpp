@@ -30,28 +30,27 @@ private:
     public:
         StrikeTrigger(const Config& config);
 
-        void add_frame(Frame& frame);
+        double last_trigger_ts() const { return last_trigger_ts_; }
 
-        bool is_triggered() const;
-        double trigger_ts_msec() const;
+        void add_frame(Frame& frame);
 
     private:
         const Config& config_;
         RunMaxCounter runmax_;
         SchmittTrigger schmitt_;
-        double trigger_ts_msec_ {};
+        double last_trigger_ts_ {};
     };
 
-    struct Report {
+    struct LatencyReport {
         double latency_msec {};
         double avg_latency_msec {};
     };
 
-    bool process_output_(Report&);
-    bool process_input_(Report&);
+    bool check_output_(LatencyReport&);
+    bool check_input_(LatencyReport&);
+    bool check_strike_(LatencyReport&);
 
-    bool check_triggers_(Report&);
-    void print_report_(const Report&);
+    void print_report_(const LatencyReport&);
 
     const Config config_;
 
@@ -61,18 +60,11 @@ private:
     // accessed only by input thread
     StrikeTrigger input_trigger_;
 
-    // all fields below are accessed by both threads and are guarded by mutex
-    bool output_triggered_ {};
-    bool input_triggered_ {};
-
+    // accessed by both threads and protected by mutex
+    std::mutex mutex_;
     double output_ts_ {};
     double input_ts_ {};
-
-    bool latency_reported_ {};
-
     SmaCounter sma_;
-
-    std::mutex mutex_;
 };
 
 } // namespace signal_estimator

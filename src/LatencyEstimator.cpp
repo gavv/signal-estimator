@@ -26,17 +26,9 @@ void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {
         s = runmax_.add(s);
 
         if (schmitt_.add(s)) {
-            trigger_ts_msec_ = (double)frame.sample_time(n) / 1000000.0;
+            last_trigger_ts_ = (double)frame.sample_time(n) / 1000000.0;
         }
     }
-}
-
-bool LatencyEstimator::StrikeTrigger::is_triggered() const {
-    return schmitt_.is_triggered();
-}
-
-double LatencyEstimator::StrikeTrigger::trigger_ts_msec() const {
-    return trigger_ts_msec_;
 }
 
 LatencyEstimator::LatencyEstimator(const Config& config)
@@ -49,9 +41,9 @@ LatencyEstimator::LatencyEstimator(const Config& config)
 void LatencyEstimator::add_output(Frame& frame) {
     output_trigger_.add_frame(frame);
 
-    Report report;
+    LatencyReport report;
 
-    if (process_output_(report)) {
+    if (check_output_(report)) {
         print_report_(report);
     }
 }
@@ -59,48 +51,37 @@ void LatencyEstimator::add_output(Frame& frame) {
 void LatencyEstimator::add_input(Frame& frame) {
     input_trigger_.add_frame(frame);
 
-    Report report;
+    LatencyReport report;
 
-    if (process_input_(report)) {
+    if (check_input_(report)) {
         print_report_(report);
     }
 }
 
-bool LatencyEstimator::process_output_(Report& report) {
+bool LatencyEstimator::check_output_(LatencyReport& report) {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    if (output_trigger_.is_triggered()) {
-        if (!output_triggered_) {
-            output_triggered_ = true;
-            output_ts_ = output_trigger_.trigger_ts_msec();
-            return check_triggers_(report);
-        }
-    } else {
-        output_triggered_ = false;
-        latency_reported_ = false;
+    if (output_ts_ != output_trigger_.last_trigger_ts()) {
+        output_ts_ = output_trigger_.last_trigger_ts();
+        return check_strike_(report);
     }
 
     return false;
 }
 
-bool LatencyEstimator::process_input_(Report& report) {
+bool LatencyEstimator::check_input_(LatencyReport& report) {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    if (input_trigger_.is_triggered()) {
-        if (!input_triggered_) {
-            input_triggered_ = true;
-            input_ts_ = input_trigger_.trigger_ts_msec();
-            return check_triggers_(report);
-        }
-    } else {
-        input_triggered_ = false;
+    if (input_ts_ != input_trigger_.last_trigger_ts()) {
+        input_ts_ = input_trigger_.last_trigger_ts();
+        return check_strike_(report);
     }
 
     return false;
 }
 
-bool LatencyEstimator::check_triggers_(Report& report) {
-    if (!output_triggered_ || !input_triggered_) {
+bool LatencyEstimator::check_strike_(LatencyReport& report) {
+    if (output_ts_ == 0 || input_ts_ == 0) {
         return false;
     }
 
@@ -108,18 +89,13 @@ bool LatencyEstimator::check_triggers_(Report& report) {
         return false;
     }
 
-    if (latency_reported_) {
-        return false;
-    }
-
     report.latency_msec = (input_ts_ - output_ts_);
     report.avg_latency_msec = sma_.add(report.latency_msec);
 
-    latency_reported_ = true;
     return true;
 }
 
-void LatencyEstimator::print_report_(const Report& report) {
+void LatencyEstimator::print_report_(const LatencyReport& report) {
     se_log_info("latency:  cur %7.3fms  avg%d %7.3fms", report.latency_msec,
         (int)config_.sma_window, report.avg_latency_msec);
 }
