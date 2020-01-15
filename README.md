@@ -1,8 +1,10 @@
-# Signal Estimator
+Signal Estimator
+================
 
 [![Build Status](https://travis-ci.org/gavv/signal-estimator.svg?branch=master)](https://travis-ci.org/gavv/signal-estimator)
 
-## Features
+Features
+--------
 
 `signal-estimator` is a small command-line tool allowing to measure different characteristics of the signal looped back from audio output to audio input.
 
@@ -13,7 +15,8 @@ Features:
 * measure signal loss ratio (number of glitches per second in the input signal)
 * dump output and input streams to text files and plot them using matplotlib
 
-## Example use cases
+Example use cases
+-----------------
 
 * Measure local hardware latency.
 
@@ -40,17 +43,20 @@ Features:
 
   In these examples, you'll need to measure the latency of your local harware first, and then subtract it ftom the measurements results, to get the actual latency of the external system being tested.
 
-## Supported platforms
+Supported platforms
+-------------------
 
 * Linux / ALSA
 
-## Dependencies
+Dependencies
+------------
 
 * C++17 compiler
 * CMake >= 3.0
 * libasound (ALSA devel)
 
-## Installation
+Installation
+------------
 
 Install dependencies:
 
@@ -75,7 +81,8 @@ $ make -j4
 $ cd ..
 ```
 
-## Command-line options
+Command-line options
+--------------------
 
 ```
 $ ./bin/signal-estimator --help
@@ -131,26 +138,173 @@ Usage:
                            duplicates (default: 10)
 ```
 
-## Measure latency
+Measuring latency
+-----------------
 
-*TODO*
+In the latency estimation mode, the tool generates short periodic beeps ("strikes") and calculates the shift between each sent and received strike.
 
-## Measure loss ratio
+```
+$ ./bin/signal-estimator -m latency -o hw:1,0 -i hw:1,0 -d 5
+opening alsa writer for device hw:1,0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+opening alsa reader for device hw:1,0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+can't enable real-time scheduling policy
+can't enable real-time scheduling policy
+latency:  sw+hw  13.145ms  hw   2.934ms  hw_avg5   2.934ms
+latency:  sw+hw  12.465ms  hw   2.924ms  hw_avg5   2.929ms
+latency:  sw+hw  13.171ms  hw   2.968ms  hw_avg5   2.942ms
+latency:  sw+hw  12.510ms  hw   2.962ms  hw_avg5   2.947ms
+latency:  sw+hw  12.536ms  hw   3.008ms  hw_avg5   2.959ms
+```
 
-*TODO*
+Notation:
 
-## Manually inspect streams
+* `sw+hw` - total software + hardware latency, including ALSA ring buffer
 
-*TODO*
+  computed as the time interval beginning when the first audio *frame* of the strike was sent to the output ring buffer, and ending when the first frame of the strike was received from the input ring buffer
 
-## Acknowledgments
+* `hw` - an estimation of hardware latency, excluding ALSA ring buffer
+
+  computed as the time interval beginning when the first audio *sample* of the strike was sent from ring buffer to DAC, and ending when the first sample of the strike was received from ADC and placed to ring buffer
+
+* `hw_avg5` - moving average of last 5 `hw` values
+
+`sw+hw` latency is affected by the `--latency` parameter, which defines the size of the ALSA ring buffer. You may need to select a higher latency if you're experiencing underruns or overruns.
+
+`hw` latency, on the other hand, should not be affected by it and should depend only on your hardware and the way how the signal is looped back from output to input.
+
+If you're having troubles, you may also need to configure signal volume, strike period and length, and strike detection parameters. Note that strike period has to be greater than latency of your loopback.
+
+Measuring losses
+----------------
+
+In the loss estimation mode, the tool generates continuous beep and counts for glitches and gaps in the received signal.
+
+```
+$ ./bin/signal-estimator -m losses -o hw:1,0 -i hw:1,0 -d 10
+opening alsa writer for device hw:1,0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+opening alsa reader for device hw:1,0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+can't enable real-time scheduling policy
+can't enable real-time scheduling policy
+losses:  rate   0.0/sec  rate_avg5   0.0/sec  ratio   0.00%
+losses:  rate   6.0/sec  rate_avg5   3.0/sec  ratio   0.26%
+losses:  rate   3.0/sec  rate_avg5   3.0/sec  ratio   0.20%
+losses:  rate   0.0/sec  rate_avg5   2.3/sec  ratio   0.00%
+losses:  rate   1.0/sec  rate_avg5   2.0/sec  ratio   0.01%
+```
+
+Notation:
+
+* `rate` - rough estimation of the number of losses (glitches) per second
+
+  a glitch is defined as a spike in the received signal gradient; we rely on the fact that the original signal is a smooth continuous sine wave
+
+* `rate_avg5` - moving average of last 5 `rate` values
+
+* `ratio` - rough estimation of the loss ratio (percentage of the lost frames)
+
+  a loss is defined as a frame of the received signal, with all samples having small amplitude (volume); we rely on the fact that the original signal is a loud continuous sine wave
+
+These numbers may be rough enough.
+
+If you're having troubles, you may need to configure signal volume, and signal and glitch detection parameters.
+
+Manually inspecting streams
+---------------------------
+
+In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples with their timestamps to text files.
+
+To reduce the file size, we dump only one maximum value per frame. To reduce the file size even more, we round every dumped value, and drop value if it's the same as the previois one. The frame size and rounding factor are configurable.
+
+The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to DAC or read from ADC.
+
+```
+$ ./bin/signal-estimator -m noop -o hw:1,0 -i hw:1,0 -d 5 \
+    --volume 1.0 --dump-output output.txt --dump-input input.txt
+opening alsa writer for device hw:1,0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+opening alsa reader for device hw:1,0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+can't enable real-time scheduling policy
+can't enable real-time scheduling policy
+```
+
+You can then inspect [these files](./example):
+
+```
+$ ls -lh *.txt
+-rw-r--r-- 1 user user  13K Jan 15 16:22 output.txt
+-rw-r--r-- 1 user user 118K Jan 15 16:22 input.txt
+```
+
+We also provide a helper script that plots the files using matplotlib. You can use it to manually measure the latency:
+
+```
+$ ./script/plot_signal.py output.txt input.txt
+```
+
+![](./example/plot_edited.png)
+
+In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238ms.
+
+ALSA parameters
+---------------
+
+ALSA output and input device names are the same as passed to `aplay` and `arecord` tools.
+
+You may need to configure sample rate and the number of channels. The selected values should be supported by both output and input devices.
+
+You may also need to configure ALSA ring buffer size and the number of periods in the ring buffer. These parameters affect software latency and output / input robustness.
+
+Real-time scheduling policy
+---------------------------
+
+If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically enable `SCHED_RR` scheduling policy for output and input threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or sofware being measured) on a loaded system.
+
+Acknowledgments
+---------------
 
 This tool was initially developed for a freelance project. Big thanks to my customer Samuel Blum at Boring Technologies, who sponsored the development and has kindly allowed to make it open-source!
 
-## Authors
+Authors
+-------
 
 See [here](https://github.com/gavv/signal-estimator/graphs/contributors).
 
-## License
+License
+-------
 
 [MIT](LICENSE)
