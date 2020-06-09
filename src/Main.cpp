@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
         }
 
         if (!res.count("input")) {
-            se_log_error("missing --output device");
+            se_log_error("missing --input device");
             exit(1);
         }
 
