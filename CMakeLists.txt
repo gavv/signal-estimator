@@ -51,6 +51,7 @@ add_executable(signal-estimator
   src/FileDumper.cpp
   src/Frame.cpp
   src/GradientCounter.cpp
+  src/JSONFormatter.cpp
   src/LatencyEstimator.cpp
   src/LossEstimator.cpp
   src/Main.cpp
@@ -60,6 +61,7 @@ add_executable(signal-estimator
   src/SchmittTrigger.cpp
   src/SmaCounter.cpp
   src/StrikeGenerator.cpp
+  src/TextFormatter.cpp
   src/Time.cpp
 )
 

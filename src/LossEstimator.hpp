@@ -12,6 +12,7 @@
 #include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
 #include "SmaCounter.hpp"
+#include "IFormatter.hpp"
 
 namespace signal_estimator {
 
@@ -24,6 +25,8 @@ public:
 
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
+
+	~LossEstimator();
 
     void add_output(Frame& frame) override;
     void add_input(Frame& frame) override;
@@ -47,6 +50,8 @@ private:
 
     RateLimiter limiter_ { 2 };
     SmaCounter sma_;
+
+    IFormatter* format;
 };
 
 } // namespace signal_estimator

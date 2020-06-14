@@ -77,6 +77,7 @@ int main(int argc, char** argv) {
 
     opts.add_options("General")
         ("h,help", "Print help message and exit")
+        ("j,json", "Print output in JSON Format")
         ("m,mode", "Mode: noop|latency|losses",
          cxxopts::value<std::string>()->default_value("latency"))
         ("o,output", "Output device name, required",
@@ -149,6 +150,10 @@ int main(int argc, char** argv) {
                     "File dumping",
                 }) << std::endl;
             exit(0);
+        }
+
+        if (res.count("json")) {
+            config.enable_json = true;
         }
 
         mode = res["mode"].as<std::string>();

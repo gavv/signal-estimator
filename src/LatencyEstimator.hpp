@@ -10,6 +10,7 @@
 #include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
 #include "SmaCounter.hpp"
+#include "IFormatter.hpp"
 
 #include <mutex>
 
@@ -24,6 +25,8 @@ public:
 
     LatencyEstimator(const LatencyEstimator&) = delete;
     LatencyEstimator& operator=(const LatencyEstimator&) = delete;
+
+    ~LatencyEstimator();
 
     void add_output(Frame& frame) override;
     void add_input(Frame& frame) override;
@@ -82,6 +85,8 @@ private:
     Timestamp output_ts_ {};
     Timestamp input_ts_ {};
     SmaCounter sma_;
+
+    IFormatter* format;
 };
 
 } // namespace signal_estimator

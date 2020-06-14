@@ -4,8 +4,9 @@
  */
 
 #include "LatencyEstimator.hpp"
-#include "Log.hpp"
 #include "Time.hpp"
+#include "TextFormatter.hpp"
+#include "JSONFormatter.hpp"
 
 namespace signal_estimator {
 
@@ -37,6 +38,11 @@ LatencyEstimator::LatencyEstimator(const Config& config)
     , output_trigger_(config_)
     , input_trigger_(config_)
     , sma_(config.sma_window) {
+        config_.enable_json ? format = new JSONFormatter : format = new TextFormatter;
+}
+
+LatencyEstimator::~LatencyEstimator(){
+    delete format;
 }
 
 void LatencyEstimator::add_output(Frame& frame) {
@@ -98,8 +104,7 @@ bool LatencyEstimator::check_strike_(LatencyReport& report) {
 }
 
 void LatencyEstimator::print_report_(const LatencyReport& report) {
-    se_log_info("latency:  sw+hw %7.3fms  hw %7.3fms  hw_avg%d %7.3fms", report.sw_hw,
-        report.hw, (int)config_.sma_window, report.hw_avg);
+    format->report_latency(report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
 }
 
 } // namespace signal_estimator
