@@ -14,6 +14,8 @@
 #include "SmaCounter.hpp"
 #include "IFormatter.hpp"
 
+#include <memory>
+
 namespace signal_estimator {
 
 // estimate signal loss ratio
@@ -21,7 +23,7 @@ namespace signal_estimator {
 // detects spikes in the output signal
 class LossEstimator : public IEstimator {
 public:
-    LossEstimator(const Config& config);
+    LossEstimator(const Config& config, std::unique_ptr<IFormatter>& formatter);
 
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
@@ -51,7 +53,7 @@ private:
     RateLimiter limiter_ { 2 };
     SmaCounter sma_;
 
-    IFormatter* format;
+    std::unique_ptr<IFormatter>& format_;
 };
 
 } // namespace signal_estimator

@@ -7,11 +7,14 @@
 #include "AlsaWriter.hpp"
 #include "ContinuousGenerator.hpp"
 #include "FileDumper.hpp"
+#include "IFormatter.hpp"
+#include "JSONFormatter.hpp"
 #include "LatencyEstimator.hpp"
 #include "LossEstimator.hpp"
 #include "Log.hpp"
 #include "Realtime.hpp"
 #include "StrikeGenerator.hpp"
+#include "TextFormatter.hpp"
 #include "Time.hpp"
 
 #include <cxxopts.hpp>
@@ -77,7 +80,8 @@ int main(int argc, char** argv) {
 
     opts.add_options("General")
         ("h,help", "Print help message and exit")
-        ("j,json", "Print output in JSON Format")
+        ("f,format", "Output Format: json|text",
+         cxxopts::value<std::string>()->default_value("text"))
         ("m,mode", "Mode: noop|latency|losses",
          cxxopts::value<std::string>()->default_value("latency"))
         ("o,output", "Output device name, required",
@@ -136,7 +140,7 @@ int main(int argc, char** argv) {
          cxxopts::value<size_t>()->default_value(std::to_string(config.dump_rounding)))
         ;
 
-    std::string mode, input_dev, output_dev, input_dump, output_dump;
+    std::string format, mode, input_dev, output_dev, input_dump, output_dump;
 
     try {
         auto res = opts.parse(argc, argv);
@@ -152,8 +156,11 @@ int main(int argc, char** argv) {
             exit(0);
         }
 
-        if (res.count("json")) {
-            config.enable_json = true;
+        format = res["format"].as<std::string>();
+
+        if (format != "json" && format != "text") {
+            se_log_error("unknown --format value");
+            exit(1);
         }
 
         mode = res["mode"].as<std::string>();
@@ -231,12 +238,20 @@ int main(int argc, char** argv) {
         generator = std::make_unique<ContinuousGenerator>(config);
     }
 
+    std::unique_ptr<IFormatter> formatter;
+    
+    if (format == "json") {
+        formatter = std::make_unique<JSONFormatter>();
+    } else if (format == "text") {
+        formatter = std::make_unique<TextFormatter>();
+    }
+
     std::unique_ptr<IEstimator> estimator;
 
     if (mode == "latency") {
-        estimator = std::make_unique<LatencyEstimator>(config);
+        estimator = std::make_unique<LatencyEstimator>(config, formatter);
     } else if (mode == "losses") {
-        estimator = std::make_unique<LossEstimator>(config);
+        estimator = std::make_unique<LossEstimator>(config, formatter);
     }
 
     std::unique_ptr<FileDumper> output_dumper;

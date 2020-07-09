@@ -16,9 +16,6 @@ struct Config {
     // 16-bit little-endian signed integers
     snd_pcm_format_t format { SND_PCM_FORMAT_S16_LE };
 
-    // Enable JSON formatted output
-    bool enable_json { false };
-
     // number of samples per second per channel
     unsigned int sample_rate { 48000 };
 

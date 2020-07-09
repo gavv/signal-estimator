@@ -5,8 +5,7 @@
 
 #include "LatencyEstimator.hpp"
 #include "Time.hpp"
-#include "TextFormatter.hpp"
-#include "JSONFormatter.hpp"
+#include "IFormatter.hpp"
 
 namespace signal_estimator {
 
@@ -33,16 +32,15 @@ void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {
     }
 }
 
-LatencyEstimator::LatencyEstimator(const Config& config)
+LatencyEstimator::LatencyEstimator(const Config& config, std::unique_ptr<IFormatter>& formatter)
     : config_(config)
     , output_trigger_(config_)
     , input_trigger_(config_)
-    , sma_(config.sma_window) {
-        config_.enable_json ? format = new JSONFormatter : format = new TextFormatter;
+    , sma_(config.sma_window)
+    , format_(formatter) {
 }
 
 LatencyEstimator::~LatencyEstimator(){
-    delete format;
 }
 
 void LatencyEstimator::add_output(Frame& frame) {
@@ -104,7 +102,7 @@ bool LatencyEstimator::check_strike_(LatencyReport& report) {
 }
 
 void LatencyEstimator::print_report_(const LatencyReport& report) {
-    format->report_latency(report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
+    format_->report_latency(report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
 }
 
 } // namespace signal_estimator

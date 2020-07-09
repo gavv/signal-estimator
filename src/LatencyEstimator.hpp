@@ -12,6 +12,7 @@
 #include "SmaCounter.hpp"
 #include "IFormatter.hpp"
 
+#include <memory>
 #include <mutex>
 
 namespace signal_estimator {
@@ -21,7 +22,7 @@ namespace signal_estimator {
 // detects strikes in output and input signals and calculates the latency between them
 class LatencyEstimator : public IEstimator {
 public:
-    LatencyEstimator(const Config& config);
+    LatencyEstimator(const Config& config, std::unique_ptr<IFormatter>& formatter);
 
     LatencyEstimator(const LatencyEstimator&) = delete;
     LatencyEstimator& operator=(const LatencyEstimator&) = delete;
@@ -86,7 +87,7 @@ private:
     Timestamp input_ts_ {};
     SmaCounter sma_;
 
-    IFormatter* format;
+    std::unique_ptr<IFormatter>& format_;
 };
 
 } // namespace signal_estimator

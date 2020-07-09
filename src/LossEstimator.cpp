@@ -4,24 +4,23 @@
  */
 
 #include "LossEstimator.hpp"
-#include "TextFormatter.hpp"
-#include "JSONFormatter.hpp"
+#include "IFormatter.hpp"
 
 #include <algorithm>
+#include <memory>
 
 namespace signal_estimator {
 
-LossEstimator::LossEstimator(const Config& config)
+LossEstimator::LossEstimator(const Config& config, std::unique_ptr<IFormatter>& formatter)
     : config_(config)
     , signal_runmax_(config.signal_detection_window)
     , gradient_runmax_(config.glitch_detection_window)
     , gradient_schmitt_(config.glitch_detection_threshold)
-    , sma_(config.sma_window) {
-        config_.enable_json ? format = new JSONFormatter : format = new TextFormatter;
+    , sma_(config.sma_window)
+    , format_(formatter) {
 }
 
-LossEstimator::~LossEstimator() {
-    delete format;
+LossEstimator::~LossEstimator(){
 }
 
 void LossEstimator::add_output(Frame&) {
@@ -66,7 +65,7 @@ void LossEstimator::report_losses_() {
 
         const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
-        format->report_losses(loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
+        format_->report_losses(loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;
