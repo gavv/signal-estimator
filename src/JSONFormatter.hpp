@@ -10,11 +10,12 @@ class JSONFormatter : public IFormatter {
 
         void report_losses(double loss_rate, int sma_window, double avg_loss_rate, double loss_ratio) override;
 
-        bool first_output;
-
         JSONFormatter();
         
         ~JSONFormatter();
+
+    private:
+        bool first_output_;
 };
 
 } // namespace signal_estimator
