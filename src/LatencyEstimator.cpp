@@ -32,7 +32,7 @@ void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {
     }
 }
 
-LatencyEstimator::LatencyEstimator(const Config& config, std::unique_ptr<IFormatter>& formatter)
+LatencyEstimator::LatencyEstimator(const Config& config, const std::unique_ptr<IFormatter>& formatter)
     : config_(config)
     , output_trigger_(config_)
     , input_trigger_(config_)

@@ -1,7 +1,12 @@
 #include "TextFormatter.hpp"
-#include "Log.hpp"
+
+#include <cstdio>
 
 namespace signal_estimator {
+
+TextFormatter::TextFormatter() {};
+
+TextFormatter::~TextFormatter() {};
 
 void TextFormatter::report_latency(double sw_hw, double hw, int sma_window, double hw_avg) {
     printf("latency:  sw+hw %7.3fms  hw %7.3fms  hw_avg%d %7.3fms\n", sw_hw,

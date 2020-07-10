@@ -11,7 +11,7 @@
 
 namespace signal_estimator {
 
-LossEstimator::LossEstimator(const Config& config, std::unique_ptr<IFormatter>& formatter)
+LossEstimator::LossEstimator(const Config& config, const std::unique_ptr<IFormatter>& formatter)
     : config_(config)
     , signal_runmax_(config.signal_detection_window)
     , gradient_runmax_(config.glitch_detection_window)

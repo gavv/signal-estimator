@@ -23,7 +23,7 @@ namespace signal_estimator {
 // detects spikes in the output signal
 class LossEstimator : public IEstimator {
 public:
-    LossEstimator(const Config& config, std::unique_ptr<IFormatter>& formatter);
+    LossEstimator(const Config& config, const std::unique_ptr<IFormatter>& formatter);
 
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
@@ -53,7 +53,7 @@ private:
     RateLimiter limiter_ { 2 };
     SmaCounter sma_;
 
-    std::unique_ptr<IFormatter>& format_;
+    const std::unique_ptr<IFormatter>& format_;
 };
 
 } // namespace signal_estimator
