@@ -11,7 +11,7 @@
 
 namespace signal_estimator {
 
-LossEstimator::LossEstimator(const Config& config, const std::unique_ptr<IFormatter>& formatter)
+LossEstimator::LossEstimator(const Config& config, IFormatter& formatter)
     : config_(config)
     , signal_runmax_(config.signal_detection_window)
     , gradient_runmax_(config.glitch_detection_window)
@@ -65,7 +65,7 @@ void LossEstimator::report_losses_() {
 
         const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
-        format_->report_losses(loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
+        format_.report_losses(loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;

@@ -258,8 +258,7 @@ Sample JSON output format for measuring losses is shown below.
 ]
 ```
 
-Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including ALSA ring buffer. Except `sw_hw`, all the notations are the same as mentioned in the measuring latency and losses section.
-
+Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including ALSA ring buffer. Except `sw_hw`, all the notations are the same as mentioned in the measuring latency and losses section. All time units are in milliseconds.
 
 Manually inspecting streams
 ---------------------------

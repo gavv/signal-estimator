@@ -32,7 +32,7 @@ void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {
     }
 }
 
-LatencyEstimator::LatencyEstimator(const Config& config, const std::unique_ptr<IFormatter>& formatter)
+LatencyEstimator::LatencyEstimator(const Config& config, IFormatter& formatter)
     : config_(config)
     , output_trigger_(config_)
     , input_trigger_(config_)
@@ -102,7 +102,7 @@ bool LatencyEstimator::check_strike_(LatencyReport& report) {
 }
 
 void LatencyEstimator::print_report_(const LatencyReport& report) {
-    format_->report_latency(report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
+    format_.report_latency(report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
 }
 
 } // namespace signal_estimator

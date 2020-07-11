@@ -22,7 +22,7 @@ namespace signal_estimator {
 // detects strikes in output and input signals and calculates the latency between them
 class LatencyEstimator : public IEstimator {
 public:
-    LatencyEstimator(const Config& config, const std::unique_ptr<IFormatter>& formatter);
+    LatencyEstimator(const Config& config, IFormatter& formatter);
 
     LatencyEstimator(const LatencyEstimator&) = delete;
     LatencyEstimator& operator=(const LatencyEstimator&) = delete;
@@ -87,7 +87,7 @@ private:
     Timestamp input_ts_ {};
     SmaCounter sma_;
 
-    const std::unique_ptr<IFormatter>& format_;
+    IFormatter& format_;
 };
 
 } // namespace signal_estimator

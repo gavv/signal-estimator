@@ -249,9 +249,9 @@ int main(int argc, char** argv) {
     std::unique_ptr<IEstimator> estimator;
 
     if (mode == "latency") {
-        estimator = std::make_unique<LatencyEstimator>(config, formatter);
+        estimator = std::make_unique<LatencyEstimator>(config, *formatter);
     } else if (mode == "losses") {
-        estimator = std::make_unique<LossEstimator>(config, formatter);
+        estimator = std::make_unique<LossEstimator>(config, *formatter);
     }
 
     std::unique_ptr<FileDumper> output_dumper;
