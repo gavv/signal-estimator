@@ -4,18 +4,23 @@
  */
 
 #include "LossEstimator.hpp"
-#include "Log.hpp"
+#include "IFormatter.hpp"
 
 #include <algorithm>
+#include <memory>
 
 namespace signal_estimator {
 
-LossEstimator::LossEstimator(const Config& config)
+LossEstimator::LossEstimator(const Config& config, IFormatter& formatter)
     : config_(config)
     , signal_runmax_(config.signal_detection_window)
     , gradient_runmax_(config.glitch_detection_window)
     , gradient_schmitt_(config.glitch_detection_threshold)
-    , sma_(config.sma_window) {
+    , sma_(config.sma_window)
+    , format_(formatter) {
+}
+
+LossEstimator::~LossEstimator(){
 }
 
 void LossEstimator::add_output(Frame&) {
@@ -60,8 +65,7 @@ void LossEstimator::report_losses_() {
 
         const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
-        se_log_info("losses:  rate %5.1f/sec  rate_avg%d %5.1f/sec  ratio %6.2f%%",
-            loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
+        format_.report_losses(loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;

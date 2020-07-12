@@ -10,7 +10,9 @@
 #include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
 #include "SmaCounter.hpp"
+#include "IFormatter.hpp"
 
+#include <memory>
 #include <mutex>
 
 namespace signal_estimator {
@@ -20,10 +22,12 @@ namespace signal_estimator {
 // detects strikes in output and input signals and calculates the latency between them
 class LatencyEstimator : public IEstimator {
 public:
-    LatencyEstimator(const Config& config);
+    LatencyEstimator(const Config& config, IFormatter& formatter);
 
     LatencyEstimator(const LatencyEstimator&) = delete;
     LatencyEstimator& operator=(const LatencyEstimator&) = delete;
+
+    ~LatencyEstimator();
 
     void add_output(Frame& frame) override;
     void add_input(Frame& frame) override;
@@ -82,6 +86,8 @@ private:
     Timestamp output_ts_ {};
     Timestamp input_ts_ {};
     SmaCounter sma_;
+
+    IFormatter& format_;
 };
 
 } // namespace signal_estimator

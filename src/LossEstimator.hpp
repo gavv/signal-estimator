@@ -12,6 +12,9 @@
 #include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
 #include "SmaCounter.hpp"
+#include "IFormatter.hpp"
+
+#include <memory>
 
 namespace signal_estimator {
 
@@ -20,10 +23,12 @@ namespace signal_estimator {
 // detects spikes in the output signal
 class LossEstimator : public IEstimator {
 public:
-    LossEstimator(const Config& config);
+    LossEstimator(const Config& config, IFormatter& formatter);
 
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
+
+	~LossEstimator();
 
     void add_output(Frame& frame) override;
     void add_input(Frame& frame) override;
@@ -47,6 +52,8 @@ private:
 
     RateLimiter limiter_ { 2 };
     SmaCounter sma_;
+
+    IFormatter& format_;
 };
 
 } // namespace signal_estimator

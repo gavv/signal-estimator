@@ -4,8 +4,8 @@
  */
 
 #include "LatencyEstimator.hpp"
-#include "Log.hpp"
 #include "Time.hpp"
+#include "IFormatter.hpp"
 
 namespace signal_estimator {
 
@@ -32,11 +32,15 @@ void LatencyEstimator::StrikeTrigger::add_frame(Frame& frame) {
     }
 }
 
-LatencyEstimator::LatencyEstimator(const Config& config)
+LatencyEstimator::LatencyEstimator(const Config& config, IFormatter& formatter)
     : config_(config)
     , output_trigger_(config_)
     , input_trigger_(config_)
-    , sma_(config.sma_window) {
+    , sma_(config.sma_window)
+    , format_(formatter) {
+}
+
+LatencyEstimator::~LatencyEstimator(){
 }
 
 void LatencyEstimator::add_output(Frame& frame) {
@@ -98,8 +102,7 @@ bool LatencyEstimator::check_strike_(LatencyReport& report) {
 }
 
 void LatencyEstimator::print_report_(const LatencyReport& report) {
-    se_log_info("latency:  sw+hw %7.3fms  hw %7.3fms  hw_avg%d %7.3fms", report.sw_hw,
-        report.hw, (int)config_.sma_window, report.hw_avg);
+    format_.report_latency(report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
 }
 
 } // namespace signal_estimator

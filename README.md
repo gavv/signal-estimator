@@ -92,6 +92,7 @@ Usage:
 
  General options:
   -h, --help          Print help message and exit
+  -f, --format arg    Output Format: json|text (default: text)
   -m, --mode arg      Mode: noop|latency|losses (default: latency)
   -o, --output arg    Output device name, required
   -i, --input arg     Input device name, required
@@ -231,6 +232,33 @@ Notation:
 These numbers may be rough enough.
 
 If you're having troubles, you may need to configure signal volume, and signal and glitch detection parameters.
+
+JSON output
+-----------
+
+JSON output can be enabled by passing the `--format json` or `-f json` flag. By default, output is displayed in text format.
+
+Sample JSON output format for measuring latency is shown below.
+
+```
+[
+  {"sw_hw": 17.288373, "hw": 10.339908, "hw_avg5": 10.339908},
+  {"sw_hw": 20.710353, "hw": 10.966634, "hw_avg5": 10.653271},
+  {"sw_hw": 21.708660, "hw": 12.604020, "hw_avg5": 11.303521}
+]
+```
+
+Sample JSON output format for measuring losses is shown below.
+
+```
+[
+  {"rate": 0.000000, "rate_avg5": 0.000000, "ratio": 0.000000},
+  {"rate": 0.000000, "rate_avg5": 0.000000, "ratio": 3.501563},
+  {"rate": 0.000000, "rate_avg5": 0.000000, "ratio": 2.626626}
+]
+```
+
+Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including ALSA ring buffer. Except `sw_hw`, all the notations are the same as mentioned in the measuring latency and losses section. All time units are in milliseconds.
 
 Manually inspecting streams
 ---------------------------
