@@ -3,6 +3,26 @@ Signal Estimator
 
 [![Build Status](https://travis-ci.org/gavv/signal-estimator.svg?branch=master)](https://travis-ci.org/gavv/signal-estimator)
 
+<!-- toc -->
+
+- [Features](#features)
+- [Example use cases](#example-use-cases)
+- [Supported platforms](#supported-platforms)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Command-line options](#command-line-options)
+- [Measuring latency](#measuring-latency)
+- [Measuring losses](#measuring-losses)
+- [JSON output](#json-output)
+- [Dumping streams](#dumping-streams)
+- [ALSA parameters](#alsa-parameters)
+- [Real-time scheduling policy](#real-time-scheduling-policy)
+- [Acknowledgments](#acknowledgments)
+- [Authors](#authors)
+- [License](#license)
+
+<!-- tocstop -->
+
 Features
 --------
 
@@ -13,6 +33,7 @@ Features:
 * send test signal to output device and receive looped back signal from input device
 * measure signal latency (the shift between output and input signal)
 * measure signal loss ratio (number of glitches per second in the input signal)
+* measurements output in JSON format for easy parsing
 * dump output and input streams to text files and plot them using matplotlib
 
 Example use cases
@@ -260,8 +281,8 @@ Sample JSON output format for measuring losses is shown below.
 
 Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including ALSA ring buffer. Except `sw_hw`, all the notations are the same as mentioned in the measuring latency and losses section. All time units are in milliseconds.
 
-Manually inspecting streams
----------------------------
+Dumping streams
+---------------
 
 In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples with their timestamps to text files.
 
