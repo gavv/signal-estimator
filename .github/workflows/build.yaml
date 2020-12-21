@@ -1,0 +1,23 @@
+name: build
+on: [pull_request, push]
+
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: sudo apt-get install -y libasound2-dev
+
+      - name: Run cmake
+        run: mkdir build && cd build && cmake ..
+
+      - name: Run make
+        run: cd build && make -j2
+
+      - name: Run help
+        run: ./bin/signal-estimator -h

@@ -1,7 +1,7 @@
 Signal Estimator
 ================
 
-[![Build Status](https://travis-ci.org/gavv/signal-estimator.svg?branch=master)](https://travis-ci.org/gavv/signal-estimator)
+[![Build](https://github.com/gavv/signal-estimator/workflows/build/badge.svg)](https://github.com/gavv/signal-estimator/actions)
 
 <!-- toc -->
 
