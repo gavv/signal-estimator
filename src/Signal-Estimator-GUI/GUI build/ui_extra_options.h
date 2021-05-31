@@ -14,6 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
@@ -28,19 +29,19 @@ public:
     QSpinBox *SMA;
     QLabel *Label1_2;
     QSpinBox *StrikePeriod;
-    QSpinBox *StrikeLength;
+    QDoubleSpinBox *StrikeLength;
     QLabel *Label1_3;
     QSpinBox *StrDW;
     QLabel *Label1_4;
-    QSpinBox *StrDT;
+    QDoubleSpinBox *StrDT;
     QLabel *Label1_5;
     QLabel *Label1_6;
     QSpinBox *SigDW;
-    QSpinBox *SigDT;
+    QDoubleSpinBox *SigDT;
     QLabel *Label1_7;
     QSpinBox *GliDW;
     QLabel *Label1_8;
-    QSpinBox *GliDT;
+    QDoubleSpinBox *GliDT;
     QLabel *Label1_9;
     QLabel *Label1_10;
     QSpinBox *MVFD;
@@ -59,6 +60,7 @@ public:
         SMA = new QSpinBox(extra_options);
         SMA->setObjectName(QStringLiteral("SMA"));
         SMA->setGeometry(QRect(240, 10, 121, 31));
+        SMA->setMaximum(2147483647);
         SMA->setValue(5);
         Label1_2 = new QLabel(extra_options);
         Label1_2->setObjectName(QStringLiteral("Label1_2"));
@@ -66,13 +68,15 @@ public:
         StrikePeriod = new QSpinBox(extra_options);
         StrikePeriod->setObjectName(QStringLiteral("StrikePeriod"));
         StrikePeriod->setGeometry(QRect(120, 50, 171, 31));
+        StrikePeriod->setMaximum(2147483647);
         StrikePeriod->setValue(1);
-        StrikeLength = new QSpinBox(extra_options);
+        StrikeLength = new QDoubleSpinBox(extra_options);
         StrikeLength->setObjectName(QStringLiteral("StrikeLength"));
         StrikeLength->setGeometry(QRect(120, 90, 171, 31));
-        StrikeLength->setMinimum(0);
-        StrikeLength->setMaximum(100);
-        StrikeLength->setValue(1);
+        StrikeLength->setDecimals(6);
+        StrikeLength->setMaximum(1);
+        StrikeLength->setSingleStep(0.01);
+        StrikeLength->setValue(0.01);
         Label1_3 = new QLabel(extra_options);
         Label1_3->setObjectName(QStringLiteral("Label1_3"));
         Label1_3->setGeometry(QRect(10, 90, 111, 31));
@@ -80,17 +84,18 @@ public:
         StrDW->setObjectName(QStringLiteral("StrDW"));
         StrDW->setGeometry(QRect(190, 130, 171, 31));
         StrDW->setMinimum(0);
-        StrDW->setMaximum(4080);
+        StrDW->setMaximum(2147483647);
         StrDW->setValue(96);
         Label1_4 = new QLabel(extra_options);
         Label1_4->setObjectName(QStringLiteral("Label1_4"));
         Label1_4->setGeometry(QRect(10, 130, 181, 31));
-        StrDT = new QSpinBox(extra_options);
+        StrDT = new QDoubleSpinBox(extra_options);
         StrDT->setObjectName(QStringLiteral("StrDT"));
         StrDT->setGeometry(QRect(200, 170, 161, 31));
-        StrDT->setMinimum(0);
-        StrDT->setMaximum(100);
-        StrDT->setValue(40);
+        StrDT->setDecimals(6);
+        StrDT->setMaximum(1);
+        StrDT->setSingleStep(0.01);
+        StrDT->setValue(0.4);
         Label1_5 = new QLabel(extra_options);
         Label1_5->setObjectName(QStringLiteral("Label1_5"));
         Label1_5->setGeometry(QRect(10, 170, 191, 31));
@@ -100,29 +105,33 @@ public:
         SigDW = new QSpinBox(extra_options);
         SigDW->setObjectName(QStringLiteral("SigDW"));
         SigDW->setGeometry(QRect(560, 10, 131, 31));
-        SigDW->setMaximum(400);
+        SigDW->setMaximum(2147483647);
         SigDW->setValue(48);
-        SigDT = new QSpinBox(extra_options);
+        SigDT = new QDoubleSpinBox(extra_options);
         SigDT->setObjectName(QStringLiteral("SigDT"));
         SigDT->setGeometry(QRect(570, 50, 121, 31));
-        SigDT->setMaximum(100);
-        SigDT->setValue(15);
+        SigDT->setDecimals(6);
+        SigDT->setMaximum(1);
+        SigDT->setSingleStep(0.01);
+        SigDT->setValue(0.15);
         Label1_7 = new QLabel(extra_options);
         Label1_7->setObjectName(QStringLiteral("Label1_7"));
         Label1_7->setGeometry(QRect(380, 50, 191, 31));
         GliDW = new QSpinBox(extra_options);
         GliDW->setObjectName(QStringLiteral("GliDW"));
         GliDW->setGeometry(QRect(560, 90, 131, 31));
-        GliDW->setMaximum(400);
-        GliDW->setValue(48);
+        GliDW->setMaximum(2147483647);
+        GliDW->setValue(32);
         Label1_8 = new QLabel(extra_options);
         Label1_8->setObjectName(QStringLiteral("Label1_8"));
         Label1_8->setGeometry(QRect(380, 90, 181, 31));
-        GliDT = new QSpinBox(extra_options);
+        GliDT = new QDoubleSpinBox(extra_options);
         GliDT->setObjectName(QStringLiteral("GliDT"));
         GliDT->setGeometry(QRect(570, 130, 121, 31));
-        GliDT->setMaximum(100);
-        GliDT->setValue(15);
+        GliDT->setDecimals(6);
+        GliDT->setMaximum(1);
+        GliDT->setSingleStep(0.01);
+        GliDT->setValue(0.05);
         Label1_9 = new QLabel(extra_options);
         Label1_9->setObjectName(QStringLiteral("Label1_9"));
         Label1_9->setGeometry(QRect(380, 130, 191, 31));
@@ -132,7 +141,7 @@ public:
         MVFD = new QSpinBox(extra_options);
         MVFD->setObjectName(QStringLiteral("MVFD"));
         MVFD->setGeometry(QRect(580, 170, 111, 31));
-        MVFD->setMaximum(1000);
+        MVFD->setMaximum(2147483647);
         MVFD->setValue(64);
         Label1_11 = new QLabel(extra_options);
         Label1_11->setObjectName(QStringLiteral("Label1_11"));
@@ -140,7 +149,7 @@ public:
         DR = new QSpinBox(extra_options);
         DR->setObjectName(QStringLiteral("DR"));
         DR->setGeometry(QRect(500, 210, 191, 31));
-        DR->setMaximum(1000);
+        DR->setMaximum(2147483647);
         DR->setValue(10);
         OkButton = new QPushButton(extra_options);
         OkButton->setObjectName(QStringLiteral("OkButton"));
@@ -158,19 +167,15 @@ public:
         SMA->setSuffix(QApplication::translate("extra_options", " seconds", Q_NULLPTR));
         Label1_2->setText(QApplication::translate("extra_options", "Strike Period:", Q_NULLPTR));
         StrikePeriod->setSuffix(QApplication::translate("extra_options", " seconds", Q_NULLPTR));
-        StrikeLength->setSuffix(QApplication::translate("extra_options", " / 100 seconds", Q_NULLPTR));
         Label1_3->setText(QApplication::translate("extra_options", "Strike Length:", Q_NULLPTR));
         StrDW->setSuffix(QString());
         Label1_4->setText(QApplication::translate("extra_options", "Strike Detection Window:", Q_NULLPTR));
-        StrDT->setSuffix(QApplication::translate("extra_options", " / 100", Q_NULLPTR));
         Label1_5->setText(QApplication::translate("extra_options", "Strike Detection Threshold:", Q_NULLPTR));
         Label1_6->setText(QApplication::translate("extra_options", "Signal Detection Window:", Q_NULLPTR));
         SigDW->setSuffix(QString());
-        SigDT->setSuffix(QApplication::translate("extra_options", " / 100", Q_NULLPTR));
         Label1_7->setText(QApplication::translate("extra_options", "Signal Detection Threshold:", Q_NULLPTR));
         GliDW->setSuffix(QString());
         Label1_8->setText(QApplication::translate("extra_options", "Glitch Detection Window:", Q_NULLPTR));
-        GliDT->setSuffix(QApplication::translate("extra_options", " / 100", Q_NULLPTR));
         Label1_9->setText(QApplication::translate("extra_options", "Glitch Detection Threshold:", Q_NULLPTR));
         Label1_10->setText(QApplication::translate("extra_options", "Max Value per Frame Dump:", Q_NULLPTR));
         MVFD->setSuffix(QString());

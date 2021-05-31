@@ -11,8 +11,6 @@
 #include <qwt_text.h>
 #include <cstring>
 #include <unistd.h>
-#include <QtConcurrent/QtConcurrent>
-#include <QTimer>
 #include <thread>
 #include <mutex>
 
