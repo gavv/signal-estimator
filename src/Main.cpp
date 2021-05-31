@@ -282,12 +282,10 @@ int main(int argc, char** argv) {
         input_loop(config, estimator.get(), input_reader, input_dumper.get());
     });
 
-    auto output_thread = std::async(std::launch::async, [&]() {
-	output_loop(config, *generator, estimator.get(), output_writer, output_dumper.get());
-    });
-
+    output_loop(config, *generator, estimator.get(), output_writer, output_dumper.get());
+  
     input_thread.wait();
-    output_thread.wait();
+
 
     return 0;
 }
