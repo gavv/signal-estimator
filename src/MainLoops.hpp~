@@ -1,0 +1,48 @@
+using namespace signal_estimator;
+
+namespace {
+void input_loop(
+    const Config& config, IEstimator* estimator, AlsaReader& reader, FileDumper* dumper) {
+    set_realtime();
+
+    Frame frame(config);
+
+    for (size_t n = 0; n < config.total_samples() / frame.size(); n++) {
+        if (!reader.read(frame)) {
+            exit(1);
+        }
+
+        if (estimator) {
+            estimator->add_input(frame);
+        }
+
+        if (dumper) {
+            dumper->write(frame);
+        }
+    }
+}
+
+void output_loop(const Config& config, IGenerator& generator, IEstimator* estimator,
+    AlsaWriter& writer, FileDumper* dumper) {
+    set_realtime();
+
+    Frame frame(config);
+
+    for (size_t n = 0; n < config.total_samples() / frame.size(); n++) {
+        generator.generate(frame);
+
+        if (!writer.write(frame)) {
+            exit(1);
+        }
+
+        if (estimator) {
+            estimator->add_output(frame);
+        }
+
+        if (dumper) {
+            dumper->write(frame);
+        }
+    }
+}
+
+} // namespace

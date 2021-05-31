@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[4];
-    char stringdata0[66];
+    QByteArrayData data[11];
+    char stringdata0[173];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,13 +32,23 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
-QT_MOC_LITERAL(1, 11, 29), // "on_MoreOptionsButton_released"
-QT_MOC_LITERAL(2, 41, 0), // ""
-QT_MOC_LITERAL(3, 42, 23) // "on_StartButton_released"
+QT_MOC_LITERAL(1, 11, 16), // "update_input_sig"
+QT_MOC_LITERAL(2, 28, 0), // ""
+QT_MOC_LITERAL(3, 29, 17), // "update_output_sig"
+QT_MOC_LITERAL(4, 47, 29), // "on_MoreOptionsButton_released"
+QT_MOC_LITERAL(5, 77, 23), // "on_StartButton_released"
+QT_MOC_LITERAL(6, 101, 16), // "set_update_plots"
+QT_MOC_LITERAL(7, 118, 1), // "f"
+QT_MOC_LITERAL(8, 120, 16), // "get_update_plots"
+QT_MOC_LITERAL(9, 137, 13), // "update_graphs"
+QT_MOC_LITERAL(10, 151, 21) // "on_StopButton_clicked"
 
     },
-    "MainWindow\0on_MoreOptionsButton_released\0"
-    "\0on_StartButton_released"
+    "MainWindow\0update_input_sig\0\0"
+    "update_output_sig\0on_MoreOptionsButton_released\0"
+    "on_StartButton_released\0set_update_plots\0"
+    "f\0get_update_plots\0update_graphs\0"
+    "on_StopButton_clicked"
 };
 #undef QT_MOC_LITERAL
 
@@ -48,18 +58,34 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       2,       // signalCount
+
+ // signals: name, argc, parameters, tag, flags
+       1,    0,   54,    2, 0x06 /* Public */,
+       3,    0,   55,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   24,    2, 0x08 /* Private */,
-       3,    0,   25,    2, 0x08 /* Private */,
+       4,    0,   56,    2, 0x08 /* Private */,
+       5,    0,   57,    2, 0x08 /* Private */,
+       6,    1,   58,    2, 0x08 /* Private */,
+       8,    0,   61,    2, 0x08 /* Private */,
+       9,    0,   62,    2, 0x08 /* Private */,
+      10,    0,   63,    2, 0x08 /* Private */,
+
+ // signals: parameters
+    QMetaType::Void,
+    QMetaType::Void,
 
  // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,    7,
+    QMetaType::Bool,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -72,12 +98,34 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         MainWindow *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->on_MoreOptionsButton_released(); break;
-        case 1: _t->on_StartButton_released(); break;
+        case 0: _t->update_input_sig(); break;
+        case 1: _t->update_output_sig(); break;
+        case 2: _t->on_MoreOptionsButton_released(); break;
+        case 3: _t->on_StartButton_released(); break;
+        case 4: _t->set_update_plots((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 5: { bool _r = _t->get_update_plots();
+            if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = std::move(_r); }  break;
+        case 6: _t->update_graphs(); break;
+        case 7: _t->on_StopButton_clicked(); break;
         default: ;
         }
+    } else if (_c == QMetaObject::IndexOfMethod) {
+        int *result = reinterpret_cast<int *>(_a[0]);
+        {
+            typedef void (MainWindow::*_t)() const;
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MainWindow::update_input_sig)) {
+                *result = 0;
+                return;
+            }
+        }
+        {
+            typedef void (MainWindow::*_t)() const;
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MainWindow::update_output_sig)) {
+                *result = 1;
+                return;
+            }
+        }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObject MainWindow::staticMetaObject = {
@@ -105,15 +153,27 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 8;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 8)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 2;
+        _id -= 8;
     }
     return _id;
+}
+
+// SIGNAL 0
+void MainWindow::update_input_sig()const
+{
+    QMetaObject::activate(const_cast< MainWindow *>(this), &staticMetaObject, 0, nullptr);
+}
+
+// SIGNAL 1
+void MainWindow::update_output_sig()const
+{
+    QMetaObject::activate(const_cast< MainWindow *>(this), &staticMetaObject, 1, nullptr);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

@@ -6,11 +6,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    //connect( this->update_input_sig, this, &MainWindow::update_input, Qt::QueuedConnection);
+    //connect( this->update_output_sig, this, &MainWindow::update_output, Qt::QueuedConnection);
 
     char buffer[128];
     size_t pos = 100, end;
     std::string device_name;
     std::string result;
+
+    curve2->attach(this->ui->OutputSig);
+    curve1->attach(this->ui->InputSig);
 
     std::unique_ptr<FILE,decltype(&pclose)> pipe1(popen("aplay -l","r"),pclose);
     if(!pipe){
@@ -52,7 +57,6 @@ MainWindow::MainWindow(QWidget *parent) :
         end = result.find(" Subdevice");
         if (end > 0 && pos > 11){
             device_name = result.substr(0,end - 2);
-
             this->ui->InputDevices->addItem(QString::fromStdString(device_name));
         }
         else
@@ -65,40 +69,77 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::read_graph_data(FILE* file, QwtPlotCurve* curve, QVector<double> x, QVector<double> y){
-     char buffer[128];
-     std::string token;
-     int counter = 0;
-     while (fgets(buffer,128,file) != nullptr){
-        token = std::strtok(buffer," \n");
-        x.append(std::stod(token)/1000000);
-        token = std::strtok(NULL, " \n");
-        y.append(std::stod(token));
+void MainWindow::update_graphs(){
+    //this->ui->InputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
 
-        //token = std::strtok(buffer," \n\0");
-        //token = std::strtok(NULL, " \n\0");
+    this->ui->InputSig->updateAxes();
+    this->ui->InputSig->replot();
+
+    //this->ui->OutputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
+
+    this->ui->OutputSig->updateAxes();
+    this->ui->OutputSig->replot();
+    QApplication::processEvents();
+}
+
+
+
+void MainWindow::read_graph_data(const char* cmd, QwtPlotCurve* incurve, QwtPlotCurve* outcurve,
+                                 QVector<double>& inx, QVector<double>& iny,
+                                 QVector<double>& outx, QVector<double>& outy, std::mutex& m){
+     char buffer[128];
+     char* token;
+     int counter = 0;
+
+     std::unique_ptr<FILE,decltype(&pclose)> pipe2(popen(cmd,"r"),pclose);
+     if(!pipe2){
+         throw std::runtime_error("Failed to run signal_estimator");
+     }
+
+     while (fgets(buffer,128,pipe2.get()) != nullptr && this->get_update_plots() == true){
+
+        token = std::strtok(buffer," \n");
+        m.lock();
+        if (strcmp(token, "Input") == 0){
+            token = std::strtok(NULL, " \n");
+            inx.append(std::stod(token)/1000000);
+            token = std::strtok(NULL, " \n");
+            if (token == NULL)
+                inx.pop_back();
+            else
+                iny.append(std::stod(token));
+            if (counter % 20 == 0){
+                incurve->setSamples(inx, iny);
+
+            }
+        }
+        else if (strcmp(token, "Output") == 0) {
+            token = std::strtok(NULL, " \n");
+            outx.append(std::stod(token)/1000000);
+            token = std::strtok(NULL, " \n");
+            if (token == NULL)
+                outx.pop_back();
+            else
+                outy.append(std::stod(token));
+
+            if (counter % 20 == 0){
+                outcurve->setSamples(outx, outy);
+
+            }
+        }
+        m.unlock();
+        if (counter == 5000){
+            //inx.clear();
+            //iny.clear();
+            //outx.clear();
+            //outy.clear();
+            counter = 0;
+        }
 
         counter += 1;
 
-        if (counter == 20){
-            curve->setSamples(x, y);
-            counter = 0;
-            usleep(.2 * 1000000) ;
-            if (curve->title().text().toStdString() == "Input Curve"){
-                curve->attach(this->ui->InputSig);
-                this->ui->InputSig->updateAxes();
-                this->ui->InputSig->replot();
-            }
-            else {
-                curve->attach(this->ui->OutputSig);
-                this->ui->OutputSig->updateAxes();
-                this->ui->OutputSig->replot();
-            }
-            QCoreApplication::processEvents();
-
-        }
-
      }
+     this->set_update_plots(false);
 }
 
 void MainWindow::run_estimator(){
@@ -150,37 +191,51 @@ void MainWindow::run_estimator(){
         options.append(" -d ");
         options.append(std::to_string(t));
 
-        options.append(" --dump-output tempout.txt ");
+        options.append(" --dump-output stdout ");
 
-        options.append(" --dump-input tempin.txt ");
+        options.append(" --dump-input stdout ");
 
         options.append(this->eo->get_options());
         this->eo->wipe_options();
 
         std::string command = "./signal-estimator ";
         command.append(options);
-
-
         const char* cmd = command.data();
 
-        system(cmd);
+        //system(cmd);
+        this->set_update_plots(true);
 
-        char* token ; // need to differentiate between input signal and output
-        QVector<double> Outx;
-        QVector<double> Outy;
-        QVector<double> Inx;
-        QVector<double> Iny;
+        Inx.clear();
+        Iny.clear();
+        Outx.clear();
+        Outy.clear();
 
-        QwtPlotCurve* curve1 = new QwtPlotCurve ("Input Curve");
-        QwtPlotCurve* curve2 = new QwtPlotCurve ("Output Curve");
+        //this->ui->InputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
+        //this->ui->OutputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
+        this->ui->OutputSig->updateAxes();
+        this->ui->OutputSig->replot();
 
-        FILE* infp = fopen("tempin.txt", "r");
-        FILE* outfp = fopen("tempout.txt", "r");
 
-        this->read_graph_data(infp,curve1,Inx,Iny);
-        std::fclose(infp);
-        this->read_graph_data(outfp,curve2,Outx,Outy);
-        std::fclose(outfp);
+        std::mutex m;
+
+        std::thread t1(&MainWindow::read_graph_data, this,cmd,
+                       std::ref(curve1),std::ref(curve2),std::ref(Inx),std::ref(Iny),
+                       std::ref(Outx),std::ref(Outy),std::ref(m));
+
+        while (this->get_update_plots() == true){
+            usleep(.01 * 1000000);
+            m.lock();
+            this->update_graphs();
+            m.unlock();
+        }
+
+        t1.join();
+
+        //QThreadPool* pool = new QThreadPool;
+        //QFuture<void> f1 = QtConcurrent::run(&MainWindow::read_graph_data,infp,curve1,Inx,Iny);
+        //QFuture<void> f2 = QtConcurrent::run(&MainWindow::read_graph_data,outfp,curve2,Outx,Outy);
+        //f1.waitForFinished();
+        //f2.waitForFinished();
 
         return;
 }
@@ -192,5 +247,10 @@ void MainWindow::on_MoreOptionsButton_released()
 
 void MainWindow::on_StartButton_released()
 {
-    QFuture<void> future = QtConcurrent::run(this->run_estimator());
+    this->run_estimator();
+}
+
+void MainWindow::on_StopButton_clicked()
+{
+    this->set_update_plots(false);
 }
