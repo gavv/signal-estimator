@@ -64,11 +64,6 @@
     </property>
     <item>
      <property name="text">
-      <string>Choose mode</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
       <string>noop</string>
      </property>
     </item>
@@ -155,12 +150,7 @@
     </property>
     <item>
      <property name="text">
-      <string>Choose format</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>JSON</string>
+      <string>json</string>
      </property>
     </item>
     <item>

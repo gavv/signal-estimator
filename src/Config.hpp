@@ -74,6 +74,7 @@ struct Config {
     size_t total_samples() const {
         return size_t(sample_rate * duration) * n_channels;
     }
+  
 };
 
 } // namespace signal_estimator
