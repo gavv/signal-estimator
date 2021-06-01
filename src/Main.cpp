@@ -17,7 +17,6 @@
 #include "TextFormatter.hpp"
 #include "Time.hpp"
 
-
 #include <cxxopts.hpp>
 
 #include <future>
@@ -28,7 +27,7 @@ using namespace signal_estimator;
 namespace {
 
 void output_loop(const Config& config, IGenerator& generator, IEstimator* estimator,
-		 AlsaWriter& writer, FileDumper* dumper) {
+    AlsaWriter& writer, FileDumper* dumper) {
     set_realtime();
 
     Frame frame(config);
@@ -51,7 +50,7 @@ void output_loop(const Config& config, IGenerator& generator, IEstimator* estima
 }
 
 void input_loop(
-		const Config& config, IEstimator* estimator, AlsaReader& reader, FileDumper* dumper) {
+    const Config& config, IEstimator* estimator, AlsaReader& reader, FileDumper* dumper) {
     set_realtime();
 
     Frame frame(config);
@@ -101,8 +100,6 @@ int main(int argc, char** argv) {
          cxxopts::value<unsigned int>()->default_value(std::to_string(config.latency_us)))
         ("d,duration", "Measurement duration, seconds",
          cxxopts::value<float>()->default_value(std::to_string(config.duration)))
-        ("g,gui", "Open GUI",
-         cxxopts::value<bool>())
         ;
 
     opts.add_options("Reporting")
@@ -215,7 +212,6 @@ int main(int argc, char** argv) {
 
         config.dump_frame = res["dump-frame"].as<size_t>();
         config.dump_rounding = res["dump-rounding"].as<size_t>();
-	
     }
     catch (std::exception& exc) {
         se_log_error("%s", exc.what());
@@ -283,9 +279,8 @@ int main(int argc, char** argv) {
     });
 
     output_loop(config, *generator, estimator.get(), output_writer, output_dumper.get());
-  
-    input_thread.wait();
 
+    input_thread.wait();
 
     return 0;
 }

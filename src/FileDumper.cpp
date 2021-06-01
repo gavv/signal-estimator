@@ -39,10 +39,6 @@ FileDumper::~FileDumper() {
 }
 
 bool FileDumper::open(const char* filename) {
-  if (strcmp(filename,"stdout") == 0){
-    fp_ = stdout;
-  }
-  else
     fp_ = fopen(filename, "w");
 
     if (!fp_) {
@@ -71,32 +67,28 @@ void FileDumper::write(Frame& frame) {
         const auto subframe_data = frame.data() + off;
         const auto subframe_sz = std::min(config_.dump_frame, frame.size() - off);
 
-        write_subframe_(subframe_ts, subframe_data, subframe_sz, frame.get_IOType());
+        write_subframe_(subframe_ts, subframe_data, subframe_sz);
 
         off += subframe_sz;
     }
 }
 
-  void FileDumper::write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz, int iotype) {
+void FileDumper::write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz) {
     const int new_val
         = int(find_max(buf, bufsz) / config_.dump_rounding * config_.dump_rounding);
 
     const bool changed = (new_val != last_val_);
 
-    if (changed && fp_ != stdout) {
+    if (changed) {
         print_last_maybe_();
     }
-    else if (changed && iotype == 0){print_output_();}
-    else if (changed && iotype == 1){print_input_();}
 
     last_ts_ = ts;
     last_val_ = new_val;
 
-    if (changed && fp_ != stdout) {
+    if (changed) {
         print_last_maybe_();
     }
-    else if (changed && iotype == 0){print_output_();}
-    else if (changed && iotype == 1){print_input_();}
 }
 
 void FileDumper::print_last_maybe_() {
@@ -113,37 +105,5 @@ void FileDumper::print_last_maybe_() {
 
     last_printed_ts_ = last_ts_;
 }
-
-  void FileDumper::print_input_() {
-    if (last_ts_ == 0) {
-        return;
-    }
-
-    if (last_printed_ts_ == last_ts_) {
-        return;
-    }
-
-    fprintf(fp_, "Input %lu %d\n", last_ts_, last_val_);
-    fflush(fp_);
-
-    last_printed_ts_ = last_ts_;
-    
-  }
-
-    void FileDumper::print_output_() {
-    if (last_ts_ == 0) {
-        return;
-    }
-
-    if (last_printed_ts_ == last_ts_) {
-        return;
-    }
-
-    fprintf(fp_, "Output %lu %d\n", last_ts_, last_val_);
-    fflush(fp_);
-
-    last_printed_ts_ = last_ts_;
-    
-  }
 
 } // namespace signal_estimator

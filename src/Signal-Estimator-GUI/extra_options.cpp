@@ -13,10 +13,11 @@ extra_options::~extra_options()
     delete ui;
 }
 
+
+
 void extra_options::on_OkButton_released()
 {
-    float t; // same as the mainwindow options
-    // There is a function that returns this->options as a string in header file
+    float t;
     std::string options = this->options;
 
     t = this->ui->SMA->value();

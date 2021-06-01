@@ -8,21 +8,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     char buffer[128];
-    size_t pos = 100, end; // start and end of the device name for substr
+    size_t pos = 100, end;
     std::string device_name;
-    std::string result; // for pipe
+    std::string result;
 
-    curve2->attach(this->ui->OutputSig);
-    curve1->attach(this->ui->InputSig);
-
-    // run pipe to get output devices from aplay
     std::unique_ptr<FILE,decltype(&pclose)> pipe1(popen("aplay -l","r"),pclose);
-
     if(!pipe){
         throw std::runtime_error("Failed to run aplay");
     }
 
-    // read everything from aplay into result
     while (fgets(buffer,128,pipe1.get()) != nullptr){
         result += buffer;
     }
@@ -58,7 +52,8 @@ MainWindow::MainWindow(QWidget *parent) :
         end = result.find(" Subdevice");
         if (end > 0 && pos > 11){
             device_name = result.substr(0,end - 2);
-            this->ui->InputDevices->addItem(QString::fromStdString(device_name)); // add to input devices ui instead of output
+
+            this->ui->InputDevices->addItem(QString::fromStdString(device_name));
         }
         else
             done = 1;
@@ -70,82 +65,45 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::update_graphs(){ // update both input and output signal graphs
-    //this->ui->InputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
-
-    this->ui->InputSig->updateAxes();
-    this->ui->InputSig->replot();
-
-    //this->ui->OutputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
-
-    this->ui->OutputSig->updateAxes();
-    this->ui->OutputSig->replot();
-    QApplication::processEvents();
-}
-
-
-
-void MainWindow::read_graph_data(const char* cmd, QwtPlotCurve* incurve, QwtPlotCurve* outcurve,
-                                 QVector<double>& inx, QVector<double>& iny,
-                                 QVector<double>& outx, QVector<double>& outy, std::mutex& m){
+void MainWindow::read_graph_data(FILE* file, QwtPlotCurve* curve, QVector<double> x, QVector<double> y){
      char buffer[128];
-     char* token;
+     std::string token;
      int counter = 0;
+     while (fgets(buffer,128,file) != nullptr){
+        token = std::strtok(buffer," \n");
+        x.append(std::stod(token)/1000000);
+        token = std::strtok(NULL, " \n");
+        y.append(std::stod(token));
 
-     // run pipe with signal_estimator
-     // This assumes that the signal_estimator is outputting to stdout with the type of signal prepended to the data values
-     // The only changes to the signal_estimator source are the fact that frame.hpp now has a function to get iotype
-     // and the file dumper dumps the data prepended with iotype to stdout if stdout is used as file dumper option.
+        //token = std::strtok(buffer," \n\0");
+        //token = std::strtok(NULL, " \n\0");
 
-     std::unique_ptr<FILE,decltype(&pclose)> pipe2(popen(cmd,"r"),pclose);
-     if(!pipe2){
-         throw std::runtime_error("Failed to run signal_estimator");
-     }
-     // loop to get a line from the pipe
+        counter += 1;
 
-     while (fgets(buffer,128,pipe2.get()) != nullptr && this->get_update_plots() == true){
-
-        token = std::strtok(buffer," \n"); // get iotype
-        m.lock();
-        // if iotype is input
-        if (strcmp(token, "Input") == 0){
-            token = std::strtok(NULL, " \n");
-            inx.append(std::stod(token)/1000000); // append to Qvector x-axis for input graph
-            token = std::strtok(NULL, " \n");
-            if (token == NULL) // if corresponding y cannot be read, toss back the x out
-                inx.pop_back();
-            else // append to Qvector y-axis for input graph
-                iny.append(std::stod(token));
-            if (counter % 20 == 0){ // set the data for QWT plot curve in the input graph
-                incurve->setSamples(inx, iny);
-            }
-        }
-        // if iotype is output
-        else if (strcmp(token, "Output") == 0) {
-            token = std::strtok(NULL, " \n");
-            outx.append(std::stod(token)/1000000); // append to Qvector x-axis for output graph
-            token = std::strtok(NULL, " \n");
-            if (token == NULL) // if corresponding y cannot be read, toss back the x out
-                outx.pop_back();
-            else // append to Qvector y-axis for input graph
-                outy.append(std::stod(token));
-            if (counter % 20 == 0){ // set the data for QWT plot curve in the output graph
-                outcurve->setSamples(outx, outy);
-            }
-        }
-        m.unlock();
-
-        if (counter == 5000)
+        if (counter == 20){
+            curve->setSamples(x, y);
             counter = 0;
+            usleep(.2 * 1000000) ;
+            if (curve->title().text().toStdString() == "Input Curve"){
+                curve->attach(this->ui->InputSig);
+                this->ui->InputSig->updateAxes();
+                this->ui->InputSig->replot();
+            }
+            else {
+                curve->attach(this->ui->OutputSig);
+                this->ui->OutputSig->updateAxes();
+                this->ui->OutputSig->replot();
+            }
+            QCoreApplication::processEvents();
+
+        }
 
      }
-     this->set_update_plots(false); // after read loop finishes set to false to stop reading graph
 }
 
 void MainWindow::run_estimator(){
-        std::string options; // used to hold all options from the ui
-        // This program calls the separate signal_estimator cmd line program to get the graph data
-        QString temp; // to convert from QString to normal string
+        std::string options;
+        QString temp;
 
         temp = this->ui->Format->currentText();
 
@@ -192,59 +150,47 @@ void MainWindow::run_estimator(){
         options.append(" -d ");
         options.append(std::to_string(t));
 
-        // both of these options have to be stdout because we use a pipe that reads from signal_estimator stdout
-        options.append(" --dump-output stdout ");
-        options.append(" --dump-input stdout ");
+        options.append(" --dump-output tempout.txt ");
+
+        options.append(" --dump-input tempin.txt ");
 
         options.append(this->eo->get_options());
         this->eo->wipe_options();
 
         std::string command = "./signal-estimator ";
         command.append(options);
-        const char* cmd = command.data(); //
 
-        this->set_update_plots(true); // must be true to update graphs
 
-        // clear old data when the start button is pressed
-        Inx.clear();
-        Iny.clear();
-        Outx.clear();
-        Outy.clear();
+        const char* cmd = command.data();
 
-        // reset graphs
-        this->ui->OutputSig->updateAxes();
-        this->ui->OutputSig->replot();
+        system(cmd);
 
-        std::mutex m; // needed to make sure the thread reading in data and the thread graphing the data don't step on each other's toes
+        char* token ; // need to differentiate between input signal and output
+        QVector<double> Outx;
+        QVector<double> Outy;
+        QVector<double> Inx;
+        QVector<double> Iny;
 
-        // Thread that reads in data
-        std::thread t1(&MainWindow::read_graph_data, this,cmd,
-                       std::ref(curve1),std::ref(curve2),std::ref(Inx),std::ref(Iny),
-                       std::ref(Outx),std::ref(Outy),std::ref(m));
+        QwtPlotCurve* curve1 = new QwtPlotCurve ("Input Curve");
+        QwtPlotCurve* curve2 = new QwtPlotCurve ("Output Curve");
 
-        while (this->get_update_plots() == true){ // loop to update graph (must be done in main GUI thread)
-            usleep(.01 * 1000000);
-            m.lock();
-            this->update_graphs();
-            m.unlock();
-        }
+        FILE* infp = fopen("tempin.txt", "r");
+        FILE* outfp = fopen("tempout.txt", "r");
 
-        t1.join();
+        this->read_graph_data(infp,curve1,Inx,Iny);
+        std::fclose(infp);
+        this->read_graph_data(outfp,curve2,Outx,Outy);
+        std::fclose(outfp);
 
         return;
 }
 
 void MainWindow::on_MoreOptionsButton_released()
 {
-    this->eo->show(); // show more options window
+    this->eo->show();
 }
 
 void MainWindow::on_StartButton_released()
 {
-    this->run_estimator();
-}
-
-void MainWindow::on_StopButton_clicked()
-{
-    this->set_update_plots(false); // stop plotting when stop button is pressed
+    QFuture<void> future = QtConcurrent::run(this->run_estimator());
 }

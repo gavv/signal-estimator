@@ -12,10 +12,10 @@ MAKEFILE      = Makefile
 
 CC            = clang
 CXX           = clang++
-DEFINES       = -DQWT_DLL -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_OPENGL_LIB -DQT_SVG_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CONCURRENT_LIB -DQT_CORE_LIB
+DEFINES       = -DQWT_DLL -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_OPENGL_LIB -DQT_SVG_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe $(shell dpkg-buildflags --get CFLAGS) -D_FORTIFY_SOURCE=2 -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe $(shell dpkg-buildflags --get CXXFLAGS) -D_FORTIFY_SOURCE=2 -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I../../Signal-Estimator-GUI -I. -isystem /usr/include/qwt -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtOpenGL -isystem /usr/include/x86_64-linux-gnu/qt5/QtSvg -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtConcurrent -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang
+INCPATH       = -I../../Signal-Estimator-GUI -I. -isystem /usr/include/qwt -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtOpenGL -isystem /usr/include/x86_64-linux-gnu/qt5/QtSvg -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -38,7 +38,7 @@ DISTNAME      = Signal-Estimator-GUI1.0.0
 DISTDIR = /home/vien/Documents/Signal-estimator\ GUI\ Project/signal-estimator-master/src/Signal-Estimator-GUI/GUI\ build/.tmp/Signal-Estimator-GUI1.0.0
 LINK          = clang++
 LFLAGS        = -ccc-gcc-name g++ $(shell dpkg-buildflags --get LDFLAGS)
-LIBS          = $(SUBLIBS) -L/lib -lqwt-qt5 -lQt5OpenGL -lQt5Svg -lQt5Widgets -lQt5Gui -lQt5Concurrent -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/lib -lqwt-qt5 -lQt5OpenGL -lQt5Svg -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -113,7 +113,6 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang/qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf \
-		../.qmake.stash \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf \
@@ -205,7 +204,6 @@ Makefile: ../Signal-Estimator-GUI.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linu
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang/qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf \
@@ -233,7 +231,6 @@ Makefile: ../Signal-Estimator-GUI.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linu
 		/usr/lib/x86_64-linux-gnu/libQt5Svg.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5Widgets.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5Gui.prl \
-		/usr/lib/x86_64-linux-gnu/libQt5Concurrent.prl \
 		/usr/lib/x86_64-linux-gnu/libQt5Core.prl
 	$(QMAKE) -o Makefile ../Signal-Estimator-GUI.pro -spec linux-clang CONFIG+=debug CONFIG+=qml_debug
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf:
@@ -290,7 +287,6 @@ Makefile: ../Signal-Estimator-GUI.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linu
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang/qmake.conf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf:
-.qmake.stash:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf:
@@ -318,7 +314,6 @@ Makefile: ../Signal-Estimator-GUI.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linu
 /usr/lib/x86_64-linux-gnu/libQt5Svg.prl:
 /usr/lib/x86_64-linux-gnu/libQt5Widgets.prl:
 /usr/lib/x86_64-linux-gnu/libQt5Gui.prl:
-/usr/lib/x86_64-linux-gnu/libQt5Concurrent.prl:
 /usr/lib/x86_64-linux-gnu/libQt5Core.prl:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ../Signal-Estimator-GUI.pro -spec linux-clang CONFIG+=debug CONFIG+=qml_debug
@@ -377,13 +372,13 @@ moc_mainwindow.cpp: ../extra_options.h \
 		../mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../mainwindow.h -o moc_mainwindow.cpp
 
 moc_extra_options.cpp: ../../Config.hpp \
 		../extra_options.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../extra_options.h -o moc_extra_options.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../extra_options.h -o moc_extra_options.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:

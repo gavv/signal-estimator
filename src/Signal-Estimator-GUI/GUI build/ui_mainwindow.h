@@ -80,7 +80,7 @@ public:
         SampleRate->setObjectName(QStringLiteral("SampleRate"));
         SampleRate->setGeometry(QRect(110, 110, 141, 26));
         SampleRate->setMinimum(1);
-        SampleRate->setMaximum(2147483647);
+        SampleRate->setMaximum(10000000);
         SampleRate->setValue(48000);
         SampleRateLabel = new QLabel(centralWidget);
         SampleRateLabel->setObjectName(QStringLiteral("SampleRateLabel"));
@@ -98,7 +98,7 @@ public:
         NumChannels->setObjectName(QStringLiteral("NumChannels"));
         NumChannels->setGeometry(QRect(160, 140, 91, 26));
         NumChannels->setMinimum(1);
-        NumChannels->setMaximum(2147483647);
+        NumChannels->setMaximum(1000);
         NumChannels->setValue(2);
         NumChannelsLabel = new QLabel(centralWidget);
         NumChannelsLabel->setObjectName(QStringLiteral("NumChannelsLabel"));
@@ -120,14 +120,14 @@ public:
         PRB->setObjectName(QStringLiteral("PRB"));
         PRB->setGeometry(QRect(170, 200, 81, 26));
         PRB->setMinimum(0);
-        PRB->setMaximum(2147483647);
+        PRB->setMaximum(100);
         PRB->setSingleStep(1);
         PRB->setValue(2);
         RBS = new QSpinBox(centralWidget);
         RBS->setObjectName(QStringLiteral("RBS"));
         RBS->setGeometry(QRect(160, 230, 91, 26));
         RBS->setMinimum(0);
-        RBS->setMaximum(2147483647);
+        RBS->setMaximum(8000000);
         RBS->setSingleStep(1);
         RBS->setValue(8000);
         RBSLabel = new QLabel(centralWidget);
@@ -137,7 +137,7 @@ public:
         Duration->setObjectName(QStringLiteral("Duration"));
         Duration->setGeometry(QRect(250, 260, 91, 26));
         Duration->setMinimum(0);
-        Duration->setMaximum(2147483647);
+        Duration->setMaximum(5000);
         Duration->setSingleStep(1);
         Duration->setValue(10);
         DurationLabel = new QLabel(centralWidget);
@@ -199,6 +199,7 @@ public:
 #endif // QT_NO_TOOLTIP
         Modes->clear();
         Modes->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "Choose mode", Q_NULLPTR)
          << QApplication::translate("MainWindow", "noop", Q_NULLPTR)
          << QApplication::translate("MainWindow", "latency", Q_NULLPTR)
          << QApplication::translate("MainWindow", "losses", Q_NULLPTR)
@@ -211,6 +212,7 @@ public:
         StopButton->setText(QApplication::translate("MainWindow", "Stop", Q_NULLPTR));
         Format->clear();
         Format->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "Choose format", Q_NULLPTR)
          << QApplication::translate("MainWindow", "JSON", Q_NULLPTR)
          << QApplication::translate("MainWindow", "text", Q_NULLPTR)
         );

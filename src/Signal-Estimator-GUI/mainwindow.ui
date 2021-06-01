@@ -64,6 +64,11 @@
     </property>
     <item>
      <property name="text">
+      <string>Choose mode</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
       <string>noop</string>
      </property>
     </item>
@@ -148,6 +153,11 @@
     <property name="toolTip">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the desired output device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
+    <item>
+     <property name="text">
+      <string>Choose format</string>
+     </property>
+    </item>
     <item>
      <property name="text">
       <string>JSON</string>
