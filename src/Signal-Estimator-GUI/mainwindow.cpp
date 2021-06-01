@@ -132,24 +132,32 @@ void MainWindow::run_estimator(){
         char c;
 
         temp = this->ui->OutputDevices->currentText();
-
         options.append(" -o ");
-        c = *(std::strstr(temp.toStdString().c_str() , "card ") + 5); // get card number
-        options.append("hw:"); // hw:
-        options.push_back(c); // hw:X
-        c = *(std::strstr(temp.toStdString().c_str() , " device ") + 8); // get device
-        options.append(","); // hw:X,
-        options.push_back(c); // hw:X,Y
+        if (temp.toStdString() == "default")
+            options.append(temp.toStdString());
+        else {
+
+            c = *(std::strstr(temp.toStdString().c_str() , "card ") + 5); // get card number
+            options.append("hw:"); // hw:
+            options.push_back(c); // hw:X
+            c = *(std::strstr(temp.toStdString().c_str() , " device ") + 8); // get device
+            options.append(","); // hw:X,
+            options.push_back(c); // hw:X,Y
+        }
 
         temp = this->ui->InputDevices->currentText();
-
         options.append(" -i ");
-        c = *(std::strstr(temp.toStdString().c_str() , "card ") + 5);
-        options.append("hw:");
-        options.push_back(c);
-        c = *(std::strstr(temp.toStdString().c_str() , " device ") + 8);
-        options.append(",");
-        options.push_back(c);
+        if (temp.toStdString() == "default")
+            options.append(temp.toStdString());
+        else {
+
+            c = *(std::strstr(temp.toStdString().c_str() , "card ") + 5);
+            options.append("hw:");
+            options.push_back(c);
+            c = *(std::strstr(temp.toStdString().c_str() , " device ") + 8);
+            options.append(",");
+            options.push_back(c);
+        }
 
         int t;
         t = this->ui->SampleRate->value();

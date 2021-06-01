@@ -207,7 +207,13 @@ public:
         Modes->setToolTip(QApplication::translate("MainWindow", "<html><head/><body><p>Select the desired mode</p></body></html>", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         SampleRateLabel->setText(QApplication::translate("MainWindow", "Sample Rate:", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        StartButton->setToolTip(QApplication::translate("MainWindow", "<html><head/><body><p>Run signal-estimator and graph the results</p></body></html>", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
         StartButton->setText(QApplication::translate("MainWindow", "Start", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        StopButton->setToolTip(QApplication::translate("MainWindow", "<html><head/><body><p>Stop graphing. Please wait for the sounds of signal-estimator to stop</p></body></html>", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
         StopButton->setText(QApplication::translate("MainWindow", "Stop", Q_NULLPTR));
         Format->clear();
         Format->insertItems(0, QStringList()
@@ -215,7 +221,7 @@ public:
          << QApplication::translate("MainWindow", "text", Q_NULLPTR)
         );
 #ifndef QT_NO_TOOLTIP
-        Format->setToolTip(QApplication::translate("MainWindow", "<html><head/><body><p>Select the desired output device.</p></body></html>", Q_NULLPTR));
+        Format->setToolTip(QApplication::translate("MainWindow", "<html><head/><body><p>Select the desired format.</p></body></html>", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         NumChannelsLabel->setText(QApplication::translate("MainWindow", "Number of Channels:", Q_NULLPTR));
         VolumeLabel_2->setText(QApplication::translate("MainWindow", "Signal Volume:", Q_NULLPTR));
@@ -224,6 +230,9 @@ public:
         DurationLabel->setText(QApplication::translate("MainWindow", "Measurement Duration (seconds):", Q_NULLPTR));
         InputLabel->setText(QApplication::translate("MainWindow", "Input Signal:", Q_NULLPTR));
         OutputLabel->setText(QApplication::translate("MainWindow", "Output Signal:", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        MoreOptionsButton->setToolTip(QApplication::translate("MainWindow", "<html><head/><body><p>Open a window containing more options</p></body></html>", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
         MoreOptionsButton->setText(QApplication::translate("MainWindow", "Extra Options", Q_NULLPTR));
         menuSignal_Estimator->setTitle(QApplication::translate("MainWindow", "Signal Estimator", Q_NULLPTR));
     } // retranslateUi
