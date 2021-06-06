@@ -29,12 +29,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         mainwindow.cpp \
     extra_options.cpp \
-    main.cpp
+    main.cpp \
+    sigestnotfound.cpp
 
 HEADERS += \
         mainwindow.h \
-    extra_options.h
+    extra_options.h \
+    sigestnotfound.h
 
 FORMS += \
         mainwindow.ui \
-    extra_options.ui
+    extra_options.ui \
+    sigestnotfound.ui

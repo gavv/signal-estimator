@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -34,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if (std::strstr(buffer,"card") != NULL && std::strstr(buffer,"device") != NULL) // if line has both card and device in it
             this->ui->InputDevices->addItem(QString::fromStdString(buffer)); // add to combobox
     }
-
+    this->show();
 }
 
 MainWindow::~MainWindow()

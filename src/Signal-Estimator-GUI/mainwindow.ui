@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Signal Estimator</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QComboBox" name="InputDevices">
@@ -412,12 +412,6 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuSignal_Estimator">
-    <property name="title">
-     <string>Signal Estimator</string>
-    </property>
-   </widget>
-   <addaction name="menuSignal_Estimator"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

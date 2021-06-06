@@ -52,13 +52,17 @@ OBJECTS_DIR   = ./
 
 SOURCES       = ../mainwindow.cpp \
 		../extra_options.cpp \
-		../main.cpp moc_mainwindow.cpp \
-		moc_extra_options.cpp
+		../main.cpp \
+		../sigestnotfound.cpp moc_mainwindow.cpp \
+		moc_extra_options.cpp \
+		moc_sigestnotfound.cpp
 OBJECTS       = mainwindow.o \
 		extra_options.o \
 		main.o \
+		sigestnotfound.o \
 		moc_mainwindow.o \
-		moc_extra_options.o
+		moc_extra_options.o \
+		moc_sigestnotfound.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -137,9 +141,11 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		../../Signal-Estimator-GUI.pro ../mainwindow.h \
-		../extra_options.h ../mainwindow.cpp \
+		../extra_options.h \
+		../sigestnotfound.h ../mainwindow.cpp \
 		../extra_options.cpp \
-		../main.cpp
+		../main.cpp \
+		../sigestnotfound.cpp
 QMAKE_TARGET  = Signal-Estimator-GUI
 DESTDIR       = 
 TARGET        = Signal-Estimator-GUI
@@ -148,7 +154,7 @@ TARGET        = Signal-Estimator-GUI
 first: all
 ####### Build rules
 
-$(TARGET): ui_mainwindow.h ui_extra_options.h $(OBJECTS)  
+$(TARGET): ui_mainwindow.h ui_extra_options.h ui_sigestnotfound.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../Signal-Estimator-GUI.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -335,9 +341,9 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../mainwindow.h ../extra_options.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../mainwindow.cpp ../extra_options.cpp ../main.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../mainwindow.ui ../extra_options.ui $(DISTDIR)/
+	$(COPY_FILE) --parents ../mainwindow.h ../extra_options.h ../sigestnotfound.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../mainwindow.cpp ../extra_options.cpp ../main.cpp ../sigestnotfound.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../mainwindow.ui ../extra_options.ui ../sigestnotfound.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -369,9 +375,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	clang++ -pipe $(shell dpkg-buildflags --get CXXFLAGS) -D_FORTIFY_SOURCE=2 -g -std=gnu++11 -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_extra_options.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_extra_options.cpp moc_sigestnotfound.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_extra_options.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_extra_options.cpp moc_sigestnotfound.cpp
 moc_mainwindow.cpp: ../extra_options.h \
 		../../Config.hpp \
 		../mainwindow.h \
@@ -385,11 +391,16 @@ moc_extra_options.cpp: ../../Config.hpp \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../extra_options.h -o moc_extra_options.cpp
 
+moc_sigestnotfound.cpp: ../sigestnotfound.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../sigestnotfound.h -o moc_sigestnotfound.cpp
+
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_mainwindow.h ui_extra_options.h
+compiler_uic_make_all: ui_mainwindow.h ui_extra_options.h ui_sigestnotfound.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_mainwindow.h ui_extra_options.h
+	-$(DEL_FILE) ui_mainwindow.h ui_extra_options.h ui_sigestnotfound.h
 ui_mainwindow.h: ../mainwindow.ui \
 		/usr/lib/qt5/bin/uic \
 		/usr/include/qwt/qwt_plot.h
@@ -398,6 +409,10 @@ ui_mainwindow.h: ../mainwindow.ui \
 ui_extra_options.h: ../extra_options.ui \
 		/usr/lib/qt5/bin/uic
 	/usr/lib/qt5/bin/uic ../extra_options.ui -o ui_extra_options.h
+
+ui_sigestnotfound.h: ../sigestnotfound.ui \
+		/usr/lib/qt5/bin/uic
+	/usr/lib/qt5/bin/uic ../sigestnotfound.ui -o ui_sigestnotfound.h
 
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
@@ -412,7 +427,8 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 mainwindow.o: ../mainwindow.cpp ../mainwindow.h \
 		../extra_options.h \
 		../../Config.hpp \
-		ui_mainwindow.h
+		ui_mainwindow.h \
+		../sigestnotfound.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../mainwindow.cpp
 
 extra_options.o: ../extra_options.cpp ../extra_options.h \
@@ -425,11 +441,18 @@ main.o: ../main.cpp ../mainwindow.h \
 		../../Config.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../main.cpp
 
+sigestnotfound.o: ../sigestnotfound.cpp ../sigestnotfound.h \
+		ui_sigestnotfound.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sigestnotfound.o ../sigestnotfound.cpp
+
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
 
 moc_extra_options.o: moc_extra_options.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_extra_options.o moc_extra_options.cpp
+
+moc_sigestnotfound.o: moc_sigestnotfound.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_sigestnotfound.o moc_sigestnotfound.cpp
 
 ####### Install
 

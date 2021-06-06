@@ -17,7 +17,6 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpinBox>
@@ -56,7 +55,6 @@ public:
     QwtPlot *OutputSig;
     QPushButton *MoreOptionsButton;
     QMenuBar *menuBar;
-    QMenu *menuSignal_Estimator;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -163,8 +161,6 @@ public:
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 400, 22));
-        menuSignal_Estimator = new QMenu(menuBar);
-        menuSignal_Estimator->setObjectName(QStringLiteral("menuSignal_Estimator"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -173,8 +169,6 @@ public:
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
 
-        menuBar->addAction(menuSignal_Estimator->menuAction());
-
         retranslateUi(MainWindow);
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -182,7 +176,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Signal Estimator", Q_NULLPTR));
         InputDevices->clear();
         InputDevices->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "default", Q_NULLPTR)
@@ -234,7 +228,6 @@ public:
         MoreOptionsButton->setToolTip(QApplication::translate("MainWindow", "<html><head/><body><p>Open a window containing more options</p></body></html>", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         MoreOptionsButton->setText(QApplication::translate("MainWindow", "Extra Options", Q_NULLPTR));
-        menuSignal_Estimator->setTitle(QApplication::translate("MainWindow", "Signal Estimator", Q_NULLPTR));
     } // retranslateUi
 
 };
