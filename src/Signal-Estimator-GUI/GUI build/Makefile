@@ -14,7 +14,7 @@ CC            = clang
 CXX           = clang++
 DEFINES       = -DQWT_DLL -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_OPENGL_LIB -DQT_SVG_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CONCURRENT_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe $(shell dpkg-buildflags --get CFLAGS) -D_FORTIFY_SOURCE=2 -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-CXXFLAGS      = -pipe $(shell dpkg-buildflags --get CXXFLAGS) -D_FORTIFY_SOURCE=2 -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
+CXXFLAGS      = -pipe $(shell dpkg-buildflags --get CXXFLAGS) -D_FORTIFY_SOURCE=2 -std=c++17 -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 INCPATH       = -I../../Signal-Estimator-GUI -I. -isystem /usr/include/qwt -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtOpenGL -isystem /usr/include/x86_64-linux-gnu/qt5/QtSvg -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtConcurrent -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
@@ -51,17 +51,17 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../mainwindow.cpp \
-		../extra_options.cpp \
 		../main.cpp \
-		../sigestnotfound.cpp moc_mainwindow.cpp \
-		moc_extra_options.cpp \
+		../sigestnotfound.cpp \
+		../ipc.cpp \
+		../points.cpp moc_mainwindow.cpp \
 		moc_sigestnotfound.cpp
 OBJECTS       = mainwindow.o \
-		extra_options.o \
 		main.o \
 		sigestnotfound.o \
+		ipc.o \
+		points.o \
 		moc_mainwindow.o \
-		moc_extra_options.o \
 		moc_sigestnotfound.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -141,11 +141,14 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		../../Signal-Estimator-GUI.pro ../mainwindow.h \
-		../extra_options.h \
-		../sigestnotfound.h ../mainwindow.cpp \
-		../extra_options.cpp \
+		../sigestnotfound.h \
+		../ipc.h \
+		../../../3rdparty/Ring-Buffer-master/ringbuffer.hpp \
+		../points.h ../mainwindow.cpp \
 		../main.cpp \
-		../sigestnotfound.cpp
+		../sigestnotfound.cpp \
+		../ipc.cpp \
+		../points.cpp
 QMAKE_TARGET  = Signal-Estimator-GUI
 DESTDIR       = 
 TARGET        = Signal-Estimator-GUI
@@ -154,7 +157,7 @@ TARGET        = Signal-Estimator-GUI
 first: all
 ####### Build rules
 
-$(TARGET): ui_mainwindow.h ui_extra_options.h ui_sigestnotfound.h $(OBJECTS)  
+$(TARGET): ui_mainwindow.h ui_sigestnotfound.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../Signal-Estimator-GUI.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -341,9 +344,9 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../mainwindow.h ../extra_options.h ../sigestnotfound.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../mainwindow.cpp ../extra_options.cpp ../main.cpp ../sigestnotfound.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../mainwindow.ui ../extra_options.ui ../sigestnotfound.ui $(DISTDIR)/
+	$(COPY_FILE) --parents ../mainwindow.h ../sigestnotfound.h ../ipc.h ../../../3rdparty/Ring-Buffer-master/ringbuffer.hpp ../points.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../mainwindow.cpp ../main.cpp ../sigestnotfound.cpp ../ipc.cpp ../points.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../mainwindow.ui ../sigestnotfound.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -373,23 +376,18 @@ compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
-	clang++ -pipe $(shell dpkg-buildflags --get CXXFLAGS) -D_FORTIFY_SOURCE=2 -g -std=gnu++11 -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
+	clang++ -pipe $(shell dpkg-buildflags --get CXXFLAGS) -D_FORTIFY_SOURCE=2 -std=c++17 -g -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_extra_options.cpp moc_sigestnotfound.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_sigestnotfound.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_extra_options.cpp moc_sigestnotfound.cpp
-moc_mainwindow.cpp: ../extra_options.h \
-		../../Config.hpp \
+	-$(DEL_FILE) moc_mainwindow.cpp moc_sigestnotfound.cpp
+moc_mainwindow.cpp: ../points.h \
+		../ipc.h \
+		../../../3rdparty/Ring-Buffer-master/ringbuffer.hpp \
 		../mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../mainwindow.h -o moc_mainwindow.cpp
-
-moc_extra_options.cpp: ../../Config.hpp \
-		../extra_options.h \
-		moc_predefs.h \
-		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I'/home/vien/Documents/Signal-estimator GUI Project/signal-estimator-master/src/Signal-Estimator-GUI' -I/usr/include/qwt -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtOpenGL -I/usr/include/x86_64-linux-gnu/qt5/QtSvg -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7.5.0 -I/usr/include/x86_64-linux-gnu/c++/7.5.0 -I/usr/include/c++/7.5.0/backward -I/usr/include/clang/6.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ../extra_options.h -o moc_extra_options.cpp
 
 moc_sigestnotfound.cpp: ../sigestnotfound.h \
 		moc_predefs.h \
@@ -398,17 +396,13 @@ moc_sigestnotfound.cpp: ../sigestnotfound.h \
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_mainwindow.h ui_extra_options.h ui_sigestnotfound.h
+compiler_uic_make_all: ui_mainwindow.h ui_sigestnotfound.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_mainwindow.h ui_extra_options.h ui_sigestnotfound.h
+	-$(DEL_FILE) ui_mainwindow.h ui_sigestnotfound.h
 ui_mainwindow.h: ../mainwindow.ui \
 		/usr/lib/qt5/bin/uic \
 		/usr/include/qwt/qwt_plot.h
 	/usr/lib/qt5/bin/uic ../mainwindow.ui -o ui_mainwindow.h
-
-ui_extra_options.h: ../extra_options.ui \
-		/usr/lib/qt5/bin/uic
-	/usr/lib/qt5/bin/uic ../extra_options.ui -o ui_extra_options.h
 
 ui_sigestnotfound.h: ../sigestnotfound.ui \
 		/usr/lib/qt5/bin/uic
@@ -425,31 +419,31 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 ####### Compile
 
 mainwindow.o: ../mainwindow.cpp ../mainwindow.h \
-		../extra_options.h \
-		../../Config.hpp \
-		ui_mainwindow.h \
-		../sigestnotfound.h
+		../points.h \
+		../ipc.h \
+		../../../3rdparty/Ring-Buffer-master/ringbuffer.hpp \
+		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../mainwindow.cpp
 
-extra_options.o: ../extra_options.cpp ../extra_options.h \
-		../../Config.hpp \
-		ui_extra_options.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o extra_options.o ../extra_options.cpp
-
 main.o: ../main.cpp ../mainwindow.h \
-		../extra_options.h \
-		../../Config.hpp
+		../points.h \
+		../ipc.h \
+		../../../3rdparty/Ring-Buffer-master/ringbuffer.hpp \
+		../sigestnotfound.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../main.cpp
 
 sigestnotfound.o: ../sigestnotfound.cpp ../sigestnotfound.h \
 		ui_sigestnotfound.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sigestnotfound.o ../sigestnotfound.cpp
 
+ipc.o: ../ipc.cpp ../ipc.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ipc.o ../ipc.cpp
+
+points.o: ../points.cpp ../points.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o points.o ../points.cpp
+
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
-
-moc_extra_options.o: moc_extra_options.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_extra_options.o moc_extra_options.cpp
 
 moc_sigestnotfound.o: moc_sigestnotfound.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_sigestnotfound.o moc_sigestnotfound.cpp

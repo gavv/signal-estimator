@@ -6,36 +6,27 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+
+    if (!checkSignalEstimator()){ // open error window if signal-estimator is not found
+        SigEstNotFound w;
+        w.exec();
+        return;
+    }
     ui->setupUi(this);
 
-    char buffer[128];
+    curve2->attach(this->ui->OutputSig); // output curve
+    curve1->attach(this->ui->OutputSig); // input curve
+    curve1->setPen(QColor(Qt::GlobalColor(Qt::blue))); // set input curve color to blue
+    curve2->setPen(QColor(Qt::GlobalColor(Qt::red))); // set input curve color to red
 
-    curve2->attach(this->ui->OutputSig);
-    curve1->attach(this->ui->InputSig);
+    QVector<QString> in = getInputDevices();
+    QVector<QString> out = getOutputDevices();
 
-    // run pipe to get output devices from aplay
-    std::unique_ptr<FILE,decltype(&pclose)> pipe1(popen("aplay -l","r"),pclose);
+    this->ui->InputDevices->addItems(in.toList()); // add input devices to combobox
+    this->ui->OutputDevices->addItems(out.toList()); // add output devices to combobox
 
-    if(!pipe){
-        throw std::runtime_error("Failed to run aplay");
-    }
-
-    // read everything from aplay into result
-    while (fgets(buffer,128,pipe1.get()) != nullptr){
-        if (std::strstr(buffer,"card") != NULL && std::strstr(buffer,"device") != NULL) // if line has both card and device in it
-            this->ui->OutputDevices->addItem(QString::fromStdString(buffer)); // add to combobox
-    }
-
-    std::unique_ptr<FILE,decltype(&pclose)> pipe2(popen("arecord -l","r"),pclose);
-    if(!pipe2){
-        throw std::runtime_error("Failed to run arecord");
-    }
-
-    while (fgets(buffer,128,pipe2.get()) != nullptr){
-        if (std::strstr(buffer,"card") != NULL && std::strstr(buffer,"device") != NULL) // if line has both card and device in it
-            this->ui->InputDevices->addItem(QString::fromStdString(buffer)); // add to combobox
-    }
     this->show();
+    return;
 }
 
 MainWindow::~MainWindow()
@@ -44,192 +35,211 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::update_graphs(){ // update both input and output signal graphs
-    //this->ui->InputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
+    QVector<QPointF> in_current = in_data.getCurrentPoints();
+    // sort the data by x value so it doesn't jump randomly across graph
+    std::sort(in_current.begin(),in_current.end(),QPFcompare());
+    QVector<QPointF> out_current = out_data.getCurrentPoints();
+    std::sort(out_current.begin(),out_current.end(),QPFcompare());
+    this->ui->ErrorLabel_2->setText(QString("updating graphs"));
 
-    this->ui->InputSig->updateAxes();
-    this->ui->InputSig->replot();
+    this->curve1->setSamples(in_current);
+    this->curve2->setSamples(out_current);
 
-    //this->ui->OutputSig->detachItems(QwtPlotItem::Rtti_PlotCurve,false);
+   // this->ui->InputSig->updateAxes();
+    //this->ui->InputSig->replot();
 
     this->ui->OutputSig->updateAxes();
     this->ui->OutputSig->replot();
     QApplication::processEvents();
+
+    if (this->update_plots == true){ // restart timer for graphing
+        this->timer->start();
+    }
 }
 
 
 
-void MainWindow::read_graph_data(const char* cmd, QwtPlotCurve* incurve, QwtPlotCurve* outcurve,
-                                 QVector<double>& inx, QVector<double>& iny,
-                                 QVector<double>& outx, QVector<double>& outy, std::mutex& m){
-     char buffer[128];
-     char* token;
-     int counter = 0;
+void MainWindow::read_graph_data(){
+     std::string buffer;
 
-     // run pipe with signal_estimator
-     // This assumes that the signal_estimator is outputting to stdout with the type of signal prepended to the data values
-     // The only changes to the signal_estimator source are the fact that frame.hpp now has a function to get iotype
-     // and the file dumper dumps the data prepended with iotype to stdout if stdout is used as file dumper option.
+     char* fullstr;
+     QByteArray arr;
 
-     std::unique_ptr<FILE,decltype(&pclose)> pipe2(popen(cmd,"r"),pclose);
-     if(!pipe2){
-         throw std::runtime_error("Failed to run signal_estimator");
-     }
-     // loop to get a line from the pipe
+     this->proc->setReadChannel(QProcess::StandardOutput);
+     arr = this->proc->readLine(); // read line from proc
+     buffer = arr.toStdString(); // convert to std::string
+     //this->ui->ErrorLabel_2->setText(QString(arr));
 
-     while (fgets(buffer,128,pipe2.get()) != nullptr && this->get_update_plots() == true){
+     fullstr = &buffer[0]; // convert to char* for strtok parsing;
 
-        token = std::strtok(buffer," \n"); // get iotype
-        m.lock();
-        // if iotype is input
-        if (strcmp(token, "Input") == 0){
-            token = std::strtok(NULL, " \n");
-            inx.append(std::stod(token)/1000000); // append to Qvector x-axis for input graph
-            token = std::strtok(NULL, " \n");
-            if (token == NULL) // if corresponding y cannot be read, toss back the x out
-                inx.pop_back();
-            else // append to Qvector y-axis for input graph
-                iny.append(std::stod(token));
-            if (counter % 20 == 0){ // set the data for QWT plot curve in the input graph
-                incurve->setSamples(inx, iny);
-            }
-        }
-        // if iotype is output
-        else if (strcmp(token, "Output") == 0) {
-            token = std::strtok(NULL, " \n");
-            outx.append(std::stod(token)/1000000); // append to Qvector x-axis for output graph
-            token = std::strtok(NULL, " \n");
-            if (token == NULL) // if corresponding y cannot be read, toss back the x out
-                outx.pop_back();
-            else // append to Qvector y-axis for input graph
-                outy.append(std::stod(token));
-            if (counter % 20 == 0){ // set the data for QWT plot curve in the output graph
-                outcurve->setSamples(outx, outy);
-            }
-        }
-        m.unlock();
+     parseLine(fullstr);
+}
 
-        if (counter == 5000)
-            counter = 0;
+QStringList MainWindow::set_up_program(){
+    // This program calls the separate signal_estimator cmd line program to get the graph data
+    QStringList list; // to convert from QString to normal string
+    QString temp;
+    std::string buffer;
 
-     }
-     this->set_update_plots(false); // after read loop finishes set to false to stop reading graph
+    list.append(" -m");
+    list.append(this->ui->Modes->currentText());
+
+    char* c;
+
+    temp = this->ui->OutputDevices->currentText();
+    // there might be a problem when there is too much arguments.
+    // the arguments start to corrupt when there is too many of them
+    // so for a lot of options we only add them as arguments when they are not default value
+    list.append("-o");
+    if (temp.toStdString() == "default")
+        list.append(temp);
+    else {
+        c = (std::strstr(temp.toStdString().c_str() , "card ") + 5); // get card number
+        buffer = "hw:";
+        buffer.push_back(*c); // hw:X
+        c = (std::strstr(temp.toStdString().c_str() , " device ") + 8); // get device
+        buffer.append(","); // hw:X,
+        buffer.push_back(*c); // hw:X,Y
+        list.append(QString::fromStdString(buffer));
+    }
+
+    temp = this->ui->InputDevices->currentText();
+    list.append("-i");
+    if (temp.toStdString() == "default")
+        list.append(temp);
+    else {
+        c = (std::strstr(temp.toStdString().c_str() , "card ") + 5); // get card number
+        buffer = "hw:";
+        buffer.push_back(*c); // hw:X
+        c = (std::strstr(temp.toStdString().c_str() , " device ") + 8); // get device
+        buffer.append(","); // hw:X,
+        buffer.push_back(*c); // hw:X,Y
+        list.append(QString::fromStdString(buffer));
+    }
+
+    QString t;
+    if ((t = this->ui->SampleRate->cleanText()) != QString::fromStdString("48000")){ // if it is not default value
+        list.append("-r");
+        list.append((t));
+    }
+
+    if ((t =  this->ui->NumChannels->cleanText()) != QString::fromStdString("2")){
+        list.append("-c");
+        list.append(t);
+    }
+
+    if ((t =  this->ui->SignalVolume->cleanText()) != QString::fromStdString("50")){
+        list.append("-v");
+        list.append(t);
+    }
+
+    if ((t = this->ui->PRB->cleanText()) != QString::fromStdString("2")){
+        list.append("-p");
+        list.append(t);
+    }
+
+    if ((t = this->ui->RBS->cleanText()) != QString::fromStdString("8000")){
+        list.append("-l");
+        list.append(t);
+    }
+
+    if ((t = this->ui->Duration->cleanText()) != QString::fromStdString("10")){
+        list.append("-d");
+        list.append(t);
+    }
+
+    // both of these options have to be stdout because we use a pipe that reads from signal_estimator stdout
+    list << "--dump-output" << "stdout";
+    list << "--dump-input" << "stdout";
+
+    t = this->ui->SMA->cleanText();
+
+    list.append("--sma");
+    list.append(t);
+
+    //list.append("-f");
+
+    //list.append("text");
+
+    if ((t = this->ui->StrikePeriod->cleanText()) != QString::fromStdString("1")){
+        list.append("--strike-period");
+        list.append(t);
+    }
+
+    if ((t = this->ui->StrikeLength->cleanText()) != QString::fromStdString("0.010000")){
+        list.append("--strike-length");
+        list.append(t);
+    }
+
+    t = this->ui->StrDW->cleanText();
+    list.append("--strike-detection-window");
+    list.append(t);
+
+    t = this->ui->StrDT->cleanText();
+    list.append("--strike-detection-threshold");
+    list.append(t);
+
+    t = this->ui->SigDW->cleanText();
+    list.append("--signal-detection-window");
+    list.append(t);
+
+    t = this->ui->SigDT->cleanText();
+    list.append("--signal-detection-threshold");
+    list.append(t);
+
+    t = this->ui->GliDW->cleanText();
+    list.append("--glitch-detection-window");
+    list.append(t);
+
+    t = this->ui->GliDT->cleanText();
+    list.append("--glitch-detection-threshold");
+    list.append(t);
+
+    if ((t = this->ui->MVFD->cleanText()) != QString::fromStdString("64")){
+        list.append("--dump-frame");
+        list.append(t);
+    }
+
+    if ((t = this->ui->DR->cleanText()) != QString::fromStdString("10")){
+        list.append("--dump-rounding");
+        list.append(t);
+    }
+
+    return list;
 }
 
 void MainWindow::run_estimator(){
-        std::string options; // used to hold all options from the ui
-        // This program calls the separate signal_estimator cmd line program to get the graph data
-        QString temp; // to convert from QString to normal string
-
-        temp = this->ui->Format->currentText();
-
-        options.append(" -f ");
-        options.append(temp.toStdString());
-
-        temp = this->ui->Modes->currentText();
-
-        options.append(" -m ");
-        options.append(temp.toStdString());
-
-        char c;
-
-        temp = this->ui->OutputDevices->currentText();
-        options.append(" -o ");
-        if (temp.toStdString() == "default")
-            options.append(temp.toStdString());
-        else {
-
-            c = *(std::strstr(temp.toStdString().c_str() , "card ") + 5); // get card number
-            options.append("hw:"); // hw:
-            options.push_back(c); // hw:X
-            c = *(std::strstr(temp.toStdString().c_str() , " device ") + 8); // get device
-            options.append(","); // hw:X,
-            options.push_back(c); // hw:X,Y
-        }
-
-        temp = this->ui->InputDevices->currentText();
-        options.append(" -i ");
-        if (temp.toStdString() == "default")
-            options.append(temp.toStdString());
-        else {
-
-            c = *(std::strstr(temp.toStdString().c_str() , "card ") + 5);
-            options.append("hw:");
-            options.push_back(c);
-            c = *(std::strstr(temp.toStdString().c_str() , " device ") + 8);
-            options.append(",");
-            options.push_back(c);
-        }
-
-        int t;
-        t = this->ui->SampleRate->value();
-        options.append(" -r ");
-        options.append(std::to_string(t));
-
-        t =  this->ui->NumChannels->value();
-        options.append(" -c ");
-        options.append(std::to_string(t));
-
-        t =  this->ui->SignalVolume->value();
-        options.append(" -v ");
-        options.append(std::to_string(t));
-
-        t = this->ui->PRB->value();
-        options.append(" -p ");
-        options.append(std::to_string(t));
-
-        t = this->ui->RBS->value();
-        options.append(" -l ");
-        options.append(std::to_string(t));
-
-        t = this->ui->Duration->value();
-        options.append(" -d ");
-        options.append(std::to_string(t));
-
-        // both of these options have to be stdout because we use a pipe that reads from signal_estimator stdout
-        options.append(" --dump-output stdout ");
-        options.append(" --dump-input stdout ");
-
-        options.append(this->eo->get_options());
-        this->eo->wipe_options();
-
-        std::string command = "./signal-estimator ";
-        command.append(options);
-        const char* cmd = command.data(); //
+        QStringList args = this->set_up_program();
 
         this->set_update_plots(true); // must be true to update graphs
 
         // clear old data when the start button is pressed
-        Inx.clear();
-        Iny.clear();
-        Outx.clear();
-        Outy.clear();
+        in_data.clearBuf();
+        out_data.clearBuf();
 
         // reset graphs
         this->ui->OutputSig->updateAxes();
         this->ui->OutputSig->replot();
 
-        std::mutex m; // needed to make sure the thread reading in data and the thread graphing the data don't step on each other's toes
+        this->proc = startSignalEstimator(args);
+        // proc emits error signal
+        this->proc->connect(this->proc,SIGNAL(error(QProcess::ProcessError)),this,SLOT(checkProc()));
 
-        // Thread that reads in data
-        std::thread t1(&MainWindow::read_graph_data, this,cmd,
-                       std::ref(curve1),std::ref(curve2),std::ref(Inx),std::ref(Iny),
-                       std::ref(Outx),std::ref(Outy),std::ref(m));
+        QTimer* time = new QTimer(0);
 
-        while (this->get_update_plots() == true){ // loop to update graph (must be done in main GUI thread)
-            usleep(.01 * 1000000);
-            m.lock();
-            this->update_graphs();
-            m.unlock();
-        }
+        this->timer = time; // timer for ui graphing
 
-        t1.join();
+        timer->setInterval(20);
+        timer->connect(timer, SIGNAL(timeout()),this,SLOT(update_graphs()));
+        this->proc->connect(this->proc,SIGNAL(readyReadStandardOutput()), this, SLOT(read_graph_data()));
+        //this->proc->connect(this->proc,SIGNAL(finished(int)), this, SLOT(on_StopButton_clicked()));
+
+        if (this->proc->open(QProcess::ReadOnly) == false) // failing? to open signal-est
+        {this->ui->ErrorLabel->setText(QString("Failed to open signal-estimator"));}
+        this->set_update_plots(true);
+        this->timer->start();
 
         return;
-}
-
-void MainWindow::on_MoreOptionsButton_released()
-{
-    this->eo->show(); // show more options window
 }
 
 void MainWindow::on_StartButton_released()
@@ -239,5 +249,56 @@ void MainWindow::on_StartButton_released()
 
 void MainWindow::on_StopButton_clicked()
 {
+    if (this->proc->isOpen()){this->proc->close();} // close QProcess
+
     this->set_update_plots(false); // stop plotting when stop button is pressed
+}
+
+void MainWindow::parseLine(char* buffer){
+    // had to leave this function in mainwindow because we have to use QPointF for graphing
+    // we could have this function outside of main window but we would need to emit signals
+    // and the point buffers would need to be QObjects since connect() needs a receiver object
+    //
+    const char* token = std::strtok(buffer," \n"); // get iotype
+    QPointF pt;
+    io type;
+    //this->ui->ErrorLabel->setText(QString("parseline"));
+    if (strcmp(token,"Input"))
+        type = Input;
+    else if(strcmp(token,"Output"))
+        type = Output;
+    else
+        return;
+
+    token = strtok(NULL," \n");
+    try {
+       pt.setX(std::stod(token)/100000);
+    } catch (const std::invalid_argument&){
+        return;
+    }
+
+    token = strtok(NULL," \n");
+
+    try {
+        if (type == Input){
+            pt.setY(std::stod(token)/1000);
+        }
+        else pt.setY(std::stod(token));
+    } catch (const std::invalid_argument&){
+        return ;
+    }
+    std::optional<QPointF> optpt{pt};
+    if (optpt.has_value()){
+        if (type == Input){
+           in_data.appendPoint(pt);
+        }
+        else {
+           out_data.appendPoint(pt);
+        }
+    }
+    return;
+}
+
+void MainWindow::checkProc(){ // get string proc for error
+    this->ui->ErrorLabel->setText(this->proc->errorString());
 }

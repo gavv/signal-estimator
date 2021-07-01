@@ -6,7 +6,7 @@
 
 QT       += core gui
 include(/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qwt.prf)
-CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++17
 QT += concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -28,16 +28,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         mainwindow.cpp \
-    extra_options.cpp \
     main.cpp \
-    sigestnotfound.cpp
+    sigestnotfound.cpp \
+    ipc.cpp \
+    points.cpp
 
 HEADERS += \
         mainwindow.h \
-    extra_options.h \
-    sigestnotfound.h
+    sigestnotfound.h \
+    ipc.h \
+    ../../3rdparty/Ring-Buffer-master/ringbuffer.hpp \
+    points.h
 
 FORMS += \
         mainwindow.ui \
-    extra_options.ui \
     sigestnotfound.ui
