@@ -40,7 +40,7 @@ public:
     // get time point when the sample inside frame is actually played or recorded
     nanoseconds_t hw_sample_time(size_t offset) const;
 
-  int get_IOType(){return (int) io_type_;}
+    const IOType get_io_type(){return io_type_;}
 
 private:
     const Config& config_;
