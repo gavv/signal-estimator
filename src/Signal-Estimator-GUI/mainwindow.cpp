@@ -40,7 +40,7 @@ void MainWindow::update_graphs(){ // update both input and output signal graphs
     std::sort(in_current.begin(),in_current.end(),QPFcompare());
     QVector<QPointF> out_current = out_data.getCurrentPoints();
     std::sort(out_current.begin(),out_current.end(),QPFcompare());
-    this->ui->ErrorLabel_2->setText(QString("updating graphs"));
+    //this->ui->ErrorLabel_2->setText(QString("updating graphs"));
 
     this->curve1->setSamples(in_current);
     this->curve2->setSamples(out_current);
@@ -149,8 +149,8 @@ QStringList MainWindow::set_up_program(){
     }
 
     // both of these options have to be stdout because we use a pipe that reads from signal_estimator stdout
-    list << "--dump-output" << "stdout";
-    list << "--dump-input" << "stdout";
+    list << "--dump-output" << "-";
+    list << "--dump-input" << "-";
 
     t = this->ui->SMA->cleanText();
 
@@ -263,9 +263,9 @@ void MainWindow::parseLine(char* buffer){
     QPointF pt;
     io type;
     //this->ui->ErrorLabel->setText(QString("parseline"));
-    if (strcmp(token,"Input"))
+    if (strcmp(token,"in"))
         type = Input;
-    else if(strcmp(token,"Output"))
+    else if(strcmp(token,"out"))
         type = Output;
     else
         return;
