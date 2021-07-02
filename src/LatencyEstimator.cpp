@@ -4,8 +4,8 @@
  */
 
 #include "LatencyEstimator.hpp"
-#include "Time.hpp"
 #include "IFormatter.hpp"
+#include "Time.hpp"
 
 namespace signal_estimator {
 
@@ -40,7 +40,7 @@ LatencyEstimator::LatencyEstimator(const Config& config, IFormatter& formatter)
     , format_(formatter) {
 }
 
-LatencyEstimator::~LatencyEstimator(){
+LatencyEstimator::~LatencyEstimator() {
 }
 
 void LatencyEstimator::add_output(Frame& frame) {
@@ -102,7 +102,8 @@ bool LatencyEstimator::check_strike_(LatencyReport& report) {
 }
 
 void LatencyEstimator::print_report_(const LatencyReport& report) {
-    format_.report_latency(report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
+    format_.report_latency(
+        report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
 }
 
 } // namespace signal_estimator

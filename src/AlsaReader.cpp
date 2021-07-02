@@ -13,7 +13,7 @@ AlsaReader::~AlsaReader() {
     close();
 }
 
-bool AlsaReader::open(Config& config, const char *device) {
+bool AlsaReader::open(Config& config, const char* device) {
     se_log_info("opening alsa reader for device %s", device);
 
     pcm_ = alsa_open(device, SND_PCM_STREAM_CAPTURE, config);

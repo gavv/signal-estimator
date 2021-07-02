@@ -5,8 +5,8 @@
 
 #include "StrikeGenerator.hpp"
 
-#include <cstring>
 #include <cmath>
+#include <cstring>
 
 namespace signal_estimator {
 

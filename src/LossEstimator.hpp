@@ -8,11 +8,11 @@
 #include "Config.hpp"
 #include "GradientCounter.hpp"
 #include "IEstimator.hpp"
+#include "IFormatter.hpp"
 #include "RateLimiter.hpp"
 #include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
 #include "SmaCounter.hpp"
-#include "IFormatter.hpp"
 
 #include <memory>
 
@@ -28,7 +28,7 @@ public:
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
 
-	~LossEstimator();
+    ~LossEstimator();
 
     void add_output(Frame& frame) override;
     void add_input(Frame& frame) override;

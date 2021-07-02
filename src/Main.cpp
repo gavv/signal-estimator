@@ -10,8 +10,8 @@
 #include "IFormatter.hpp"
 #include "JSONFormatter.hpp"
 #include "LatencyEstimator.hpp"
-#include "LossEstimator.hpp"
 #include "Log.hpp"
+#include "LossEstimator.hpp"
 #include "Realtime.hpp"
 #include "StrikeGenerator.hpp"
 #include "TextFormatter.hpp"
@@ -147,12 +147,12 @@ int main(int argc, char** argv) {
 
         if (res.count("help")) {
             std::cout << opts.help({
-                    "General",
-                    "Reporting",
-                    "Latency estimation",
-                    "Loss ratio estimation",
-                    "File dumping",
-                }) << std::endl;
+                "General",
+                "Reporting",
+                "Latency estimation",
+                "Loss ratio estimation",
+                "File dumping",
+            }) << std::endl;
             exit(0);
         }
 
@@ -212,8 +212,7 @@ int main(int argc, char** argv) {
 
         config.dump_frame = res["dump-frame"].as<size_t>();
         config.dump_rounding = res["dump-rounding"].as<size_t>();
-    }
-    catch (std::exception& exc) {
+    } catch (std::exception& exc) {
         se_log_error("%s", exc.what());
         exit(1);
     }
@@ -239,7 +238,7 @@ int main(int argc, char** argv) {
     }
 
     std::unique_ptr<IFormatter> formatter;
-    
+
     if (format == "json") {
         formatter = std::make_unique<JSONFormatter>();
     } else if (format == "text") {
@@ -274,9 +273,8 @@ int main(int argc, char** argv) {
         }
     }
 
-    auto input_thread = std::async(std::launch::async, [&]() {
-        input_loop(config, estimator.get(), input_reader, input_dumper.get());
-    });
+    auto input_thread = std::async(std::launch::async,
+        [&]() { input_loop(config, estimator.get(), input_reader, input_dumper.get()); });
 
     output_loop(config, *generator, estimator.get(), output_writer, output_dumper.get());
 
