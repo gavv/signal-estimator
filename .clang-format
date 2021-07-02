@@ -9,5 +9,7 @@ PenaltyBreakComment: 0
 NamespaceIndentation: None
 
 AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
 
 BreakBeforeBraces: Attach

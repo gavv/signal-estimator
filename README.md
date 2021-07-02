@@ -82,24 +82,26 @@ Installation
 Install dependencies:
 
 ```
-$ sudo apt install libasound2-dev
+sudo apt install libasound2-dev
 ```
 
 Clone repo:
 
 ```
-$ git clone --recurse-submodules https://github.com/gavv/signal-estimator.git
-$ cd signal-estimator
+git clone --recurse-submodules https://github.com/gavv/signal-estimator.git
+cd signal-estimator
 ```
 
 Build:
 
 ```
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make -j4
-$ cd ..
+make
+```
+
+Install (optionally):
+
+```
+sudo make install
 ```
 
 Command-line options
