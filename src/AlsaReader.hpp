@@ -23,7 +23,7 @@ public:
     AlsaReader(const AlsaReader&) = delete;
     AlsaReader& operator=(const AlsaReader&) = delete;
 
-    bool open(Config& config, const char *device);
+    bool open(Config& config, const char* device);
     void close();
 
     bool read(Frame& frame);

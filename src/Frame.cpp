@@ -41,6 +41,7 @@ nanoseconds_t Frame::sw_frame_time() const {
     }
 
     assert(!"unexpected type");
+    return 0;
 }
 
 nanoseconds_t Frame::hw_sample_time(size_t offset) const {
@@ -57,6 +58,7 @@ nanoseconds_t Frame::hw_sample_time(size_t offset) const {
     }
 
     assert(!"unexpected type");
+    return 0;
 }
 
 } // namespace signal_estimator

@@ -20,7 +20,7 @@ LossEstimator::LossEstimator(const Config& config, IFormatter& formatter)
     , format_(formatter) {
 }
 
-LossEstimator::~LossEstimator(){
+LossEstimator::~LossEstimator() {
 }
 
 void LossEstimator::add_output(Frame&) {
@@ -65,7 +65,8 @@ void LossEstimator::report_losses_() {
 
         const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
-        format_.report_losses(loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
+        format_.report_losses(
+            loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;

@@ -12,8 +12,8 @@ namespace {
 
 unsigned int alsa_nearest_buffer_size(
     unsigned int sample_rate, int n_channels, unsigned int latency_us, size_t periods) {
-    unsigned int latency_samples =
-        (unsigned int)((double)latency_us * sample_rate / 1000000);
+    unsigned int latency_samples
+        = (unsigned int)((double)latency_us * sample_rate / 1000000);
     while ((latency_samples * n_channels) % periods != 0) {
         latency_samples++;
     }
@@ -26,12 +26,13 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     unsigned int latency_us) {
     int err = 0;
 
-    snd_pcm_hw_params_t *hw_params = nullptr;
+    snd_pcm_hw_params_t* hw_params = nullptr;
     snd_pcm_hw_params_alloca(&hw_params);
 
     // initialize hw_params
     if ((err = snd_pcm_hw_params_any(pcm, hw_params)) < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_any(): %s", snd_strerror(err));
+        se_log_error(
+            "can't set hw params: snd_pcm_hw_params_any(): %s", snd_strerror(err));
         return false;
     }
 
@@ -72,7 +73,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     }
     if (rate != sample_rate) {
         se_log_error("can't set hw params: exact sample rate value is not supported:"
-                  " requested=%d supported=%d",
+                     " requested=%d supported=%d",
             (int)sample_rate, (int)rate);
         return false;
     }
@@ -84,7 +85,8 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // set period size in samples
     // ALSA reads 'period_size' samples from circular buffer every period
     *period_size = suggested_buffer_size / n_periods;
-    if ((err = snd_pcm_hw_params_set_period_size_near(pcm, hw_params, period_size, nullptr))
+    if ((err = snd_pcm_hw_params_set_period_size_near(
+             pcm, hw_params, period_size, nullptr))
         < 0) {
         se_log_error("can't set hw params: snd_pcm_hw_params_set_period_size_near(): %s",
             snd_strerror(err));
@@ -136,7 +138,7 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
     snd_pcm_uframes_t period_size, snd_pcm_uframes_t buffer_size) {
     int err = 0;
 
-    snd_pcm_sw_params_t *sw_params = nullptr;
+    snd_pcm_sw_params_t* sw_params = nullptr;
     snd_pcm_sw_params_alloca(&sw_params);
 
     // initialize sw_params
@@ -151,8 +153,9 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
         // after circular buffer becomes full first time
         if ((err = snd_pcm_sw_params_set_start_threshold(pcm, sw_params, buffer_size))
             < 0) {
-            se_log_error("can't set sw params: snd_pcm_sw_params_set_start_threshold(): %s",
-                      snd_strerror(err));
+            se_log_error(
+                "can't set sw params: snd_pcm_sw_params_set_start_threshold(): %s",
+                snd_strerror(err));
             return false;
         }
     }

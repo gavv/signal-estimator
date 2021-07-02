@@ -13,11 +13,8 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y libasound2-dev
 
-      - name: Run cmake
-        run: mkdir build && cd build && cmake ..
-
-      - name: Run make
-        run: cd build && make -j2
+      - name: Build
+        run: make
 
       - name: Run help
         run: ./bin/signal-estimator -h

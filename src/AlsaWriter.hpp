@@ -23,7 +23,7 @@ public:
     AlsaWriter(const AlsaWriter&) = delete;
     AlsaWriter& operator=(const AlsaWriter&) = delete;
 
-    bool open(Config& config, const char *device);
+    bool open(Config& config, const char* device);
     void close();
 
     bool write(Frame& frame);

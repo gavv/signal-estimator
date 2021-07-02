@@ -7,10 +7,10 @@
 
 #include "Config.hpp"
 #include "IEstimator.hpp"
+#include "IFormatter.hpp"
 #include "RunMaxCounter.hpp"
 #include "SchmittTrigger.hpp"
 #include "SmaCounter.hpp"
-#include "IFormatter.hpp"
 
 #include <memory>
 #include <mutex>
@@ -56,7 +56,9 @@ private:
     public:
         StrikeTrigger(const Config& config);
 
-        Timestamp last_trigger_ts() const { return last_trigger_ts_; }
+        Timestamp last_trigger_ts() const {
+            return last_trigger_ts_;
+        }
 
         void add_frame(Frame& frame);
 
