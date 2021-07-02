@@ -4,6 +4,7 @@
 #include <memory>
 #include <cstring>
 #include <QPointF>
+#include <QFileInfo>
 
 
 

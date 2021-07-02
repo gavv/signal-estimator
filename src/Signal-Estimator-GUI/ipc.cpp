@@ -47,10 +47,10 @@ QProcess* startSignalEstimator(QStringList args)
 
 bool checkSignalEstimator()
 {
-    if (FILE* check = fopen("signal-estimator","r")){ // check signal-estimator exists in current dir
-        fclose(check);
+
+    if (QFileInfo(QString("signal-estimator")).isExecutable()){ // check signal-estimator exists in current dir
         return true;
-     }
+    }
     else
         return false;
 }
