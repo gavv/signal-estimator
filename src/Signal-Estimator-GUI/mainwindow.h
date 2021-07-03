@@ -52,7 +52,7 @@ private:
     QwtPlotCurve* curve1 = new QwtPlotCurve ("Input Curve");
     QwtPlotCurve* curve2 = new QwtPlotCurve ("Output Curve");
     QTimer* timer;
-    QProcess* proc;
+    QPointer<QProcess> proc;
 
     QStringList set_up_program();
 

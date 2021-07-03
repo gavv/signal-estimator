@@ -5,6 +5,7 @@
 #include <cstring>
 #include <QPointF>
 #include <QFileInfo>
+#include <QPointer>
 
 
 
@@ -13,7 +14,7 @@ bool checkSignalEstimator();
 QVector<QString> getOutputDevices();
 QVector<QString> getInputDevices();
 
-QProcess* startSignalEstimator(QStringList args);
+QPointer<QProcess> startSignalEstimator(QStringList args);
 
 QPointF parseLine(QString buffer);
 

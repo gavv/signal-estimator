@@ -33,10 +33,10 @@ QVector<QString> getInputDevices(){
     return Strvec;
 }
 
-QProcess* startSignalEstimator(QStringList args)
+QPointer<QProcess> startSignalEstimator(QStringList args)
 {
     // setup qprocess for signal-estimator
-    QProcess* proc = new QProcess;
+    QPointer<QProcess> proc = new QProcess;
     QString command = "./signal-estimator";
     proc->setProcessChannelMode(QProcess::MergedChannels);
     proc->setProgram(command);
