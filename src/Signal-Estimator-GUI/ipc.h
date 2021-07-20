@@ -1,22 +1,23 @@
 #pragma once
 #include <QVector>
 #include <QProcess>
-#include <memory>
-#include <cstring>
 #include <QPointF>
 #include <QFileInfo>
 #include <QPointer>
 
-
+#include <tuple>
+#include <memory>
+#include <cstring>
+#include "points.h"
 
 bool checkSignalEstimator();
 
 QVector<QString> getOutputDevices();
 QVector<QString> getInputDevices();
 
-QPointer<QProcess> startSignalEstimator(QStringList args);
+QSharedPointer<QProcess> startSignalEstimator(QStringList args);
 
-QPointF parseLine(QString buffer);
+std::tuple<QPointF, io> parseLine(QString buffer);
 
 QString formatDeviceName(QString);
 

@@ -6,7 +6,7 @@
 #include <QVector>
 #include <QPointF>
 
-typedef enum {Input,Output} io ;
+typedef enum {Input,Output, None} io ;
 
 class PointsBuffer{
 public:

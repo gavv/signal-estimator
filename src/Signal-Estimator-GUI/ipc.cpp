@@ -11,7 +11,7 @@ QVector<QString> getOutputDevices(){
     }
 
     // read everything from aplay into result
-    while (fgets(buffer,128,pipe1.get()) != nullptr){
+    while (fgets(buffer,sizeof(buffer),pipe1.get()) != nullptr){
         if (std::strstr(buffer,"card") != NULL && std::strstr(buffer,"device") != NULL) // if line has both card and device in it
             Strvec.append(QString::fromStdString(buffer)); // add to combobox
     }
@@ -33,10 +33,10 @@ QVector<QString> getInputDevices(){
     return Strvec;
 }
 
-QPointer<QProcess> startSignalEstimator(QStringList args)
+QSharedPointer<QProcess> startSignalEstimator(QStringList args)
 {
     // setup qprocess for signal-estimator
-    QPointer<QProcess> proc = new QProcess;
+    QSharedPointer<QProcess> proc = QSharedPointer<QProcess>(new QProcess);
     QString command = "./signal-estimator";
     proc->setProcessChannelMode(QProcess::MergedChannels);
     proc->setProgram(command);
@@ -55,19 +55,22 @@ bool checkSignalEstimator()
         return false;
 }
 
-QPointF parseLine(QString buffer){
+std::tuple<QPointF, io> parseLine(QString buffer){
 
     QPointF pt;
     QRegExp reg;
     reg.setPattern(QString("\\s+"));
+    std::tuple<QPointF, io> pt_info;
 
     QStringList token = buffer.split(reg, QString::SkipEmptyParts);
-    if (token.count() != 3){return pt;}
+    if (token.count() != 3){
+        pt_info = std::make_tuple(pt,None);
+        return pt_info;
+    }
     try {
        pt.setX(token[1].toDouble()/100000);
     } catch (const std::invalid_argument&){
        pt.setX(0.0);
-       return pt;
     }
 
     try {
@@ -77,21 +80,28 @@ QPointF parseLine(QString buffer){
         pt.setY(0.0);
     }
 
-    return pt;
+    if (pt.isNull() == false && buffer.contains(QString("in")))
+        pt_info = std::make_tuple(pt,Input);
+    else if (pt.isNull() == false && buffer.contains(QString("out")))
+        pt_info = std::make_tuple(pt,Output);
+    else
+        pt_info = std::make_tuple(pt,None);
+
+    return pt_info;
 }
 
 
 QString formatDeviceName(QString buffer)
 {
-    char* c;
+    const char* c;
     if (buffer.toStdString() == "default")
         return buffer;
     else {
-        QString temp = buffer;
-        c = (std::strstr(temp.toStdString().c_str() , "card ") + 5); // get card number
+        QByteArray temp = buffer.toLocal8Bit();
         buffer = "hw:";
+        c = (std::strstr(temp.data() , "card ") + 5); // get card number
         buffer.push_back(*c); // hw:X
-        c = (std::strstr(temp.toStdString().c_str() , " device ") + 8); // get device
+        c = (std::strstr(temp.data() , " device ") + 8); // get device
         buffer.append(","); // hw:X,
         buffer.push_back(*c); // hw:X,Y
         return buffer;

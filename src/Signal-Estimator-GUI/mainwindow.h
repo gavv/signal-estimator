@@ -16,6 +16,7 @@
 #include "points.h"
 #include "ipc.h"
 #include "../../3rdparty/Ring-Buffer-master/ringbuffer.hpp"
+#include <tuple>
 
 
 namespace Ui {
@@ -52,7 +53,7 @@ private:
     QwtPlotCurve* curve1 = new QwtPlotCurve ("Input Curve");
     QwtPlotCurve* curve2 = new QwtPlotCurve ("Output Curve");
     QTimer* timer;
-    QPointer<QProcess> proc;
+    QSharedPointer<QProcess> proc;
 
     QStringList set_up_program();
 

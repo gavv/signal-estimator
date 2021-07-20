@@ -61,19 +61,17 @@ void MainWindow::update_graphs(){ // update both input and output signal graphs
 
 void MainWindow::read_graph_data(){
     QString buffer;
-    QPointF pt;
+    std::tuple<QPointF, io> pt;
     QByteArray arr;
     while (this->proc->canReadLine()){
         arr = this->proc->readLine(); // read line from proc
-        buffer = QTextCodec::codecForMib(106)->toUnicode(arr); // convert to std::string
+        buffer = QTextCodec::codecForMib(106)->toUnicode(arr); // specify utf-8 encoding and convert to QString
         //this->ui->ErrorLabel_2->setText(QString(arr));
         pt = parseLine(buffer);
-        if (pt.isNull() == false && buffer.contains(QString("in"))){
-            this->in_data.appendPoint(pt);
-        }
-        else if (pt.isNull() == false && buffer.contains(QString("out"))){
-            this->out_data.appendPoint(pt);
-        }
+        if (std::get<1>(pt) == Input)
+            this->in_data.appendPoint(std::get<0>(pt));
+        else if (std::get<1>(pt) == Output)
+            this->out_data.appendPoint(std::get<0>(pt));
     }
 }
 
@@ -196,9 +194,9 @@ void MainWindow::run_estimator(){
         this->ui->OutputSig->replot();
 
         this->proc = startSignalEstimator(args);
-        //QStringList argslist = this->proc->arguments();
+        QStringList argslist = this->proc->arguments();
         // proc emits error signal
-        this->proc->connect(this->proc,SIGNAL(error(QProcess::ProcessError)),this,SLOT(checkProc()));
+        this->proc->connect(this->proc.data(),SIGNAL(error(QProcess::ProcessError)),this,SLOT(checkProc()));
 
         QTimer* time = new QTimer(0);
 
@@ -206,7 +204,7 @@ void MainWindow::run_estimator(){
 
         timer->setInterval(20);
         timer->connect(timer, SIGNAL(timeout()),this,SLOT(update_graphs()));
-        this->proc->connect(this->proc,SIGNAL(readyReadStandardOutput()), this, SLOT(read_graph_data()));
+        this->proc->connect(this->proc.data(),SIGNAL(readyReadStandardOutput()), this, SLOT(read_graph_data()));
         //this->proc->connect(this->proc,SIGNAL(finished(int)), this, SLOT(on_StopButton_clicked()));
 
         if (this->proc->open(QProcess::ReadOnly) == false) // failing? to open signal-est
