@@ -5,7 +5,6 @@
 #include <QThread>
 #include <qwt_plot_curve.h>
 #include <qwt_text.h>
-#include <QTextCodec>
 #include "sigestnotfound.h"
 
 #include <stdio.h>

@@ -65,7 +65,7 @@ void MainWindow::read_graph_data(){
     QByteArray arr;
     while (this->proc->canReadLine()){
         arr = this->proc->readLine(); // read line from proc
-        buffer = QTextCodec::codecForMib(106)->toUnicode(arr); // specify utf-8 encoding and convert to QString
+        buffer = QString(arr); // convert to QString
         //this->ui->ErrorLabel_2->setText(QString(arr));
         pt = parseLine(buffer);
         if (std::get<1>(pt) == Input)
