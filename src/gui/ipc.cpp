@@ -55,12 +55,12 @@ bool checkSignalEstimator()
         return false;
 }
 
-std::tuple<QPointF, io> parseLine(QString buffer){
+std::tuple<QPointF, IOType> parseLine(QString buffer){
 
     QPointF pt;
     QRegExp reg;
     reg.setPattern(QString("\\s+"));
-    std::tuple<QPointF, io> pt_info;
+    std::tuple<QPointF, IOType> pt_info;
 
     QStringList token = buffer.split(reg, QString::SkipEmptyParts);
     if (token.count() != 3){

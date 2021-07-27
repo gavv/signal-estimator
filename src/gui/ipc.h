@@ -17,7 +17,7 @@ QVector<QString> getInputDevices();
 
 QSharedPointer<QProcess> startSignalEstimator(QStringList args);
 
-std::tuple<QPointF, io> parseLine(QString buffer);
+std::tuple<QPointF, IOType> parseLine(QString buffer);
 
 QString formatDeviceName(QString);
 

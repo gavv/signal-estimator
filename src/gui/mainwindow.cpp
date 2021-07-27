@@ -61,7 +61,7 @@ void MainWindow::update_graphs(){ // update both input and output signal graphs
 
 void MainWindow::read_graph_data(){
     QString buffer;
-    std::tuple<QPointF, io> pt;
+    std::tuple<QPointF, IOType> pt;
     QByteArray arr;
     while (this->proc->canReadLine()){
         arr = this->proc->readLine(); // read line from proc
