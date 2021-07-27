@@ -73,6 +73,11 @@ target_link_libraries(signal-estimator
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
+install(
+  TARGETS signal-estimator
+  RUNTIME DESTINATION BIN
+)
+
 add_custom_command(TARGET signal-estimator POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy
      "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json"
