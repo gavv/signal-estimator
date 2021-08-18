@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Debug")
+  set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
@@ -75,7 +75,7 @@ target_link_libraries(signal-estimator
 
 install(
   TARGETS signal-estimator
-  RUNTIME DESTINATION BIN
+  RUNTIME DESTINATION bin
 )
 
 add_custom_command(TARGET signal-estimator POST_BUILD
