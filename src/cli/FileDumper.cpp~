@@ -106,11 +106,12 @@ void FileDumper::print_last_maybe_(const IOType type) {
     if (last_printed_ts_ == last_ts_) {
         return;
     }
-    if (type == IOType::Output)
+    if (type == IOType::Output && fp_ == stdout)
         fprintf(fp_, "out %lu %d\n", last_ts_, last_val_);
-    else 
+    else if (fp_ == stdout)
         fprintf(fp_, "in %lu %d\n", last_ts_, last_val_);
-
+    else
+        fprintf(fp_, "%lu %d\n", last_ts_, last_val_);
     fflush(fp_);
 
     last_printed_ts_ = last_ts_;
