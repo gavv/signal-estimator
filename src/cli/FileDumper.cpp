@@ -78,7 +78,7 @@ void FileDumper::write(Frame& frame) {
     }
 }
 
-  void FileDumper::write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type) {
+void FileDumper::write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type) {
     const int new_val
         = int(find_max(buf, bufsz) / config_.dump_rounding * config_.dump_rounding);
 
