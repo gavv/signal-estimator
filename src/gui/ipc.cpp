@@ -26,7 +26,7 @@ QVector<QString> getInputDevices(){
         return Strvec;
     }
 
-    while (fgets(buffer,128,pipe2.get()) != nullptr){
+    while (fgets(buffer,sizeof(buffer),pipe2.get()) != nullptr){
         if (std::strstr(buffer,"card") != NULL && std::strstr(buffer,"device") != NULL) // if line has both card and device in it
             Strvec.append(QString::fromStdString(buffer)); // add to combobox
     }

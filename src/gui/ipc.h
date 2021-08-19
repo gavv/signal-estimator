@@ -8,7 +8,7 @@
 #include <tuple>
 #include <memory>
 #include <cstring>
-#include "points.h"
+#include "pointsbuffer.h"
 
 bool checkSignalEstimator();
 

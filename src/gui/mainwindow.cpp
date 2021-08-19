@@ -36,10 +36,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::update_graphs(){ // update both input and output signal graphs
     QVector<QPointF> in_current = in_data.getCurrentPoints();
-    // sort the data by x value so it doesn't jump randomly across graph
-    std::sort(in_current.begin(),in_current.end(),QPFcompare());
+
     QVector<QPointF> out_current = out_data.getCurrentPoints();
-    std::sort(out_current.begin(),out_current.end(),QPFcompare());
+
     //this->ui->ErrorLabel_2->setText(QString("updating graphs"));
 
     this->curve1->setSamples(in_current);

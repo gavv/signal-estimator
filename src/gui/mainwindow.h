@@ -12,9 +12,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <thread>
-#include "points.h"
+#include "pointsbuffer.h"
 #include "ipc.h"
-#include "../../3rdparty/Ring-Buffer-master/ringbuffer.hpp"
 #include <tuple>
 
 
