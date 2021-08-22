@@ -1,12 +1,13 @@
-.PHONY: build
-
 NUP_CPU ?= `nproc --all`
 
-all: build
-
-build:
+all:
 	mkdir -p build
 	cd build && cmake ..
+	cd build && make -j$(NUM_CPU)
+
+no_gui:
+	mkdir -p build
+	cd build && cmake -DBUILD_GUI=NO ..
 	cd build && make -j$(NUM_CPU)
 
 install:

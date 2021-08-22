@@ -75,6 +75,8 @@ Dependencies
 * C++17 compiler
 * CMake >= 3.0
 * libasound (ALSA devel)
+* Qt5 (for GUI)
+* Qwt (for GUI)
 
 Installation
 ------------
@@ -82,7 +84,7 @@ Installation
 Install dependencies:
 
 ```
-sudo apt install libasound2-dev
+sudo apt install libasound2-dev qtbase5-dev libqwt-qt5-dev
 ```
 
 Clone repo:
@@ -98,7 +100,13 @@ Build:
 make
 ```
 
-Install (optionally):
+Build without GUI (in this case Qt and Qwt are not needed):
+
+```
+make no_gui
+```
+
+Install into the system (optionally):
 
 ```
 sudo make install
