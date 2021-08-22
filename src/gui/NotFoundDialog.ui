@@ -36,7 +36,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>The Signal-Estimator executable was not found in the current directory </string>
+    <string>The "signal-estimator" executable was not found in current directory, binary directory, or PATH.</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>

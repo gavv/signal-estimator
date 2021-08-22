@@ -3,24 +3,37 @@
 
 #include "SignalEstimator.hpp"
 
+#include <QCoreApplication>
+#include <QDir>
 #include <QFileInfo>
 #include <QRegExp>
+#include <QStandardPaths>
 
 #include <exception>
 
-bool check_signal_estimator() {
-    // check signal-estimator exists in current dir
-    if (QFileInfo(QString("signal-estimator")).isExecutable()) {
-        return true;
-    } else {
-        return false;
+QString find_signal_estimator() {
+    if (auto path = QDir::currentPath() + "/signal-estimator";
+        QFileInfo(path).isExecutable()) {
+        return path;
     }
+
+    if (auto path = QCoreApplication::applicationDirPath() + "/signal-estimator";
+        QFileInfo(path).isExecutable()) {
+        return path;
+    }
+
+    if (auto path = QStandardPaths::findExecutable("signal-estimator");
+        QFileInfo(path).isExecutable()) {
+        return path;
+    }
+
+    return {};
 }
 
 QSharedPointer<QProcess> start_signal_estimator(QStringList args) {
     // setup qprocess for signal-estimator
     QSharedPointer<QProcess> proc = QSharedPointer<QProcess>(new QProcess);
-    QString command = "./signal-estimator";
+    QString command = find_signal_estimator();
     proc->setProcessChannelMode(QProcess::MergedChannels);
     proc->setProgram(command);
     proc->setArguments(args);

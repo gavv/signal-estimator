@@ -14,7 +14,7 @@
 
 #include <tuple>
 
-bool check_signal_estimator();
+QString find_signal_estimator();
 
 QSharedPointer<QProcess> start_signal_estimator(QStringList args);
 
