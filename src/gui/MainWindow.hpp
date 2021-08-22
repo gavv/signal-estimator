@@ -31,30 +31,29 @@ public:
     void run_estimator();
 
 private slots:
-
     void on_StartButton_released();
     void set_update_plots(bool f) {
-        this->update_plots = f;
+        this->update_plots_ = f;
     }
     bool get_update_plots() {
-        return this->update_plots;
+        return this->update_plots_;
     }
     void update_graphs();
     void on_StopButton_clicked();
     void read_graph_data();
-    void checkProc();
+    void check_proc();
 
 private:
     Ui::MainWindow* ui;
-    bool update_plots = false;
+    bool update_plots_ = false;
 
-    PointsBuffer out_data;
-    PointsBuffer in_data;
+    PointsBuffer out_data_;
+    PointsBuffer in_data_;
 
-    QwtPlotCurve* curve1 = new QwtPlotCurve("Input Curve");
-    QwtPlotCurve* curve2 = new QwtPlotCurve("Output Curve");
-    QTimer* timer;
-    QSharedPointer<QProcess> proc;
+    QwtPlotCurve* curve1_ = new QwtPlotCurve("Input Curve");
+    QwtPlotCurve* curve2_ = new QwtPlotCurve("Output Curve");
+    QTimer* timer_;
+    QSharedPointer<QProcess> proc_;
 
     QStringList set_up_program();
 

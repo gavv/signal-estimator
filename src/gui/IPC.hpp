@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PointsBuffer.hpp"
+#include "IOType.hpp"
 
 #include <QFileInfo>
 #include <QPointF>
@@ -12,13 +12,13 @@
 #include <memory>
 #include <tuple>
 
-bool checkSignalEstimator();
+bool check_signal_estimator();
 
-QVector<QString> getOutputDevices();
-QVector<QString> getInputDevices();
+QVector<QString> get_output_devices();
+QVector<QString> get_input_devices();
 
-QSharedPointer<QProcess> startSignalEstimator(QStringList args);
+QSharedPointer<QProcess> start_signal_estimator(QStringList args);
 
-std::tuple<QPointF, IOType> parseLine(QString buffer);
+std::tuple<QPointF, IOType> parse_line(QString buffer);
 
-QString formatDeviceName(QString);
+QString format_device_name(QString);

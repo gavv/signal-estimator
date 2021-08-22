@@ -1,13 +1,13 @@
 #include "IPC.hpp"
 
-QVector<QString> getOutputDevices() {
+QVector<QString> get_output_devices() {
     char buffer[128];
-    QVector<QString> Strvec;
+    QVector<QString> strvec;
     // run pipe to get output devices from aplay
     std::unique_ptr<FILE, decltype(&pclose)> pipe1(popen("aplay -l", "r"), pclose);
 
     if (!pipe1) {
-        return Strvec;
+        return strvec;
     }
 
     // read everything from aplay into result
@@ -15,30 +15,30 @@ QVector<QString> getOutputDevices() {
         if (std::strstr(buffer, "card") != NULL
             && std::strstr(buffer, "device") != NULL) // if line has both card and device
                                                       // in it
-            Strvec.append(QString::fromStdString(buffer)); // add to combobox
+            strvec.append(QString::fromStdString(buffer)); // add to combobox
     }
-    return Strvec;
+    return strvec;
 }
 
-QVector<QString> getInputDevices() {
+QVector<QString> get_input_devices() {
     char buffer[128];
-    QVector<QString> Strvec;
+    QVector<QString> strvec;
     // run pipe to get output devices from arecord
     std::unique_ptr<FILE, decltype(&pclose)> pipe2(popen("arecord -l", "r"), pclose);
     if (!pipe2) {
-        return Strvec;
+        return strvec;
     }
 
     while (fgets(buffer, sizeof(buffer), pipe2.get()) != nullptr) {
         if (std::strstr(buffer, "card") != NULL
             && std::strstr(buffer, "device") != NULL) // if line has both card and device
                                                       // in it
-            Strvec.append(QString::fromStdString(buffer)); // add to combobox
+            strvec.append(QString::fromStdString(buffer)); // add to combobox
     }
-    return Strvec;
+    return strvec;
 }
 
-QSharedPointer<QProcess> startSignalEstimator(QStringList args) {
+QSharedPointer<QProcess> start_signal_estimator(QStringList args) {
     // setup qprocess for signal-estimator
     QSharedPointer<QProcess> proc = QSharedPointer<QProcess>(new QProcess);
     QString command = "./signal-estimator";
@@ -49,7 +49,7 @@ QSharedPointer<QProcess> startSignalEstimator(QStringList args) {
     return proc;
 }
 
-bool checkSignalEstimator() {
+bool check_signal_estimator() {
     if (QFileInfo(QString("signal-estimator")).isExecutable()) { // check signal-estimator
                                                                  // exists in current dir
         return true;
@@ -57,7 +57,7 @@ bool checkSignalEstimator() {
         return false;
 }
 
-std::tuple<QPointF, IOType> parseLine(QString buffer) {
+std::tuple<QPointF, IOType> parse_line(QString buffer) {
     QPointF pt;
     QRegExp reg;
     reg.setPattern(QString("\\s+"));
@@ -91,7 +91,7 @@ std::tuple<QPointF, IOType> parseLine(QString buffer) {
     return pt_info;
 }
 
-QString formatDeviceName(QString buffer) {
+QString format_device_name(QString buffer) {
     const char* c;
     if (buffer.toStdString() == "default")
         return buffer;

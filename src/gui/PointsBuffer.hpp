@@ -7,17 +7,15 @@
 #include <iostream>
 #include <optional>
 
-enum IOType { Input, Output, None };
-
 class PointsBuffer {
 public:
-    void appendPoint(QPointF);
+    void append_point(QPointF);
 
-    QVector<QPointF> getCurrentPoints();
-    void clearBuf();
+    QVector<QPointF> get_current_points();
+    void clear_buf();
 
 private:
     QList<QPointF> ringbuf_; // see appendPoint() implementation
     const size_t ring_size_ = 1024;
-    QVector<QPointF> lastPlottedPoints;
+    QVector<QPointF> last_plotted_points_;
 };

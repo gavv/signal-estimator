@@ -1,18 +1,18 @@
 #include "PointsBuffer.hpp"
 
-void PointsBuffer::appendPoint(QPointF pt) {
+void PointsBuffer::append_point(QPointF pt) {
     if (ringbuf_.size() >= ring_size_)
         ringbuf_.pop_back(); // remove from tail
     ringbuf_.push_front(pt); // insert at head
 }
 
-QVector<QPointF> PointsBuffer::getCurrentPoints() {
-    lastPlottedPoints = ringbuf_.toVector();
-    return lastPlottedPoints;
+QVector<QPointF> PointsBuffer::get_current_points() {
+    last_plotted_points_ = ringbuf_.toVector();
+    return last_plotted_points_;
 }
 
-void PointsBuffer::clearBuf() {
+void PointsBuffer::clear_buf() {
     // clear both
     ringbuf_.clear();
-    lastPlottedPoints.clear();
+    last_plotted_points_.clear();
 }
