@@ -247,18 +247,21 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="SignalVolume">
+         <widget class="QDoubleSpinBox" name="SignalVolume">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
-           <number>0</number>
+           <double>0.0</double>
           </property>
           <property name="maximum">
-           <number>100</number>
+           <double>1.0</double>
           </property>
           <property name="singleStep">
-           <number>1</number>
+           <double>0.1</double>
           </property>
           <property name="value">
-           <number>50</number>
+           <double>1.0</double>
           </property>
          </widget>
         </item>
@@ -516,7 +519,7 @@
            <double>0.010000000000000</double>
           </property>
           <property name="value">
-           <double>0.010000000000000</double>
+           <double>0.100000000000000</double>
           </property>
          </widget>
         </item>
