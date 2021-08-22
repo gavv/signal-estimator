@@ -286,9 +286,9 @@ Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including 
 Dumping streams
 ---------------
 
-In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples with their timestamps to text files.
+In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples and their timestamps to text files.
 
-To reduce the file size, we dump only one maximum value per frame. To reduce the file size even more, we round every dumped value, and drop value if it's the same as the previois one. The frame size and rounding factor are configurable.
+To reduce the file size, we dump only one maximum value per frame. To reduce the file size even more, we round every dumped value, and drop value if it's the same as the previois one. The frame size and rounding factor are configurable via command-line.
 
 The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to DAC or read from ADC.
 
@@ -313,7 +313,7 @@ can't enable real-time scheduling policy
 can't enable real-time scheduling policy
 ```
 
-You can then inspect [these files](./example):
+The command above will produce two files:
 
 ```
 $ ls -lh *.txt
@@ -321,13 +321,13 @@ $ ls -lh *.txt
 -rw-r--r-- 1 user user 118K Jan 15 16:22 input.txt
 ```
 
-We also provide a helper script that plots the files using matplotlib. You can use it to manually measure the latency:
+We also provide a helper script that plots the files using matplotlib. You can use it to manually inspect the signal:
 
 ```
 $ ./script/plot_signal.py output.txt input.txt
 ```
 
-![](./example/plot_edited.png)
+![](./doc/plot_edited.png)
 
 In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238ms.
 

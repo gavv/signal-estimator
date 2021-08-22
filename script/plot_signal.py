@@ -11,7 +11,7 @@ def load(filename):
     arr_y = []
     with open(filename) as fp:
         for line in fp.readlines():
-            x, y = map(float, line.split())
+            x, y = map(float, line.split()[1:])
             arr_x.append(float(int(x / 1000000)))
             arr_y.append(abs(y))
     return arr_x, arr_y
