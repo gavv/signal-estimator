@@ -44,25 +44,25 @@ include_directories(
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(signal-estimator
-  src/AlsaReader.cpp
-  src/AlsaUtils.cpp
-  src/AlsaWriter.cpp
-  src/ContinuousGenerator.cpp
-  src/FileDumper.cpp
-  src/Frame.cpp
-  src/GradientCounter.cpp
-  src/JSONFormatter.cpp
-  src/LatencyEstimator.cpp
-  src/LossEstimator.cpp
-  src/Main.cpp
-  src/RateLimiter.cpp
-  src/Realtime.cpp
-  src/RunMaxCounter.cpp
-  src/SchmittTrigger.cpp
-  src/SmaCounter.cpp
-  src/StrikeGenerator.cpp
-  src/TextFormatter.cpp
-  src/Time.cpp
+  src/cli/AlsaReader.cpp
+  src/cli/AlsaUtils.cpp
+  src/cli/AlsaWriter.cpp
+  src/cli/ContinuousGenerator.cpp
+  src/cli/FileDumper.cpp
+  src/cli/Frame.cpp
+  src/cli/GradientCounter.cpp
+  src/cli/JSONFormatter.cpp
+  src/cli/LatencyEstimator.cpp
+  src/cli/LossEstimator.cpp
+  src/cli/Main.cpp
+  src/cli/RateLimiter.cpp
+  src/cli/Realtime.cpp
+  src/cli/RunMaxCounter.cpp
+  src/cli/SchmittTrigger.cpp
+  src/cli/SmaCounter.cpp
+  src/cli/StrikeGenerator.cpp
+  src/cli/TextFormatter.cpp
+  src/cli/Time.cpp
 )
 
 find_package(Threads)
@@ -71,12 +71,12 @@ target_link_libraries(signal-estimator
   asound
   m
   ${CMAKE_THREAD_LIBS_INIT}
-  )
+)
 
 install(
   TARGETS signal-estimator
   RUNTIME DESTINATION bin
-  )
+)
 
 add_custom_command(TARGET signal-estimator POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy
