@@ -31,15 +31,17 @@ MainWindow::~MainWindow() {
 
 void MainWindow::update_graphs() { // update both input and output signal graphs
     QVector<QPointF> in_current = in_data_.get_current_points();
-
     QVector<QPointF> out_current = out_data_.get_current_points();
+
+    auto xMax = std::max(in_current.back().x(), out_current.back().x());
+    auto xMin = xMax - out_data_.size_milliseconds();
 
     this->inputCurve_->setSamples(in_current);
     this->outputCurve_->setSamples(out_current);
 
-    this->ui->OutputSig->updateAxes();
+    this->ui->OutputSig->setAxisScale(QwtPlot::xBottom, xMin, xMax);
+
     this->ui->OutputSig->replot();
-    QApplication::processEvents();
 
     if (this->update_plots_ == true) { // restart timer for graphing
         this->timer_->start();

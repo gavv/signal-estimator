@@ -37,7 +37,7 @@ std::tuple<QPointF, PointType> parse_line(QString buffer) {
         return pt_info;
     }
     try {
-        pt.setX(token[1].toDouble() / 100000);
+        pt.setX(token[1].toDouble() / 1000000);
     } catch (const std::invalid_argument&) {
         pt.setX(0.0);
     }

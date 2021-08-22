@@ -1,11 +1,10 @@
 #pragma once
 
 #include <QPointF>
+
 #include <QVector>
 
-#include <cstring>
-#include <iostream>
-#include <optional>
+#include <deque>
 
 class PointsBuffer {
 public:
@@ -14,8 +13,12 @@ public:
     QVector<QPointF> get_current_points();
     void clear_buf();
 
+    int size_milliseconds() const {
+        return ring_size_milliseconds_;
+    }
+
 private:
-    QList<QPointF> ringbuf_; // see appendPoint() implementation
-    const size_t ring_size_ = 1024;
-    QVector<QPointF> last_plotted_points_;
+    const int ring_size_milliseconds_ = 5000;
+
+    std::deque<QPointF> ringbuf_;
 };

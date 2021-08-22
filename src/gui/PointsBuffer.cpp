@@ -1,19 +1,22 @@
 #include "PointsBuffer.hpp"
 
+#include <algorithm>
+
 void PointsBuffer::append_point(QPointF pt) {
-    if ((size_t)ringbuf_.size() >= ring_size_) {
-        ringbuf_.pop_back(); // remove from tail
+    ringbuf_.push_back(pt);
+
+    if (ringbuf_.back().x() - ringbuf_.front().x() > ring_size_milliseconds_) {
+        ringbuf_.pop_front();
     }
-    ringbuf_.push_front(pt); // insert at head
 }
 
 QVector<QPointF> PointsBuffer::get_current_points() {
-    last_plotted_points_ = ringbuf_.toVector();
-    return last_plotted_points_;
+    QVector<QPointF> ret(ringbuf_.size());
+    std::copy_n(ringbuf_.begin(), ringbuf_.size(), ret.begin());
+
+    return ret;
 }
 
 void PointsBuffer::clear_buf() {
-    // clear both
     ringbuf_.clear();
-    last_plotted_points_.clear();
 }
