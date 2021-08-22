@@ -1,3 +1,6 @@
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
+
 #include "PointsBuffer.hpp"
 
 #include <algorithm>

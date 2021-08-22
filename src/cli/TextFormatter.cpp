@@ -1,3 +1,6 @@
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
+
 #include "TextFormatter.hpp"
 
 #include <cstdio>
@@ -20,4 +23,4 @@ void TextFormatter::report_losses(
         sma_window, avg_loss_rate, loss_ratio);
 }
 
-}
+} // namespace signal_estimator

@@ -1,3 +1,6 @@
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
+
 #include "MainWindow.hpp"
 #include "NotFoundDialog.hpp"
 #include "SignalEstimator.hpp"

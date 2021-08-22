@@ -1,7 +1,5 @@
-/* Copyright (c) 2020 Victor Gaydov
- *
- * This code is licensed under the MIT License.
- */
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
 
 #include "Realtime.hpp"
 #include "Log.hpp"

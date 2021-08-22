@@ -1,3 +1,6 @@
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
+
 #include "SignalEstimator.hpp"
 
 #include <QFileInfo>
