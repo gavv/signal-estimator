@@ -5,15 +5,15 @@
 #include <QThread>
 #include <qwt_plot_curve.h>
 #include <qwt_text.h>
-#include "sigestnotfound.h"
+#include "NotFoundDialog.hpp"
 
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
 #include <thread>
-#include "pointsbuffer.h"
-#include "ipc.h"
+#include "PointsBuffer.hpp"
+#include "IPC.hpp"
 #include <tuple>
 
 

@@ -1,5 +1,5 @@
-#include "sigestnotfound.h"
-#include "ui_sigestnotfound.h"
+#include "NotFoundDialog.hpp"
+#include "ui_NotFoundDialog.h"
 
 SigEstNotFound::SigEstNotFound(QWidget *parent) :
     QDialog(parent),

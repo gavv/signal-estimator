@@ -1,4 +1,4 @@
-#include "ipc.h"
+#include "IPC.hpp"
 
 QVector<QString> getOutputDevices(){
     char buffer[128];

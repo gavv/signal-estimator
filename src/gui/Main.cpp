@@ -1,6 +1,6 @@
-#include "mainwindow.h"
+#include "MainWindow.hpp"
 #include <QApplication>
-#include "sigestnotfound.h"
+#include "NotFoundDialog.hpp"
 
 int main(int argc, char* argv[])
 {
