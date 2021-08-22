@@ -186,17 +186,17 @@ void MainWindow::run_estimator_() {
     proc_ = start_signal_estimator(args);
 
     // proc emits error signal
-    proc_->connect(proc_.data(), SIGNAL(error(QProcess::ProcessError)), this,
-        SLOT(check_proc()));
+    proc_->connect(proc_.data(), qOverload<QProcess::ProcessError>(&QProcess::error),
+        this, &MainWindow::check_proc);
 
     if (!timer_) {
         timer_ = new QTimer(this);
         timer_->setInterval(20);
-        timer_->connect(timer_, SIGNAL(timeout()), this, SLOT(update_graphs()));
+        timer_->connect(timer_, &QTimer::timeout, this, &MainWindow::update_graphs);
     }
 
-    proc_->connect(proc_.data(), SIGNAL(readyReadStandardOutput()), this,
-        SLOT(read_graph_data()));
+    proc_->connect(proc_.data(), &QProcess::readyReadStandardOutput, this,
+        &MainWindow::read_graph_data);
 
     // failing to open signal-estimator?
     if (proc_->open(QProcess::ReadOnly)) {
