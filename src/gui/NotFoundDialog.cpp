@@ -1,16 +1,16 @@
 #include "NotFoundDialog.hpp"
 #include "ui_NotFoundDialog.h"
 
-SigEstNotFound::SigEstNotFound(QWidget* parent)
+NotFoundDialog::NotFoundDialog(QWidget* parent)
     : QDialog(parent)
-    , ui(new Ui::SigEstNotFound) {
+    , ui(new Ui::NotFoundDialog) {
     ui->setupUi(this);
 }
 
-SigEstNotFound::~SigEstNotFound() {
+NotFoundDialog::~NotFoundDialog() {
     delete ui;
 }
 
-void SigEstNotFound::on_pushButton_clicked() {
+void NotFoundDialog::on_pushButton_clicked() {
     this->close();
 }

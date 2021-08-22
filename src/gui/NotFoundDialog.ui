@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SigEstNotFound</class>
- <widget class="QDialog" name="SigEstNotFound">
+ <class>NotFoundDialog</class>
+ <widget class="QDialog" name="NotFoundDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

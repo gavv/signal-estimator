@@ -1,6 +1,6 @@
 #pragma once
 
-enum IOType {
+enum class PointType {
     Input,
     Output,
     None,

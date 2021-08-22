@@ -1,8 +1,9 @@
 #pragma once
 
-#include "IPC.hpp"
+#include "Devices.hpp"
 #include "NotFoundDialog.hpp"
 #include "PointsBuffer.hpp"
+#include "SignalEstimator.hpp"
 
 #include <QMainWindow>
 #include <QThread>
@@ -28,36 +29,32 @@ class MainWindow : public QMainWindow {
 public:
     explicit MainWindow(QWidget* parent = 0);
     ~MainWindow();
-    void run_estimator();
 
 private slots:
     void on_StartButton_released();
-    void set_update_plots(bool f) {
-        this->update_plots_ = f;
-    }
-    bool get_update_plots() {
-        return this->update_plots_;
-    }
-    void update_graphs();
     void on_StopButton_clicked();
+
+    void update_graphs();
     void read_graph_data();
     void check_proc();
 
 private:
+    QStringList set_up_program_();
+
+    void set_update_plots_(bool f) {
+        this->update_plots_ = f;
+    }
+
+    void run_estimator_();
+
     Ui::MainWindow* ui;
     bool update_plots_ = false;
 
     PointsBuffer out_data_;
     PointsBuffer in_data_;
 
-    QwtPlotCurve* curve1_ = new QwtPlotCurve("Input Curve");
-    QwtPlotCurve* curve2_ = new QwtPlotCurve("Output Curve");
-    QTimer* timer_;
+    QwtPlotCurve* inputCurve_ = new QwtPlotCurve("Input Curve");
+    QwtPlotCurve* outputCurve_ = new QwtPlotCurve("Output Curve");
+    QTimer* timer_ = nullptr;
     QSharedPointer<QProcess> proc_;
-
-    QStringList set_up_program();
-
-signals:
-    void append_input(QPointF);
-    void append_output(QPointF);
 };

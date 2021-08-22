@@ -1,8 +1,9 @@
 #include "PointsBuffer.hpp"
 
 void PointsBuffer::append_point(QPointF pt) {
-    if (ringbuf_.size() >= ring_size_)
+    if ((size_t)ringbuf_.size() >= ring_size_) {
         ringbuf_.pop_back(); // remove from tail
+    }
     ringbuf_.push_front(pt); // insert at head
 }
 

@@ -96,11 +96,12 @@ if(BUILD_GUI)
   set(CMAKE_AUTORCC ON)
 
   add_executable(signal-estimator-gui
-    src/gui/IPC.cpp
+    src/gui/Devices.cpp
     src/gui/Main.cpp
     src/gui/MainWindow.cpp
     src/gui/NotFoundDialog.cpp
     src/gui/PointsBuffer.cpp
+    src/gui/SignalEstimator.cpp
     )
 
   target_include_directories(signal-estimator-gui SYSTEM

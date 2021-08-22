@@ -72,7 +72,7 @@ void FileDumper::write(Frame& frame) {
         const auto subframe_data = frame.data() + off;
         const auto subframe_sz = std::min(config_.dump_frame, frame.size() - off);
 
-        write_subframe_(subframe_ts, subframe_data, subframe_sz, frame.get_io_type());
+        write_subframe_(subframe_ts, subframe_data, subframe_sz, frame.io_type());
 
         off += subframe_sz;
     }
