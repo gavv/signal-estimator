@@ -10,6 +10,7 @@ Signal Estimator
 - [Supported platforms](#supported-platforms)
 - [Dependencies](#dependencies)
 - [Installation](#installation)
+- [Graphical interface](#graphical-interface)
 - [Command-line options](#command-line-options)
 - [Measuring latency](#measuring-latency)
 - [Measuring losses](#measuring-losses)
@@ -26,7 +27,7 @@ Signal Estimator
 Features
 --------
 
-`signal-estimator` is a small command-line tool allowing to measure different characteristics of the signal looped back from audio output to audio input.
+`signal-estimator` is a small command-line and GUI tool allowing to measure different characteristics of the signal looped back from audio output to audio input.
 
 Features:
 
@@ -111,6 +112,17 @@ Install into the system (optionally):
 ```
 sudo make install
 ```
+
+Graphical interface
+-------------------
+
+The tools comes with a simple GUI (`signal-estimator-gui`) that plots the signal in the real-time. It can be especially useful for troubleshooting problems with measurements.
+
+It uses Qt and Qwt libraries. Internally, it invokes the command-line tool (`signal-estimator`) and parses its output.
+
+Here is how it looks like:
+
+<img src="https://github.com/gavv/signal-estimator/blob/main/doc/screenshot.png" width="600" />
 
 Command-line options
 --------------------
@@ -294,7 +306,7 @@ Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including 
 Dumping streams
 ---------------
 
-In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples and their timestamps to text files.
+In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples and their timestamps to text files or stdout (use `-`).
 
 To reduce the file size, we dump only one maximum value per frame. To reduce the file size even more, we round every dumped value, and drop value if it's the same as the previois one. The frame size and rounding factor are configurable via command-line.
 
@@ -357,6 +369,8 @@ Acknowledgments
 ---------------
 
 This tool was initially developed for a freelance project. Big thanks to my customer Samuel Blum at Boring Technologies, who sponsored the development and has kindly allowed to make it open-source!
+
+And of course, thanks to everyone who contributed to the project!
 
 Authors
 -------
