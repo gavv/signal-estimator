@@ -12,5 +12,5 @@ NotFoundDialog::~NotFoundDialog() {
 }
 
 void NotFoundDialog::on_pushButton_clicked() {
-    this->close();
+    close();
 }

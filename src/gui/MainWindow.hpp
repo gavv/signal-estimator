@@ -42,7 +42,7 @@ private:
     QStringList set_up_program_();
 
     void set_update_plots_(bool f) {
-        this->update_plots_ = f;
+        update_plots_ = f;
     }
 
     void run_estimator_();
