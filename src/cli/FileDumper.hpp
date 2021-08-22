@@ -33,10 +33,10 @@ public:
     void print_input_();
 
 private:
-    void write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type);
+    void write_subframe_(
+        nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type);
 
     void print_last_maybe_(const IOType type);
-
 
     const Config config_;
 

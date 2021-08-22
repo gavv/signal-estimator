@@ -4,9 +4,9 @@
  */
 
 #include "FileDumper.hpp"
+#include "Frame.hpp"
 #include "Log.hpp"
 #include "Time.hpp"
-#include "Frame.hpp"
 
 #include <algorithm>
 #include <cerrno>
@@ -40,11 +40,11 @@ FileDumper::~FileDumper() {
 }
 
 bool FileDumper::open(const char* filename) {
-    if (strcmp(filename,"-") == 0){
-       fp_ = stdout;
+    if (strcmp(filename, "-") == 0) {
+        fp_ = stdout;
+    } else {
+        fp_ = fopen(filename, "w");
     }
-    else
-    fp_ = fopen(filename, "w");
 
     if (!fp_) {
         se_log_error("can't open output file %s: %s", filename, strerror(errno));
@@ -78,7 +78,8 @@ void FileDumper::write(Frame& frame) {
     }
 }
 
-void FileDumper::write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type) {
+void FileDumper::write_subframe_(
+    nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type) {
     const int new_val
         = int(find_max(buf, bufsz) / config_.dump_rounding * config_.dump_rounding);
 
@@ -88,14 +89,12 @@ void FileDumper::write_subframe_(nanoseconds_t ts, const sample_t* buf, size_t b
         print_last_maybe_(type);
     }
 
-
     last_ts_ = ts;
     last_val_ = new_val;
 
     if (changed) {
         print_last_maybe_(type);
     }
-
 }
 
 void FileDumper::print_last_maybe_(const IOType type) {
@@ -106,10 +105,12 @@ void FileDumper::print_last_maybe_(const IOType type) {
     if (last_printed_ts_ == last_ts_) {
         return;
     }
-    if (type == IOType::Output)
+
+    if (type == IOType::Output) {
         fprintf(fp_, "out %lu %d\n", last_ts_, last_val_);
-    else 
+    } else {
         fprintf(fp_, "in %lu %d\n", last_ts_, last_val_);
+    }
 
     fflush(fp_);
 
