@@ -47,7 +47,13 @@ std::tuple<QPointF, PointType> parse_line(QString buffer) {
     reg.setPattern(QString("\\s+"));
     std::tuple<QPointF, PointType> pt_info;
 
-    QStringList token = buffer.split(reg, QString::SkipEmptyParts);
+    QStringList token = buffer.split(reg,
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        Qt::SkipEmptyParts
+#else
+        QString::SkipEmptyParts
+#endif
+    );
     if (token.count() != 3) {
         pt_info = std::make_tuple(pt, PointType::None);
         return pt_info;

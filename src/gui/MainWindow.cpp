@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget* parent)
     outputCurve_->attach(ui->OutputSig);
     inputCurve_->attach(ui->OutputSig);
 
-    inputCurve_->setPen(QColor(Qt::GlobalColor(Qt::blue))); // set input curve color to blue
-    outputCurve_->setPen(QColor(Qt::GlobalColor(Qt::red))); // set output curve color to red
+    inputCurve_->setPen(QColor(Qt::GlobalColor(Qt::blue)));
+    outputCurve_->setPen(QColor(Qt::GlobalColor(Qt::red)));
 
     QVector<QString> in = get_input_devices();
     QVector<QString> out = get_output_devices();
@@ -189,8 +189,9 @@ void MainWindow::run_estimator_() {
     proc_ = start_signal_estimator(args);
 
     // proc emits error signal
-    proc_->connect(proc_.data(), qOverload<QProcess::ProcessError>(&QProcess::error),
-        this, &MainWindow::check_proc);
+    proc_->connect(proc_.data(),
+        qOverload<QProcess::ProcessError>(&QProcess::errorOccurred), this,
+        &MainWindow::check_proc);
 
     if (!timer_) {
         timer_ = new QTimer(this);

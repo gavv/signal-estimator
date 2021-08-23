@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cstdlib>
 #include <vector>
 
 namespace signal_estimator {
