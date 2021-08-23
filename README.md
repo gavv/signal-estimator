@@ -76,8 +76,7 @@ Dependencies
 * C++17 compiler
 * CMake >= 3.0
 * libasound (ALSA devel)
-* Qt5 (for GUI)
-* Qwt (for GUI)
+* Qt5 and Qwt (for GUI)
 
 Installation
 ------------
@@ -116,7 +115,7 @@ sudo make install
 Graphical interface
 -------------------
 
-The tools comes with a simple GUI (`signal-estimator-gui`) that plots the signal in the real-time. It can be especially useful for troubleshooting problems with measurements.
+The tool comes with a simple GUI (`signal-estimator-gui`) that plots the signal in the real-time. It can be especially useful for troubleshooting problems with measurements.
 
 It uses Qt and Qwt libraries. Internally, it invokes the command-line tool (`signal-estimator`) and parses its output.
 
