@@ -30,18 +30,19 @@ void AlsaWriter::close() {
 bool AlsaWriter::write(Frame& frame) {
     frame.mark_io_begin(IOType::Output);
 
-    int err = snd_pcm_writei(pcm_, frame.data(), frame.size() / config_.n_channels);
+    snd_pcm_sframes_t err
+        = snd_pcm_writei(pcm_, frame.data(), frame.size() / config_.n_channels);
 
     frame.mark_io_end();
 
     if (err < 0) {
-        if ((err = snd_pcm_recover(pcm_, err, 1)) == 0) {
+        if ((err = snd_pcm_recover(pcm_, (int)err, 1)) == 0) {
             se_log_info("alsa writer: recovered after xrun");
         }
     }
 
     if (err < 0) {
-        se_log_error("alsa writer: %s", snd_strerror(err));
+        se_log_error("alsa writer: %s", snd_strerror((int)err));
         return false;
     }
 

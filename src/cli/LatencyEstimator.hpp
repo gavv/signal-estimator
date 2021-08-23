@@ -25,7 +25,7 @@ public:
     LatencyEstimator(const LatencyEstimator&) = delete;
     LatencyEstimator& operator=(const LatencyEstimator&) = delete;
 
-    ~LatencyEstimator();
+    ~LatencyEstimator() override;
 
     void add_output(Frame& frame) override;
     void add_input(Frame& frame) override;

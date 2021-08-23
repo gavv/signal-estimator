@@ -78,8 +78,8 @@ void FileDumper::write(Frame& frame) {
 
 void FileDumper::write_subframe_(
     nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type) {
-    const int new_val
-        = int(find_max(buf, bufsz) / config_.dump_rounding * config_.dump_rounding);
+    const sample_t new_val = find_max(buf, bufsz) / (sample_t)config_.dump_rounding
+        * (sample_t)config_.dump_rounding;
 
     const bool changed = (new_val != last_val_);
 
@@ -105,9 +105,9 @@ void FileDumper::print_last_maybe_(const IOType type) {
     }
 
     if (type == IOType::Output) {
-        fprintf(fp_, "out %lu %d\n", last_ts_, last_val_);
+        fprintf(fp_, "out %lu %ld\n", (unsigned long)last_ts_, (long)last_val_);
     } else {
-        fprintf(fp_, "in %lu %d\n", last_ts_, last_val_);
+        fprintf(fp_, "in %lu %ld\n", (unsigned long)last_ts_, (long)last_val_);
     }
 
     fflush(fp_);

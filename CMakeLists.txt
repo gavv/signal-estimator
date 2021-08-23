@@ -20,15 +20,22 @@ set(COMPILER_FLAGS "")
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND COMPILER_FLAGS
     "-Weverything"
-    "-Wno-system-headers"
-    "-Wno-old-style-cast"
-    "-Wno-switch-enum"
-    "-Wno-padded"
-    "-Wno-weak-vtables"
-    "-Wno-reserved-id-macro"
+    "-Wno-alloca"
+    "-Wno-c++98-c++11-c++14-compat"
     "-Wno-c++98-compat"
     "-Wno-c++98-compat-pedantic"
-    "-Wno-c++98-c++11-c++14-compat"
+    "-Wno-double-promotion"
+    "-Wno-float-equal"
+    "-Wno-gnu-zero-variadic-macro-arguments"
+    "-Wno-implicit-int-float-conversion"
+    "-Wno-old-style-cast"
+    "-Wno-padded"
+    "-Wno-reserved-id-macro"
+    "-Wno-switch-enum"
+    "-Wno-system-headers"
+    "-Wno-unused-private-field"
+    "-Wno-used-but-marked-unused"
+    "-Wno-weak-vtables"
     )
 endif()
 

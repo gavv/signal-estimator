@@ -14,7 +14,7 @@ public:
     JSONFormatter(const JSONFormatter&) = delete;
     JSONFormatter& operator=(const JSONFormatter&) = delete;
 
-    ~JSONFormatter();
+    ~JSONFormatter() override;
 
     void report_latency(double sw_hw, double hw, int sma_window, double hw_avg) override;
     void report_losses(double loss_rate, int sma_window, double avg_loss_rate,

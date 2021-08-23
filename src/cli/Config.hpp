@@ -21,7 +21,7 @@ struct Config {
     unsigned int n_channels { 2 };
 
     // test signal volume
-    float volume { 0.5 };
+    float volume { 0.5f };
 
     // periods (bursts) per buffer
     unsigned int n_periods { 2 };
@@ -39,25 +39,25 @@ struct Config {
     float strike_period { 1 };
 
     // strike length in seconds
-    float strike_length { 0.1 };
+    float strike_length { 0.1f };
 
     // running maximum window for strike detection
     size_t strike_detection_window { 96 };
 
     // strike detection threshold
-    float strike_detection_threshold { 0.4 };
+    float strike_detection_threshold { 0.4f };
 
     // running maximum window for signal detection
     size_t signal_detection_window { 48 };
 
     // signal detection threshold
-    float signal_detection_threshold { 0.15 };
+    float signal_detection_threshold { 0.15f };
 
     // glitch detection window
     size_t glitch_detection_window { 32 };
 
     // glitch detection threshold
-    float glitch_detection_threshold { 0.05 };
+    float glitch_detection_threshold { 0.05f };
 
     // latency SMA window
     size_t sma_window { 5 };

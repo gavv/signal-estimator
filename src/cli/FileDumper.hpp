@@ -40,9 +40,9 @@ private:
 
     FILE* fp_ {};
 
-    unsigned long last_printed_ts_ {};
-    unsigned long last_ts_ {};
-    int last_val_ {};
+    nanoseconds_t last_printed_ts_ {};
+    nanoseconds_t last_ts_ {};
+    sample_t last_val_ {};
 };
 
 } // namespace signal_estimator

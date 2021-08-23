@@ -14,7 +14,7 @@ void PointsBuffer::append_point(QPointF pt) {
 }
 
 QVector<QPointF> PointsBuffer::get_current_points() {
-    QVector<QPointF> ret(ringbuf_.size());
+    QVector<QPointF> ret((int)ringbuf_.size());
     std::copy_n(ringbuf_.begin(), ringbuf_.size(), ret.begin());
 
     return ret;

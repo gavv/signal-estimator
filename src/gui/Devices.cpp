@@ -20,8 +20,8 @@ QVector<QString> get_output_devices() {
     // read everything from aplay into result
     while (fgets(buffer, sizeof(buffer), pipe1.get()) != nullptr) {
         // if line has both card and device in it
-        if (std::strstr(buffer, "card") != NULL
-            && std::strstr(buffer, "device") != NULL) {
+        if (std::strstr(buffer, "card") != nullptr
+            && std::strstr(buffer, "device") != nullptr) {
             strvec.append(QString::fromStdString(buffer));
         }
     }
@@ -39,8 +39,8 @@ QVector<QString> get_input_devices() {
 
     while (fgets(buffer, sizeof(buffer), pipe2.get()) != nullptr) {
         // if line has both card and device in it
-        if (std::strstr(buffer, "card") != NULL
-            && std::strstr(buffer, "device") != NULL) {
+        if (std::strstr(buffer, "card") != nullptr
+            && std::strstr(buffer, "device") != nullptr) {
             strvec.append(QString::fromStdString(buffer));
         }
     }

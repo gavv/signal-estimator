@@ -26,7 +26,7 @@ public:
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
 
-    ~LossEstimator();
+    ~LossEstimator() override;
 
     void add_output(Frame& frame) override;
     void add_input(Frame& frame) override;

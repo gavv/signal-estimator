@@ -13,8 +13,8 @@ class NotFoundDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit NotFoundDialog(QWidget* parent = 0);
-    ~NotFoundDialog();
+    explicit NotFoundDialog(QWidget* parent = nullptr);
+    ~NotFoundDialog() override;
 
 private slots:
     void on_pushButton_clicked();

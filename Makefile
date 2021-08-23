@@ -3,12 +3,12 @@ NUP_CPU ?= `nproc --all`
 all:
 	mkdir -p build
 	cd build && cmake ..
-	cd build && make -j$(NUM_CPU)
+	cd build && make -j$(NUM_CPU) --no-print-directory
 
 no_gui:
 	mkdir -p build
 	cd build && cmake -DBUILD_GUI=NO ..
-	cd build && make -j$(NUM_CPU)
+	cd build && make -j$(NUM_CPU) --no-print-directory
 
 install:
 	cd build && make install

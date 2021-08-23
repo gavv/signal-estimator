@@ -12,7 +12,7 @@ unsigned int alsa_nearest_buffer_size(
     unsigned int sample_rate, int n_channels, unsigned int latency_us, size_t periods) {
     unsigned int latency_samples
         = (unsigned int)((double)latency_us * sample_rate / 1000000);
-    while ((latency_samples * n_channels) % periods != 0) {
+    while ((latency_samples * (unsigned int)n_channels) % periods != 0) {
         latency_samples++;
     }
     return latency_samples;
@@ -42,7 +42,8 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     }
 
     // set number of channels
-    if ((err = snd_pcm_hw_params_set_channels(pcm, hw_params, n_channels)) < 0) {
+    if ((err = snd_pcm_hw_params_set_channels(pcm, hw_params, (unsigned int)n_channels))
+        < 0) {
         se_log_error("can't set hw params: snd_pcm_hw_params_set_channels(): %s",
             snd_strerror(err));
         return false;
@@ -64,7 +65,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
 
     // set sample rate
     unsigned int rate = sample_rate;
-    if ((err = snd_pcm_hw_params_set_rate_near(pcm, hw_params, &rate, 0)) < 0) {
+    if ((err = snd_pcm_hw_params_set_rate_near(pcm, hw_params, &rate, nullptr)) < 0) {
         se_log_error("can't set hw params: snd_pcm_hw_params_set_rate_near(): %s",
             snd_strerror(err));
         return false;
@@ -189,7 +190,8 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
     snd_pcm_uframes_t period_size = 0, buffer_size = 0;
 
     if (!alsa_set_hw_params(pcm, &period_size, &buffer_size, config.access, config.format,
-            config.sample_rate, config.n_channels, config.n_periods, config.latency_us)) {
+            config.sample_rate, (int)config.n_channels, config.n_periods,
+            config.latency_us)) {
         goto error;
     }
 
