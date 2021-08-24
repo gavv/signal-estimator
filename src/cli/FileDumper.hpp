@@ -31,6 +31,8 @@ public:
     void print_input_();
 
 private:
+    static constexpr nanoseconds_t MaxPrintDelay = 10 * Millisecond;
+
     void write_subframe_(
         nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type);
 

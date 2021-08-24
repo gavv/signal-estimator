@@ -15,7 +15,7 @@ namespace signal_estimator {
 
 namespace {
 
-sample_t find_max(const sample_t* buf, size_t bufsz) {
+sample_t find_max_by_abs(const sample_t* buf, size_t bufsz) {
     auto max_val = buf[0];
 
     for (size_t n = 1; n < bufsz; n++) {
@@ -78,12 +78,20 @@ void FileDumper::write(Frame& frame) {
 
 void FileDumper::write_subframe_(
     nanoseconds_t ts, const sample_t* buf, size_t bufsz, const IOType type) {
-    const sample_t new_val = find_max(buf, bufsz) / (sample_t)config_.dump_rounding
-        * (sample_t)config_.dump_rounding;
+    const sample_t max_val = find_max_by_abs(buf, bufsz);
+
+    sample_t new_val;
+    if (max_val >= 0) {
+        new_val
+            = sample_t((size_t)max_val / config_.dump_rounding * config_.dump_rounding);
+    } else {
+        new_val
+            = -sample_t((size_t)-max_val / config_.dump_rounding * config_.dump_rounding);
+    }
 
     const bool changed = (new_val != last_val_);
 
-    if (changed) {
+    if (changed || ts - last_printed_ts_ > MaxPrintDelay) {
         print_last_maybe_(type);
     }
 
