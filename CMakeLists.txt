@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -49,13 +49,6 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     )
 endif()
 
-string(REPLACE ";" " " COMPILER_FLAGS "${COMPILER_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILER_FLAGS}")
-
-include_directories(SYSTEM
-  3rdparty/cxxopts/include
-  )
-
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(signal-estimator
@@ -80,8 +73,15 @@ add_executable(signal-estimator
   src/cli/Time.cpp
   )
 
-find_package(Threads)
+target_compile_options(signal-estimator
+  PRIVATE ${COMPILER_FLAGS}
+  )
 
+target_include_directories(signal-estimator SYSTEM
+  PRIVATE 3rdparty/cxxopts/include
+  )
+
+find_package(Threads)
 target_link_libraries(signal-estimator
   asound
   m
@@ -98,9 +98,23 @@ if(BUILD_GUI)
   find_package(Qt5Widgets REQUIRED)
   find_package(Qwt REQUIRED)
 
-  set(CMAKE_AUTOMOC ON)
-  set(CMAKE_AUTOUIC ON)
-  set(CMAKE_AUTORCC ON)
+  qt5_wrap_cpp(GENERATED_SOURCES
+    src/gui/MainWindow.hpp
+    src/gui/NotFoundDialog.hpp
+    )
+
+  set(UI_SOURCES
+    src/gui/MainWindow.ui
+    src/gui/NotFoundDialog.ui
+    )
+
+  foreach(UI_FILE IN LISTS UI_SOURCES)
+    qt5_wrap_ui(GENERATED_SOURCES ${UI_FILE})
+  endforeach()
+
+  add_library(generated_objects OBJECT
+    ${GENERATED_SOURCES}
+    )
 
   add_executable(signal-estimator-gui
     src/gui/Devices.cpp
@@ -111,11 +125,21 @@ if(BUILD_GUI)
     src/gui/SignalEstimator.cpp
     )
 
-  target_include_directories(signal-estimator-gui SYSTEM
-    PRIVATE ${QWT_INCLUDE_DIR}
+  target_compile_options(signal-estimator-gui
+    PRIVATE ${COMPILER_FLAGS}
     )
 
+  foreach(TARGET IN ITEMS generated_objects signal-estimator-gui)
+    target_include_directories(${TARGET} SYSTEM PRIVATE
+      ${CMAKE_CURRENT_BINARY_DIR}
+      ${QWT_INCLUDE_DIR}
+      ${Qt5Core_INCLUDE_DIRS}
+      ${Qt5Widgets_INCLUDE_DIRS}
+      )
+  endforeach()
+
   target_link_libraries(signal-estimator-gui
+    generated_objects
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
