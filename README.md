@@ -61,9 +61,9 @@ Example use cases
 
   * measure the hardware + software + bluetooth latency / quality of a mobile phone with bluetooth microphone and headphones
 
-    place computer's speakers near bluetooth microhpone connected to a mobile phone, place computer's microhpone near bluetooth headphones conencted to the phone, and run a mobile app that loops back signal from bluetooth microphone to bluetooth headphones
+    place computer's speakers near bluetooth microphone connected to a mobile phone, place computer's microphone near bluetooth headphones connected to the phone, and run a mobile app that loops back signal from bluetooth microphone to bluetooth headphones
 
-  In these examples, you'll need to measure the latency of your local harware first, and then subtract it ftom the measurements results, to get the actual latency of the external system being tested.
+  In these examples, you'll need to measure the latency of your local harware first, and then subtract it from the measurements results, to get the actual latency of the external system being tested.
 
 Supported platforms
 -------------------
@@ -307,7 +307,7 @@ Dumping streams
 
 In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples and their timestamps to text files or stdout (use `-`).
 
-To reduce the file size, we dump only one maximum value per frame. To reduce the file size even more, we round every dumped value, and drop value if it's the same as the previois one. The frame size and rounding factor are configurable via command-line.
+To reduce the file size, we dump only one maximum value per frame. To reduce the file size even more, we round every dumped value, and drop value if it's the same as the previous one. The frame size and rounding factor are configurable via command-line.
 
 The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to DAC or read from ADC.
 
@@ -362,7 +362,7 @@ You may also need to configure ALSA ring buffer size and the number of periods i
 Real-time scheduling policy
 ---------------------------
 
-If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically enable `SCHED_RR` scheduling policy for output and input threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or sofware being measured) on a loaded system.
+If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically enable `SCHED_RR` scheduling policy for output and input threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or software being measured) on a loaded system.
 
 Acknowledgments
 ---------------
