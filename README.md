@@ -374,7 +374,7 @@ And of course, thanks to everyone who contributed to the project!
 Authors
 -------
 
-See [here](https://github.com/gavv/signal-estimator/graphs/contributors).
+See [here](AUTHORS).
 
 License
 -------
