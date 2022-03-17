@@ -8,7 +8,7 @@
 namespace signal_estimator {
 
 //! Nanoseconds type.
-using nanoseconds_t = long;
+using nanoseconds_t = long long;
 
 //! One nanosecond represented in nanoseconds.
 inline constexpr nanoseconds_t Nanosecond = 1;
