@@ -13,6 +13,8 @@
 #include <QTimer>
 
 #include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_picker.h>
 #include <qwt_text.h>
 
 #include <cstdio>
@@ -56,8 +58,12 @@ private:
     PointsBuffer out_data_;
     PointsBuffer in_data_;
 
-    QwtPlotCurve* inputCurve_ = new QwtPlotCurve("Input Curve");
-    QwtPlotCurve* outputCurve_ = new QwtPlotCurve("Output Curve");
+    QwtPlotGrid* grid_ = new QwtPlotGrid();
+    QwtPlotPicker* zoomInPicker_ = nullptr;
+    QwtPlotPicker* zoomOutPicker_ = nullptr;
+    QwtPlotPicker* trackPicker_ = nullptr;
+    QwtPlotCurve* inputCurve_ = new QwtPlotCurve("Input signal (captured)");
+    QwtPlotCurve* outputCurve_ = new QwtPlotCurve("Output signal (emitted)");
     QTimer* timer_ = nullptr;
     QSharedPointer<QProcess> proc_;
 };

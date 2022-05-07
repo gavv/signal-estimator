@@ -3,17 +3,73 @@
 
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
+#include "RightClickPickerMachine.hpp"
+
+#include <QCheckBox>
+
+#include <qwt_legend.h>
+#include <qwt_picker_machine.h>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
+    ui->OutputSig->setCanvasBackground(Qt::white);
+
+    outputCurve_->setPen(QColor(0x1f77b4));
     outputCurve_->attach(ui->OutputSig);
+
+    inputCurve_->setPen(QColor(0xff7f0e));
     inputCurve_->attach(ui->OutputSig);
 
-    inputCurve_->setPen(QColor(Qt::GlobalColor(Qt::blue)));
-    outputCurve_->setPen(QColor(Qt::GlobalColor(Qt::red)));
+    ui->OutputSig->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
+
+    grid_->enableX(false);
+    grid_->enableY(false);
+    grid_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
+    grid_->attach(ui->OutputSig);
+
+    connect(ui->GridCheckBox, &QCheckBox::stateChanged,
+        [this](int state) {
+            const bool enable = (state == Qt::Checked);
+            grid_->enableX(enable);
+            grid_->enableY(enable);
+            ui->OutputSig->replot();
+        });
+
+    zoomInPicker_ = new QwtPlotPicker(ui->OutputSig->canvas());
+    zoomInPicker_->setStateMachine(new QwtPickerDragRectMachine());
+    zoomInPicker_->setRubberBand(QwtPicker::RectRubberBand);
+    zoomInPicker_->setRubberBandPen(QColor(Qt::red));
+    connect(zoomInPicker_, qOverload<const QRectF&>(&QwtPlotPicker::selected),
+        [this](const QRectF& rect) {
+            ui->OutputSig->setAxisScale(
+                QwtPlot::xBottom, rect.topLeft().x(), rect.bottomRight().x());
+            ui->OutputSig->setAxisScale(
+                QwtPlot::yLeft, rect.topLeft().y(), rect.bottomLeft().y());
+            ui->OutputSig->replot();
+        });
+
+    zoomOutPicker_ = new QwtPlotPicker(ui->OutputSig->canvas());
+    zoomOutPicker_->setStateMachine(new RightClickPickerMachine());
+    connect(zoomOutPicker_, qOverload<const QPointF&>(&QwtPlotPicker::selected),
+        [this](const QPointF&) {
+            ui->OutputSig->setAxisAutoScale(QwtPlot::xBottom);
+            ui->OutputSig->setAxisAutoScale(QwtPlot::yLeft);
+            ui->OutputSig->replot();
+        });
+
+
+    trackPicker_ = new QwtPlotPicker(ui->OutputSig->canvas());
+    trackPicker_->setStateMachine(new QwtPickerTrackerMachine());
+    connect(trackPicker_, &QwtPlotPicker::moved,
+        [this](const QPointF& pos) {
+            ui->CursorPositionLabel->setText(
+                QString("(%1, %2)")
+                    .arg(QString::number(pos.x()))
+                    .arg(QString::number(pos.y())));
+        });
 
     QVector<QString> in = get_input_devices();
     QVector<QString> out = get_output_devices();
@@ -33,6 +89,10 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::update_graphs() {
+    if (!update_plots_) {
+        return;
+    }
+
     // update both input and output signal graphs
     QVector<QPointF> in_current = in_data_.get_current_points();
     QVector<QPointF> out_current = out_data_.get_current_points();
@@ -44,12 +104,7 @@ void MainWindow::update_graphs() {
     outputCurve_->setSamples(out_current);
 
     ui->OutputSig->setAxisScale(QwtPlot::xBottom, xMin, xMax);
-
     ui->OutputSig->replot();
-
-    if (update_plots_ == true) { // restart timer for graphing
-        timer_->start();
-    }
 }
 
 void MainWindow::read_graph_data() {
