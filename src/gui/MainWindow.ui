@@ -194,6 +194,34 @@
              </layout>
             </item>
             <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+                <widget class ="QCheckBox" name="GridCheckBox">
+                </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="GridCheckBoxLabel">
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show grid&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
              <widget class="QFrame" name="frame_3">
               <property name="minimumSize">
                <size>
@@ -247,44 +275,9 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_4">
-                <property name="minimumSize">
-                 <size>
-                  <width>10</width>
-                  <height>10</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>10</width>
-                  <height>10</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: red;</string>
-                </property>
+               <widget class="QLabel" name="CursorPositionLabel">
                 <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="OutputLabel">
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Output signal (emitted)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>(0,0)</string>
                 </property>
                </widget>
               </item>
@@ -301,35 +294,6 @@
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_5">
-                <property name="minimumSize">
-                 <size>
-                  <width>10</width>
-                  <height>10</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>10</width>
-                  <height>10</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: blue;</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_6">
-                <property name="text">
-                 <string>Input signal (captured)</string>
                 </property>
                </widget>
               </item>

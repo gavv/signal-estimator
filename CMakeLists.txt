@@ -122,6 +122,7 @@ if(BUILD_GUI)
     src/gui/MainWindow.cpp
     src/gui/NotFoundDialog.cpp
     src/gui/PointsBuffer.cpp
+    src/gui/RightClickPickerMachine.cpp
     src/gui/SignalEstimator.cpp
     )
 
