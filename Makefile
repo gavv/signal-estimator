@@ -1,13 +1,14 @@
 NUP_CPU ?= `nproc --all`
+VARIANT ?= Release
 
 all:
 	mkdir -p build
-	cd build && cmake ..
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) ..
 	cd build && make -j$(NUM_CPU) --no-print-directory
 
 no_gui:
 	mkdir -p build
-	cd build && cmake -DBUILD_GUI=NO ..
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DBUILD_GUI=NO ..
 	cd build && make -j$(NUM_CPU) --no-print-directory
 
 install:

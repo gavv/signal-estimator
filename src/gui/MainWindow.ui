@@ -103,7 +103,12 @@
                 </item>
                 <item>
                  <property name="text">
-                  <string>latency</string>
+                  <string>latency_strikes</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>latency_impulse</string>
                  </property>
                 </item>
                 <item>

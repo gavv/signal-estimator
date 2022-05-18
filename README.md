@@ -76,6 +76,7 @@ Dependencies
 * C++17 compiler
 * CMake >= 3.0
 * libasound (ALSA devel)
+* libpng
 * Qt5 and Qwt (for GUI)
 
 Installation
@@ -84,7 +85,7 @@ Installation
 Install dependencies:
 
 ```
-sudo apt install libasound2-dev qtbase5-dev libqwt-qt5-dev
+sudo apt install libasound2-dev libpng-dev qtbase5-dev libqwt-qt5-dev
 ```
 
 Clone repo:
@@ -148,7 +149,7 @@ Usage:
  Reporting options:
       --sma arg  Simple moving average window in reports (default: 5)
 
- Latency estimation options:
+ Strikes latency estimation options:
       --strike-period arg       Strike period, seconds (default: 1.000000)
       --strike-length arg       Strike length, seconds (default: 0.100000)
       --strike-detection-window arg
@@ -157,6 +158,14 @@ Usage:
       --strike-detection-threshold arg
                                 Strike detection threshold, from 0 to 1
                                 (default: 0.400000)
+
+ Impulse latency estimation options:
+      --impulse-period arg      Impulse period, seconds (default: 1.000000)
+      --impulse-peak-noise-ratio arg
+                                The peak-to-noise minimum ratio threshold.
+                                (default: 8.000000)
+      --impulse-peak-win arg    The impulse latency estimator peak
+                                detection window length. (default: 128)
 
  Loss ratio estimation options:
       --signal-detection-window arg
@@ -184,10 +193,16 @@ Usage:
 Measuring latency
 -----------------
 
-In the latency estimation mode, the tool generates short periodic beeps ("strikes") and calculates the shift between each sent and received strike.
+There are two latency estimation modes:
+* **Strikes latency estimation** – `--mode latency_strikes`,
+* **Impulse latency estimation** – `--mode latency_impulse`.
+
+**Strikes latency estimation**
+
+The tool generates short periodic beeps ("strikes") and calculates the shift between each sent and received strike.
 
 ```
-$ ./bin/signal-estimator -m latency -o hw:1,0 -i hw:1,0 -d 5
+$ ./bin/signal-estimator -m latency_strikes -o hw:1,0 -i hw:1,0 -d 5
 opening alsa writer for device hw:1,0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
@@ -204,11 +219,11 @@ selected_period_time: 4000 us
 selected_period_size: 192 samples
 can't enable real-time scheduling policy
 can't enable real-time scheduling policy
-latency:  sw+hw  13.145ms  hw   2.934ms  hw_avg5   2.934ms
-latency:  sw+hw  12.465ms  hw   2.924ms  hw_avg5   2.929ms
-latency:  sw+hw  13.171ms  hw   2.968ms  hw_avg5   2.942ms
-latency:  sw+hw  12.510ms  hw   2.962ms  hw_avg5   2.947ms
-latency:  sw+hw  12.536ms  hw   3.008ms  hw_avg5   2.959ms
+latency:  sw+hw  13.145ms  hw   2.934ms  hw_avg5   2.934ms  snd_card:   -1 ms
+latency:  sw+hw  12.465ms  hw   2.924ms  hw_avg5   2.929ms  snd_card:   -1 ms
+latency:  sw+hw  13.171ms  hw   2.968ms  hw_avg5   2.942ms  snd_card:   -1 ms
+latency:  sw+hw  12.510ms  hw   2.962ms  hw_avg5   2.947ms  snd_card:   -1 ms
+latency:  sw+hw  12.536ms  hw   3.008ms  hw_avg5   2.959ms  snd_card:   -1 ms
 ```
 
 Notation:
@@ -223,11 +238,50 @@ Notation:
 
 * `hw_avg5` - moving average of last 5 `hw` values
 
-`sw+hw` latency is affected by the `--latency` parameter, which defines the size of the ALSA ring buffer. You may need to select a higher latency if you're experiencing underruns or overruns.
+* `sw+hw` latency is affected by the `--latency` parameter, which defines the size of the ALSA ring buffer. You may need to select a higher latency if you're experiencing underruns or overruns.
 
-`hw` latency, on the other hand, should not be affected by it and should depend only on your hardware and the way how the signal is looped back from output to input.
+* `hw` latency, on the other hand, should not be affected by it and should depend only on your hardware and the way how the signal is looped back from output to input.
+
+* `snd_card` - not implemented for this mode.
 
 If you're having troubles, you may also need to configure signal volume, strike period and length, and strike detection parameters. Note that strike period has to be greater than latency of your loopback.
+
+**Impulse latency estimation**
+
+This mode works very similar to strikes, but probe impulse is differenet, which lets improve precision and stability under
+worse Signal-to-Noise ratio.
+
+```
+$ ./bin/signal-estimator -m latency_impulse -i hw:0 -o hw:0
+opening alsa writer for device hw:0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+opening alsa reader for device hw:0
+suggested_latency: 8000 us
+suggested_buffer_size: 384 samples
+selected_buffer_time: 8000 us
+selected_buffer_size: 384 samples
+selected_period_time: 4000 us
+selected_period_size: 192 samples
+successfully enabled real-time scheduling policy
+successfully enabled real-time scheduling policy
+latency: sw+hw   3.658ms  hw   9.739ms  hw_avg0   3.658ms  snd_card:   2.833ms
+latency: sw+hw   3.801ms  hw   9.720ms  hw_avg0   3.801ms  snd_card:   2.833ms
+latency: sw+hw   4.483ms  hw  10.842ms  hw_avg0   4.483ms  snd_card:   2.833ms
+latency: sw+hw   4.208ms  hw  10.369ms  hw_avg0   4.208ms  snd_card:   2.854ms
+latency: sw+hw   4.050ms  hw  10.269ms  hw_avg0   4.050ms  snd_card:   2.833ms
+latency: sw+hw   3.805ms  hw  10.307ms  hw_avg0   3.805ms  snd_card:   2.833ms
+```
+
+Notation:
+
+* All the same to strikes latency mode, but
+
+* `snd_card` - latency, estimated in terms of sound card samples and converted to milliseconds.
 
 Measuring losses
 ----------------
@@ -284,9 +338,14 @@ Sample JSON output format for measuring latency is shown below.
 
 ```
 [
-  {"sw_hw": 17.288373, "hw": 10.339908, "hw_avg5": 10.339908},
-  {"sw_hw": 20.710353, "hw": 10.966634, "hw_avg5": 10.653271},
-  {"sw_hw": 21.708660, "hw": 12.604020, "hw_avg5": 11.303521}
+  {"sw_hw": 3.406247, "hw": 9.783531, "hw_avg0": 3.406247, "snd_card": 2.791667},
+  {"sw_hw": 3.768061, "hw": 10.177324, "hw_avg0": 3.768061, "snd_card": 2.791667},
+  {"sw_hw": 3.598191, "hw": 10.033534, "hw_avg0": 3.598191, "snd_card": 2.791667},
+  {"sw_hw": 3.762508, "hw": 10.256863, "hw_avg0": 3.762508, "snd_card": 2.791667},
+  {"sw_hw": 3.842750, "hw": 10.150537, "hw_avg0": 3.842750, "snd_card": 2.770833},
+  {"sw_hw": 3.588736, "hw": 9.647981, "hw_avg0": 3.588736, "snd_card": 2.791667},
+  {"sw_hw": 3.617144, "hw": 10.005338, "hw_avg0": 3.617144, "snd_card": 2.791667},
+  {"sw_hw": 3.769689, "hw": 10.169054, "hw_avg0": 3.769689, "snd_card": 2.791667}
 ]
 ```
 

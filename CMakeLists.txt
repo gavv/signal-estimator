@@ -15,7 +15,17 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-set(COMPILER_FLAGS "")
+if(CMAKE_BUILD_TYPE STREQUAL "")
+  set(CMAKE_BUILD_TYPE "Release")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  list(APPEND COMPILER_FLAGS "-O3")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  list(APPEND COMPILER_FLAGS "-O0")
+endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND COMPILER_FLAGS
@@ -52,39 +62,50 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(signal-estimator
-  src/cli/AlsaReader.cpp
-  src/cli/AlsaUtils.cpp
-  src/cli/AlsaWriter.cpp
-  src/cli/ContinuousGenerator.cpp
-  src/cli/FileDumper.cpp
-  src/cli/Frame.cpp
-  src/cli/GradientCounter.cpp
-  src/cli/JSONFormatter.cpp
-  src/cli/LatencyEstimator.cpp
-  src/cli/LossEstimator.cpp
   src/cli/Main.cpp
-  src/cli/RateLimiter.cpp
-  src/cli/Realtime.cpp
-  src/cli/RunMaxCounter.cpp
-  src/cli/SchmittTrigger.cpp
-  src/cli/SmaCounter.cpp
-  src/cli/StrikeGenerator.cpp
-  src/cli/TextFormatter.cpp
-  src/cli/Time.cpp
+  src/cli/alsa/AlsaReader.cpp
+  src/cli/alsa/AlsaUtils.cpp
+  src/cli/alsa/AlsaWriter.cpp
+  src/cli/core/Frame.cpp
+  src/cli/core/Realtime.cpp
+  src/cli/core/Time.cpp
+  src/cli/io/FileDumper.cpp
+  src/cli/io/JSONFormatter.cpp
+  src/cli/io/TextFormatter.cpp
+  src/cli/processing/ContinuousGenerator.cpp
+  src/cli/processing/FFTOps.cpp
+  src/cli/processing/GradientCounter.cpp
+  src/cli/processing/Impulse.cpp
+  src/cli/processing/ImpulseLatencyEstimator.cpp
+  src/cli/processing/LossEstimator.cpp
+  src/cli/processing/RateLimiter.cpp
+  src/cli/processing/SchmittTrigger.cpp
+  src/cli/processing/StrikeGenerator.cpp
+  src/cli/processing/StrikesLatencyEstimator.cpp
   )
 
 target_compile_options(signal-estimator
   PRIVATE ${COMPILER_FLAGS}
   )
 
+SET(KISSFFT_PKGCONFIG OFF)
+SET(KISSFFT_STATIC OFF)
+SET(KISSFFT_TEST OFF)
+SET(KISSFFT_TOOLS OFF)
+SET(KISSFFT_USE_ALLOCA OFF)
+add_subdirectory(3rdparty/kissfft)
+
 target_include_directories(signal-estimator SYSTEM
   PRIVATE 3rdparty/cxxopts/include
+  PRIVATE 3rdparty/kissfft/
+  PRIVATE src/cli
   )
 
 find_package(Threads)
 target_link_libraries(signal-estimator
   asound
   m
+  kissfft
   ${CMAKE_THREAD_LIBS_INIT}
   )
 
@@ -144,6 +165,7 @@ if(BUILD_GUI)
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
+    kissfft
     )
 
   install(

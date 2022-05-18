@@ -1,3 +1,6 @@
 [submodule "3rdparty/cxxopts"]
 	path = 3rdparty/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
+[submodule "3rdparty/kissfft"]
+	path = 3rdparty/kissfft
+	url = git@github.com:mborgerding/kissfft.git
