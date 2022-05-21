@@ -59,9 +59,6 @@ private:
     PointsBuffer in_data_;
 
     QwtPlotGrid* grid_ = new QwtPlotGrid();
-    QwtPlotPicker* zoomInPicker_ = nullptr;
-    QwtPlotPicker* zoomOutPicker_ = nullptr;
-    QwtPlotPicker* trackPicker_ = nullptr;
     QwtPlotCurve* inputCurve_ = new QwtPlotCurve("Input signal (captured)");
     QwtPlotCurve* outputCurve_ = new QwtPlotCurve("Output signal (emitted)");
     QTimer* timer_ = nullptr;
