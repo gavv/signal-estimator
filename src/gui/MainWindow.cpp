@@ -38,11 +38,11 @@ MainWindow::MainWindow(QWidget* parent)
             ui->OutputSig->replot();
         });
 
-    zoomInPicker_ = new QwtPlotPicker(ui->OutputSig->canvas());
-    zoomInPicker_->setStateMachine(new QwtPickerDragRectMachine());
-    zoomInPicker_->setRubberBand(QwtPicker::RectRubberBand);
-    zoomInPicker_->setRubberBandPen(QColor(Qt::red));
-    connect(zoomInPicker_, qOverload<const QRectF&>(&QwtPlotPicker::selected),
+    QwtPlotPicker* zoomInPicker = new QwtPlotPicker(ui->OutputSig->canvas());
+    zoomInPicker->setStateMachine(new QwtPickerDragRectMachine());
+    zoomInPicker->setRubberBand(QwtPicker::RectRubberBand);
+    zoomInPicker->setRubberBandPen(QColor(Qt::red));
+    connect(zoomInPicker, qOverload<const QRectF&>(&QwtPlotPicker::selected),
         [this](const QRectF& rect) {
             ui->OutputSig->setAxisScale(
                 QwtPlot::xBottom, rect.topLeft().x(), rect.bottomRight().x());
@@ -51,9 +51,9 @@ MainWindow::MainWindow(QWidget* parent)
             ui->OutputSig->replot();
         });
 
-    zoomOutPicker_ = new QwtPlotPicker(ui->OutputSig->canvas());
-    zoomOutPicker_->setStateMachine(new RightClickPickerMachine());
-    connect(zoomOutPicker_, qOverload<const QPointF&>(&QwtPlotPicker::selected),
+    QwtPlotPicker* zoomOutPicker = new QwtPlotPicker(ui->OutputSig->canvas());
+    zoomOutPicker->setStateMachine(new RightClickPickerMachine());
+    connect(zoomOutPicker, qOverload<const QPointF&>(&QwtPlotPicker::selected),
         [this](const QPointF&) {
             ui->OutputSig->setAxisAutoScale(QwtPlot::xBottom);
             ui->OutputSig->setAxisAutoScale(QwtPlot::yLeft);
@@ -61,9 +61,9 @@ MainWindow::MainWindow(QWidget* parent)
         });
 
 
-    trackPicker_ = new QwtPlotPicker(ui->OutputSig->canvas());
-    trackPicker_->setStateMachine(new QwtPickerTrackerMachine());
-    connect(trackPicker_, &QwtPlotPicker::moved,
+    QwtPlotPicker* trackPicker = new QwtPlotPicker(ui->OutputSig->canvas());
+    trackPicker->setStateMachine(new QwtPickerTrackerMachine());
+    connect(trackPicker, &QwtPlotPicker::moved,
         [this](const QPointF& pos) {
             ui->CursorPositionLabel->setText(
                 QString("(%1, %2)")
