@@ -9,6 +9,6 @@ class RightClickPickerMachine : public QwtPickerMachine {
 public:
     RightClickPickerMachine();
 
-    virtual QList<Command> transition(
-        const QwtEventPattern& eventPattern, const QEvent* event);
+    QList<Command> transition(
+        const QwtEventPattern& eventPattern, const QEvent* event) override;
 };
