@@ -9,6 +9,7 @@
 #include "SignalEstimator.hpp"
 
 #include <QMainWindow>
+#include <QScopedPointer>
 #include <QThread>
 #include <QTimer>
 
@@ -58,9 +59,13 @@ private:
     PointsBuffer out_data_;
     PointsBuffer in_data_;
 
-    QwtPlotGrid* grid_ = new QwtPlotGrid();
-    QwtPlotCurve* inputCurve_ = new QwtPlotCurve("Input signal (captured)");
-    QwtPlotCurve* outputCurve_ = new QwtPlotCurve("Output signal (emitted)");
+    QScopedPointer<QwtPlotGrid> grid_ { new QwtPlotGrid() };
+
+    QScopedPointer<QwtPlotCurve> inputCurve_ { new QwtPlotCurve(
+        "Input signal (captured)") };
+    QScopedPointer<QwtPlotCurve> outputCurve_ { new QwtPlotCurve(
+        "Output signal (emitted)") };
+
     QTimer* timer_ = nullptr;
     QSharedPointer<QProcess> proc_;
 };
