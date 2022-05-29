@@ -2,8 +2,8 @@
 // Licensed under MIT
 
 #include "MainWindow.hpp"
-#include "ui_MainWindow.h"
 #include "RightClickPickerMachine.hpp"
+#include "ui_MainWindow.h"
 
 #include <QCheckBox>
 
@@ -30,13 +30,12 @@ MainWindow::MainWindow(QWidget* parent)
     grid_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
     grid_->attach(ui->OutputSig);
 
-    connect(ui->GridCheckBox, &QCheckBox::stateChanged,
-        [this](int state) {
-            const bool enable = (state == Qt::Checked);
-            grid_->enableX(enable);
-            grid_->enableY(enable);
-            ui->OutputSig->replot();
-        });
+    connect(ui->GridCheckBox, &QCheckBox::stateChanged, [this](int state) {
+        const bool enable = (state == Qt::Checked);
+        grid_->enableX(enable);
+        grid_->enableY(enable);
+        ui->OutputSig->replot();
+    });
 
     QwtPlotPicker* zoomInPicker = new QwtPlotPicker(ui->OutputSig->canvas());
     zoomInPicker->setStateMachine(new QwtPickerDragRectMachine());
@@ -60,16 +59,13 @@ MainWindow::MainWindow(QWidget* parent)
             ui->OutputSig->replot();
         });
 
-
     QwtPlotPicker* trackPicker = new QwtPlotPicker(ui->OutputSig->canvas());
     trackPicker->setStateMachine(new QwtPickerTrackerMachine());
-    connect(trackPicker, &QwtPlotPicker::moved,
-        [this](const QPointF& pos) {
-            ui->CursorPositionLabel->setText(
-                QString("(%1, %2)")
-                    .arg(QString::number(pos.x()))
-                    .arg(QString::number(pos.y())));
-        });
+    connect(trackPicker, &QwtPlotPicker::moved, [this](const QPointF& pos) {
+        ui->CursorPositionLabel->setText(QString("(%1, %2)")
+                                             .arg(QString::number(pos.x()))
+                                             .arg(QString::number(pos.y())));
+    });
 
     QVector<QString> in = get_input_devices();
     QVector<QString> out = get_output_devices();
