@@ -52,8 +52,17 @@ public:
     auto begin() {
         return data_.begin();
     }
+
     auto end() {
         return data_.end();
+    }
+
+    auto operator[](const size_t index) const {
+        return data_[index];
+    }
+
+    auto& operator[](const size_t index) {
+        return data_[index];
     }
 
 private:

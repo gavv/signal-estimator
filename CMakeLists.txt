@@ -69,6 +69,7 @@ add_executable(signal-estimator
   src/cli/core/Frame.cpp
   src/cli/core/Realtime.cpp
   src/cli/core/Time.cpp
+  src/cli/fmt/AsyncDumper.cpp
   src/cli/fmt/CsvDumper.cpp
   src/cli/fmt/JsonFormatter.cpp
   src/cli/fmt/TextFormatter.cpp

@@ -6,14 +6,16 @@
 #include "core/Log.hpp"
 #include "core/Pool.hpp"
 #include "core/Realtime.hpp"
+#include "fmt/AsyncDumper.hpp"
 #include "fmt/CsvDumper.hpp"
+#include "fmt/IDumper.hpp"
 #include "fmt/IFormatter.hpp"
 #include "fmt/JsonFormatter.hpp"
 #include "fmt/TextFormatter.hpp"
 #include "processing/ContinuousGenerator.hpp"
+#include "processing/ConvolutionLatencyEstimator.hpp"
 #include "processing/Impulse.hpp"
 #include "processing/ImpulseGenerator.hpp"
-#include "processing/ConvolutionLatencyEstimator.hpp"
 #include "processing/LossEstimator.hpp"
 #include "processing/StepsGenerator.hpp"
 #include "processing/StepsLatencyEstimator.hpp"
@@ -30,8 +32,8 @@ using namespace signal_estimator;
 
 namespace {
 
-void output_loop(const Config* config, Pool<Frame>* framePool, IGenerator* generator,
-    IEstimator* estimator, AlsaWriter* writer, CsvDumper* dumper) {
+void output_loop(const Config* config, Pool<Frame>* frame_pool, IGenerator* generator,
+    IEstimator* estimator, AlsaWriter* writer, IDumper* dumper) {
     set_realtime();
 
     for (size_t n = 0; config->io_num_periods > n; n++) {
@@ -44,32 +46,34 @@ void output_loop(const Config* config, Pool<Frame>* framePool, IGenerator* gener
     }
 
     for (size_t n = 0; (config->total_samples() / config->io_period_size) > n; n++) {
-        std::shared_ptr<Frame> frame(framePool->allocate(),
+        std::shared_ptr<Frame> frame(frame_pool->allocate(),
                                     [](Frame* f){f->pool()->deallocate(f);});
         generator->generate(*frame);
 
         if (!writer->write(*frame)) {
             exit(1);
         }
+
         if (estimator) {
             estimator->add_output(frame);
         }
 
         if (dumper) {
-            dumper->write(*frame);
+            dumper->write(frame);
         }
     }
+
     // Kill the estimator's thread for sure.
     if (estimator) {
         estimator->add_output(nullptr);
     }
 }
 
-void input_loop( const Config* config, Pool<Frame>* framePool, IEstimator* estimator,
-    AlsaReader* reader, CsvDumper* dumper) {
+void input_loop( const Config* config, Pool<Frame>* frame_pool, IEstimator* estimator,
+    AlsaReader* reader, IDumper* dumper) {
     set_realtime();
     for (size_t n = 0; n < config->total_samples() / config->io_period_size; n++) {
-        std::shared_ptr<Frame> frame(framePool->allocate(),
+        std::shared_ptr<Frame> frame(frame_pool->allocate(),
                                         [](Frame* f){f->pool()->deallocate(f);});
         if (!reader->read(*frame)) {
             exit(1);
@@ -80,9 +84,10 @@ void input_loop( const Config* config, Pool<Frame>* framePool, IEstimator* estim
         }
 
         if (dumper) {
-            dumper->write(*frame);
+            dumper->write(frame);
         }
     }
+
     // Kill the estimator's thread.
     if (estimator) {
         estimator->add_input(nullptr);
@@ -173,7 +178,7 @@ int main(int argc, char** argv) {
          cxxopts::value<float>()->default_value(std::to_string(config.glitch_detection_threshold)))
         ;
 
-    std::string format, mode, input_dev, output_dev, input_dump, output_dump;
+    std::string mode, format, input_dev, output_dev, input_dump, output_dump;
 
     try {
         auto res = opts.parse(argc, argv);
@@ -301,24 +306,32 @@ int main(int argc, char** argv) {
         estimator = std::make_unique<LossEstimator>(config, *formatter);
     }
 
-    std::unique_ptr<CsvDumper> output_dumper;
+    std::unique_ptr<IDumper> output_dumper;
 
     if (!output_dump.empty()) {
-        output_dumper = std::make_unique<CsvDumper>(config);
-
-        if (!output_dumper->open(output_dump.c_str())) {
+        auto dumper = std::make_unique<CsvDumper>(config);
+        if (!dumper->open(output_dump.c_str())) {
             exit(1);
         }
+        output_dumper = std::move(dumper);
     }
 
-    std::unique_ptr<CsvDumper> input_dumper;
+    std::unique_ptr<IDumper> input_dumper;
 
     if (!input_dump.empty()) {
-        input_dumper = std::make_unique<CsvDumper>(config);
-
-        if (!input_dumper->open(input_dump.c_str())) {
+        auto dumper = std::make_unique<CsvDumper>(config);
+        if (!dumper->open(input_dump.c_str())) {
             exit(1);
         }
+        input_dumper = std::move(dumper);
+    }
+
+    if (output_dumper) {
+        output_dumper = std::make_unique<AsyncDumper>(std::move(output_dumper));
+    }
+
+    if (input_dumper) {
+        input_dumper = std::make_unique<AsyncDumper>(std::move(input_dumper));
     }
 
     Pool<Frame> frame_pool(config);
@@ -330,12 +343,6 @@ int main(int argc, char** argv) {
         output_dumper.get());
 
     input_thread.join();
-    if (!input_dump.empty()){
-        input_dumper->close();
-    }
-    if (!output_dump.empty()) {
-        output_dumper->close();
-    }
 
     return 0;
 }

@@ -54,19 +54,23 @@ void CsvDumper::close() {
     }
 }
 
-void CsvDumper::write(Frame& frame) {
+void CsvDumper::write(std::shared_ptr<Frame> frame) {
+    if (!frame) {
+        return;
+    }
+
     if (!fp_) {
         return;
     }
 
-    for (size_t n = 0; n < frame.size(); n++) {
+    for (size_t n = 0; n < frame->size(); n++) {
         if (n % config_.n_channels == 0) {
             if (pos_ != 0 && pos_ % std::max(config_.dump_compression, size_t(1)) == 0) {
-                print_line_(frame.io_type(), frame.sw_frame_time());
+                print_line_(frame->io_type(), frame->sw_frame_time());
             }
             pos_++;
         }
-        mavg_[n % config_.n_channels].add(frame.data()[n]);
+        mavg_[n % config_.n_channels].add((*frame)[n]);
     }
 }
 

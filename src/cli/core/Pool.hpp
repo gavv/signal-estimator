@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    static constexpr size_t n_ = 128;
+    static constexpr size_t n_ = 512;
     std::vector<T> pool_;
     ListNode* free_list_head_;
 
