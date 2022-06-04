@@ -36,7 +36,7 @@ void LossEstimator::add_input(std::shared_ptr<Frame> frame) {
     for (size_t n = 0; n < frame_size; n++) {
         auto s = double(frame_data[n]);
 
-        if (signal_runmax_.add(std::abs(s))
+        if (signal_runmax_(std::abs(s))
             >= MaxSample * config_.signal_detection_threshold) {
             signal_++;
             leading_zeros_ = false;
@@ -46,9 +46,9 @@ void LossEstimator::add_input(std::shared_ptr<Frame> frame) {
             }
         }
 
-        s = gradient_.add(s);
+        s = gradient_(s);
         s = std::abs(s);
-        s = gradient_runmax_.add(s);
+        s = gradient_runmax_(s);
 
         if (gradient_schmitt_.add(s)) {
             losses_++;

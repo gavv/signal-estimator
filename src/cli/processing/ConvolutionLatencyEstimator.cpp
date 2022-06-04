@@ -157,7 +157,7 @@ ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::p
         } else if((hw_search_start_ + hw_search_len_) > cur_ts) {
             active_search = true;
 
-            const float movmax = mmax_.add(to[i]);
+            const float movmax = mmax_(to[i]);
             if(movmax > max_val_){
                 max_val_ = movmax;
                 const double idx_2_ns = i2ns(i, config_);

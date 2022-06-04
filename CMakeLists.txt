@@ -75,7 +75,6 @@ add_executable(signal-estimator
   src/cli/processing/ContinuousGenerator.cpp
   src/cli/processing/ConvolutionLatencyEstimator.cpp
   src/cli/processing/FFTOps.cpp
-  src/cli/processing/GradientCounter.cpp
   src/cli/processing/Impulse.cpp
   src/cli/processing/ImpulseGenerator.cpp
   src/cli/processing/LossEstimator.cpp

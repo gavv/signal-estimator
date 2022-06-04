@@ -8,7 +8,8 @@
 
 namespace signal_estimator {
 
-template <typename T> class MovAvg {
+// moving average
+template <typename T = double> class MovAvg {
 public:
     explicit MovAvg(const size_t window_sz)
         : window_sz_(window_sz)

@@ -5,9 +5,9 @@
 
 #include "core/Config.hpp"
 #include "fmt/IFormatter.hpp"
-#include "processing/GradientCounter.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
+#include "processing/MovGradient.hpp"
 #include "processing/MovMax.hpp"
 #include "processing/RateLimiter.hpp"
 #include "processing/SchmittTrigger.hpp"
@@ -38,7 +38,7 @@ private:
 
     MovMax<double> signal_runmax_;
 
-    GradientCounter gradient_;
+    MovGradient<double> gradient_;
     MovMax<double> gradient_runmax_;
     SchmittTrigger gradient_schmitt_;
 

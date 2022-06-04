@@ -26,7 +26,7 @@ void StepsLatencyEstimator::StepTrigger::add_frame(Frame* frame) {
         auto s = double(frame_data[n]);
 
         s = std::abs(s);
-        s = runmax_.add(s);
+        s = runmax_(s);
 
         if (schmitt_.add(s)) {
             last_trigger_ts_.sw_hw = (double)frame->sw_frame_time() / 1000000.0;

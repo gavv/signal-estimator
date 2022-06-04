@@ -24,10 +24,12 @@ public:
         }
     }
 
-    MovMax(const MovMax&) = delete;
-    MovMax& operator=(const MovMax&) = delete;
+    T operator()(const T x) {
+        add(x);
+        return get();
+    }
 
-    T add(T val) {
+    void add(const T val) {
         if (preload_ == 0) {
             pop_();
         } else {
@@ -35,7 +37,9 @@ public:
         }
 
         push_stack_.push(val);
+    }
 
+    T get() const {
         return get_max_();
     }
 
@@ -93,6 +97,7 @@ private:
             pop_stack_.pop();
         }
     }
+
     T get_max_() const {
         if (push_stack_.is_empty()) {
             return pop_stack_.get_max();
