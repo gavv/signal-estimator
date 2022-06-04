@@ -77,7 +77,6 @@ add_executable(signal-estimator
   src/cli/processing/ImpulseGenerator.cpp
   src/cli/processing/LossEstimator.cpp
   src/cli/processing/RateLimiter.cpp
-  src/cli/processing/SchmittTrigger.cpp
   src/cli/processing/StepsGenerator.cpp
   src/cli/processing/StepsLatencyEstimator.cpp
   src/cli/sndio/AlsaReader.cpp

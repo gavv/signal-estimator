@@ -3,25 +3,47 @@
 
 #pragma once
 
-#include <cstdlib>
+#include "core/Sample.hpp"
 
 namespace signal_estimator {
 
 // software schmitt trigger (a comparator with hysteresis)
-class SchmittTrigger {
+template <class T = double> class SchmittTrigger {
 public:
-    SchmittTrigger(double threshold);
+    SchmittTrigger(T threshold)
+        : lower_threshold_(T(MaxSample) * threshold / 2)
+        , upper_threshold_(T(MaxSample) * threshold) {
+    }
 
-    SchmittTrigger(const SchmittTrigger&) = delete;
-    SchmittTrigger& operator=(const SchmittTrigger&) = delete;
+    bool operator()(const T val) {
+        const bool old_state = get();
+        add(val);
+        const bool new_state = get();
 
-    bool add(double);
+        return !old_state && new_state;
+    }
+
+    void add(const T val) {
+        if (state_) {
+            if (val < lower_threshold_) {
+                state_ = false;
+            }
+        } else {
+            if (val > upper_threshold_) {
+                state_ = true;
+            }
+        }
+    }
+
+    bool get() const {
+        return state_;
+    }
 
 private:
-    const double lower_threshold_;
-    const double upper_threshold_;
+    const T lower_threshold_;
+    const T upper_threshold_;
 
-    bool state_ {};
+    bool state_ { false };
 };
 
 } // namespace signal_estimator

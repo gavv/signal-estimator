@@ -40,7 +40,7 @@ private:
 
     MovGradient<double> gradient_;
     MovMax<double> gradient_runmax_;
-    SchmittTrigger gradient_schmitt_;
+    SchmittTrigger<double> gradient_schmitt_;
 
     bool leading_zeros_ { true };
     uint64_t signal_ {};

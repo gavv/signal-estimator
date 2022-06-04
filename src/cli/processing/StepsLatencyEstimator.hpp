@@ -62,7 +62,7 @@ private:
     private:
         const Config& config_;
         MovMax<double> runmax_;
-        SchmittTrigger schmitt_;
+        SchmittTrigger<double> schmitt_;
         Timestamp last_trigger_ts_ {};
     };
 

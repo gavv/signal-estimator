@@ -50,7 +50,7 @@ void LossEstimator::add_input(std::shared_ptr<Frame> frame) {
         s = std::abs(s);
         s = gradient_runmax_(s);
 
-        if (gradient_schmitt_.add(s)) {
+        if (gradient_schmitt_(s)) {
             losses_++;
         }
     }
