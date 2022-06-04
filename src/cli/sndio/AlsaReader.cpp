@@ -28,12 +28,11 @@ void AlsaReader::close() {
 }
 
 bool AlsaReader::read(Frame& frame) {
-    frame.mark_io_begin(IOType::Input);
-
     snd_pcm_sframes_t err
         = snd_pcm_readi(pcm_, frame.data(), frame.size() / config_.n_channels);
 
-    frame.mark_io_end();
+    frame.set_time();
+    frame.set_type(FrameType::Input);
 
     if (err < 0) {
         if ((err = snd_pcm_recover(pcm_, (int)err, 1)) == 0) {

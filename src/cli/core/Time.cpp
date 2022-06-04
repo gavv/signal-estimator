@@ -3,6 +3,7 @@
 
 #include "core/Time.hpp"
 
+#include <algorithm>
 #include <chrono>
 
 namespace signal_estimator {
@@ -18,7 +19,7 @@ nanoseconds_t get_ts() {
 } // namespace
 
 nanoseconds_t monotonic_timestamp_ns() {
-    static nanoseconds_t start_ts = get_ts();
+    static nanoseconds_t start_ts = std::max(get_ts() - Minute, nanoseconds_t(0));
     return get_ts() - start_ts;
 }
 

@@ -12,55 +12,65 @@ Frame::Frame(const Config& config, Pool<Frame>* pool)
     , pool_(pool)
     , data_(config_->io_period_size) {
     assert(data_.size() > 0);
-    std::fill(data_.begin(), data_.end(), sample_t(0));
-}
-
-sample_t* Frame::data() {
-    return &data_[0];
 }
 
 size_t Frame::size() const {
     return data_.size();
 }
 
-void Frame::mark_io_begin(IOType type) {
-    io_type_ = type;
-    io_begin_ts_ = monotonic_timestamp_ns();
+const sample_t* Frame::data() const {
+    return &data_[0];
 }
 
-void Frame::mark_io_end() {
-    io_end_ts_ = monotonic_timestamp_ns();
+sample_t* Frame::data() {
+    return &data_[0];
+}
+
+sample_t Frame::at(size_t sample_index) const {
+    return data_[sample_index];
+}
+
+FrameType Frame::type() const {
+    return io_type_;
+}
+
+void Frame::set_type(FrameType type) {
+    io_type_ = type;
+}
+
+void Frame::set_time() {
+    io_time_ = monotonic_timestamp_ns();
 }
 
 nanoseconds_t Frame::sw_frame_time() const {
-    switch (io_type_) {
-    case IOType::Output:
-        return io_begin_ts_;
+    return io_time_;
+}
 
-    case IOType::Input:
-        return io_end_ts_;
+nanoseconds_t Frame::hw_frame_time() const {
+    switch (io_type_) {
+    case FrameType::Output:
+        return io_time_
+            + config_->samples_to_ns(
+                (config_->io_num_periods - 1) * config_->io_period_size);
+
+    case FrameType::Input:
+        return io_time_ - config_->samples_to_ns(config_->io_period_size);
     }
 
-    assert(!"unexpected type");
     return 0;
 }
 
-nanoseconds_t Frame::hw_sample_time(size_t offset) const {
+nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
     switch (io_type_) {
-    case IOType::Output:
-        return io_end_ts_
-            + nanoseconds_t(
-                  (config_->io_num_periods - 1) * config_->io_period_size + offset)
-            / config_->n_channels * 1000000000 / config_->sample_rate;
+    case FrameType::Output:
+        return io_time_
+            + config_->samples_to_ns(
+                (config_->io_num_periods - 1) * config_->io_period_size + sample_index);
 
-    case IOType::Input:
-        return io_end_ts_
-            - nanoseconds_t((config_->io_num_periods - 1) * config_->io_period_size
-                  + (config_->io_period_size - offset))
-            / config_->n_channels * 1000000000 / config_->sample_rate;
+    case FrameType::Input:
+        return io_time_ - config_->samples_to_ns(config_->io_period_size - sample_index);
     }
 
-    assert(!"unexpected type");
     return 0;
 }
 

@@ -165,7 +165,7 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
         }
     } else {
         // set minimum threshold, below which ALSA wont allow to perform read
-        if ((err = snd_pcm_sw_params_set_avail_min(pcm, sw_params, buffer_size)) < 0) {
+        if ((err = snd_pcm_sw_params_set_avail_min(pcm, sw_params, period_size)) < 0) {
             se_log_error("can't set sw params: snd_pcm_sw_params_set_avail_min(): %s",
                 snd_strerror(err));
             return false;

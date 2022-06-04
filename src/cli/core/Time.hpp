@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "core/Config.hpp"
-
 namespace signal_estimator {
 
 //! Nanoseconds type.

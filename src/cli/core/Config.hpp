@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "core/Time.hpp"
+
 #include <cstdlib>
 
 namespace signal_estimator {
@@ -74,6 +76,11 @@ struct Config {
     // get test duration in samples
     size_t total_samples() const {
         return size_t(sample_rate * measurement_duration) * n_channels;
+    }
+
+    // convert number of samples to number of nanoseconds
+    nanoseconds_t samples_to_ns(size_t num_samples) const {
+        return nanoseconds_t(num_samples) / n_channels * 1000000000 / sample_rate;
     }
 };
 
