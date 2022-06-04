@@ -1,8 +1,8 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
+#include "core/FramePool.hpp"
 #include "core/Log.hpp"
-#include "core/Pool.hpp"
 #include "core/Realtime.hpp"
 #include "fmt/AsyncDumper.hpp"
 #include "fmt/CsvDumper.hpp"
@@ -32,13 +32,12 @@ using namespace signal_estimator;
 
 namespace {
 
-void output_loop(const Config* config, Pool<Frame>* frame_pool, IGenerator* generator,
+void output_loop(const Config* config, FramePool* frame_pool, IGenerator* generator,
     IEstimator* estimator, AlsaWriter* writer, IDumper* dumper) {
     set_realtime();
 
     for (size_t n = 0; config->io_num_periods > n; n++) {
-        std::shared_ptr<Frame> frame(framePool->allocate(),
-                                    [](Frame* f){f->pool()->deallocate(f);});
+        auto frame = frame_pool->allocate();
 
         if (!writer->write(*frame)) {
             exit(1);
@@ -46,8 +45,8 @@ void output_loop(const Config* config, Pool<Frame>* frame_pool, IGenerator* gene
     }
 
     for (size_t n = 0; (config->total_samples() / config->io_period_size) > n; n++) {
-        std::shared_ptr<Frame> frame(frame_pool->allocate(),
-                                    [](Frame* f){f->pool()->deallocate(f);});
+        auto frame = frame_pool->allocate();
+
         generator->generate(*frame);
 
         if (!writer->write(*frame)) {
@@ -63,18 +62,18 @@ void output_loop(const Config* config, Pool<Frame>* frame_pool, IGenerator* gene
         }
     }
 
-    // Kill the estimator's thread for sure.
+    // Kill the estimator's thread.
     if (estimator) {
         estimator->add_output(nullptr);
     }
 }
 
-void input_loop( const Config* config, Pool<Frame>* frame_pool, IEstimator* estimator,
+void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estimator,
     AlsaReader* reader, IDumper* dumper) {
     set_realtime();
     for (size_t n = 0; n < config->total_samples() / config->io_period_size; n++) {
-        std::shared_ptr<Frame> frame(frame_pool->allocate(),
-                                        [](Frame* f){f->pool()->deallocate(f);});
+        auto frame = frame_pool->allocate();
+
         if (!reader->read(*frame)) {
             exit(1);
         }
@@ -334,7 +333,7 @@ int main(int argc, char** argv) {
         input_dumper = std::make_unique<AsyncDumper>(std::move(input_dumper));
     }
 
-    Pool<Frame> frame_pool(config);
+    FramePool frame_pool(config);
 
     std::thread input_thread(input_loop, &config, &frame_pool,
             estimator.get(), &input_reader, input_dumper.get());

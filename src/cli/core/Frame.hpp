@@ -4,8 +4,6 @@
 #pragma once
 
 #include "core/Config.hpp"
-#include "core/List.hpp"
-#include "core/Pool.hpp"
 #include "core/Sample.hpp"
 #include "core/Time.hpp"
 
@@ -20,12 +18,18 @@ enum class FrameType {
     Input,
 };
 
-class Frame : public ListNode {
+class FramePool;
+
+class Frame {
 public:
-    explicit Frame(const Config&, Pool<Frame>* pool = nullptr);
+    explicit Frame(const Config&, FramePool&);
     virtual ~Frame() = default;
+
     Frame(Frame&&) noexcept = default;
     Frame& operator=(Frame&&) noexcept = default;
+
+    // reset frame to initial state
+    void clear();
 
     // frame data and size
     size_t size() const;
@@ -51,9 +55,6 @@ public:
     // this method takes into account OS buffer size and position of sample in frame
     nanoseconds_t hw_sample_time(size_t sample_index) const;
 
-    // get pool to which the frame belongs
-    Pool<Frame>* pool();
-
     // convenience wrappers
     auto begin() {
         return data_.begin();
@@ -71,11 +72,13 @@ public:
     }
 
 private:
-    const Config* config_;
-    Pool<Frame>* pool_;
+    friend class FramePool;
 
-    FrameType io_type_ { FrameType::Output };
-    nanoseconds_t io_time_ {};
+    const Config* config_;
+    FramePool* pool_;
+
+    FrameType io_type_;
+    nanoseconds_t io_time_;
 
     std::vector<sample_t> data_;
 };

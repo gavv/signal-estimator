@@ -10,6 +10,9 @@
 namespace signal_estimator {
 
 struct Config {
+    // number of pre-allocated frames in frame pool
+    size_t frame_pool_size { 128 };
+
     // total measurement duration
     float measurement_duration { 10 };
 

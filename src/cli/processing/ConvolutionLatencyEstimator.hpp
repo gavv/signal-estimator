@@ -35,9 +35,8 @@ private:
     const Config& config_;
     IFormatter& formatter_;
     MovAvg<double> hw_avg_;
-    static constexpr size_t queue_sz_ = 32;
-    Queue<std::shared_ptr<Frame>, queue_sz_> queue_in_;
-    Queue<std::shared_ptr<Frame>, queue_sz_> queue_out_;
+    Queue<std::shared_ptr<Frame>> queue_in_;
+    Queue<std::shared_ptr<Frame>> queue_out_;
     std::thread thread_;
 
     const double causality_timeout_lim_;

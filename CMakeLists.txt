@@ -53,9 +53,9 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
   list(APPEND COMPILER_FLAGS
     "-Wall"
     "-Wextra"
-    "-Wno-system-headers"
     "-Wno-old-style-cast"
     "-Wno-switch-enum"
+    "-Wno-system-headers"
     )
 endif()
 
@@ -64,6 +64,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 add_executable(signal-estimator
   src/cli/Main.cpp
   src/cli/core/Frame.cpp
+  src/cli/core/FramePool.cpp
   src/cli/core/Realtime.cpp
   src/cli/core/Time.cpp
   src/cli/fmt/AsyncDumper.cpp
@@ -96,6 +97,7 @@ SET(KISSFFT_USE_ALLOCA OFF)
 add_subdirectory(3rdparty/kissfft)
 
 target_include_directories(signal-estimator SYSTEM
+  PRIVATE 3rdparty/concurrentqueue
   PRIVATE 3rdparty/cxxopts/include
   PRIVATE 3rdparty/kissfft
   PRIVATE src/cli

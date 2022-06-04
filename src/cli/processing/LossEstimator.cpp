@@ -2,7 +2,6 @@
 // Licensed under MIT
 
 #include "processing/LossEstimator.hpp"
-#include "core/Pool.hpp"
 #include "fmt/IFormatter.hpp"
 
 #include <algorithm>

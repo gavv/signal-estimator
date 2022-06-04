@@ -23,11 +23,8 @@ void AsyncDumper::write(std::shared_ptr<Frame> frame) {
 }
 
 void AsyncDumper::run_() {
-    while (auto frame = queue_.pop(true)) {
-        if (!*frame) {
-            break;
-        }
-        dumper_->write(*frame);
+    while (auto frame = queue_.wait_pop()) {
+        dumper_->write(frame);
     }
 }
 

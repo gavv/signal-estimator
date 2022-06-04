@@ -2,7 +2,6 @@
 // Licensed under MIT
 
 #include "processing/ConvolutionLatencyEstimator.hpp"
-#include "core/Pool.hpp"
 #include "core/Realtime.hpp"
 
 namespace signal_estimator {
@@ -42,12 +41,7 @@ void ConvolutionLatencyEstimator::run() {
     set_realtime();
 
     while (true) {
-
-        while (auto out_f = queue_out_.pop(false)) {
-            std::shared_ptr<Frame> out_frame = *out_f;
-            if (!out_frame) {
-                return;
-            }
+        while (auto out_frame = queue_out_.try_pop()) {
             if (const auto tmp_out_rep = out_processor_(*out_frame, true, 0)) {
                 causality_timeoute_counter_
                     = tmp_out_rep.hw + causality_timeout_lim_;
@@ -67,10 +61,8 @@ void ConvolutionLatencyEstimator::run() {
             last_out_peak = last_in_peak = 0;
         }
 
-        // Acquire new frame.
         do {
-            auto in_f = queue_in_.pop(true);
-            Frame* in_frame = in_f->get();
+            auto in_frame = queue_in_.wait_pop();
             if (!in_frame) {
                 return;
             }
@@ -79,7 +71,7 @@ void ConvolutionLatencyEstimator::run() {
                 inpeak = tmp_in_reg;
                 last_in_peak = inpeak.hw;
             }
-        } while (queue_in_.free_size() < queue_sz_);
+        } while (!queue_in_.empty());
 
         if (last_out_peak < last_in_peak) {
             const double imp_duration

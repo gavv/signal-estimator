@@ -3,78 +3,47 @@
 
 #pragma once
 
-#include "core/Frame.hpp"
-
-#include <array>
 #include <atomic>
-#include <cassert>
-#include <condition_variable>
-#include <cstdint>
-#include <mutex>
-#include <optional>
+
+#include <blockingconcurrentqueue.h>
 
 namespace signal_estimator {
 
-template <typename T, size_t DEPTH> class Queue {
+template <typename T> class Queue {
 public:
-    Queue()
-        : head_(0)
-        , tail_(0) {
+    Queue() = default;
+
+    Queue(const Queue&) = delete;
+    Queue& operator=(const Queue&) = delete;
+
+    bool empty() const {
+        return size_ == 0;
     }
 
-    Queue(const Queue<T, DEPTH>&) = delete;
-    Queue& operator=(Queue<T, DEPTH>&) = delete;
-
-    void push(const T x) {
-        const size_t tail = tail_.load(std::memory_order_relaxed);
-        const ssize_t free_size = DEPTH - (tail - head_.load(std::memory_order_relaxed));
-        assert(free_size > 0);
-        if (free_size == 0) {
-            return;
-        }
-
-        const size_t i = tail % DEPTH;
-        buff_[i] = x;
-
-        {
-            std::lock_guard lk(mtx_);
-            tail_++;
-        }
-        cv_.notify_one();
+    void push(const T val) {
+        queue_.enqueue(val);
+        size_++;
     }
 
-    std::optional<T> pop(const bool block = false) {
-        const size_t cur_head = head_.load(std::memory_order_relaxed);
-        const ssize_t occupied_sz = tail_.load(std::memory_order_relaxed) - cur_head;
-        assert(occupied_sz >= 0);
-        if (occupied_sz == 0) {
-            if (!block) {
-                return {};
-            } else {
-                std::unique_lock<std::mutex> lck(mtx_);
-                // Against spurious wakeup.
-                cv_.wait(lck, [this] { return this->free_size() < DEPTH; });
-            }
+    T try_pop() {
+        T val;
+        if (!queue_.try_dequeue(val)) {
+            return {};
         }
-        const size_t i = cur_head % buff_.size();
-        T res = buff_[i];
-
-        head_++;
-        return res;
+        size_--;
+        return val;
     }
 
-    inline size_t free_size() {
-        const size_t head = head_.load(std::memory_order_relaxed);
-        const size_t tail = tail_.load(std::memory_order_relaxed);
-        return DEPTH - (tail - head);
+    T wait_pop() {
+        T val;
+        queue_.wait_dequeue(val);
+        size_--;
+        return val;
     }
 
 private:
-    std::array<T, DEPTH> buff_;
-    std::atomic<size_t> head_, tail_;
-
-    std::mutex mtx_;
-    std::condition_variable cv_;
+    moodycamel::BlockingConcurrentQueue<T> queue_;
+    std::atomic<size_t> size_ { 0 };
 };
 
 } // namespace signal_estimator

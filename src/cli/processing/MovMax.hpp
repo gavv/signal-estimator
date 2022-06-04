@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <cstdlib>
 #include <vector>
 

@@ -26,7 +26,7 @@ private:
     void run_();
 
     std::unique_ptr<IDumper> dumper_;
-    Queue<std::shared_ptr<Frame>, 32> queue_;
+    Queue<std::shared_ptr<Frame>> queue_;
     std::thread thread_;
 };
 

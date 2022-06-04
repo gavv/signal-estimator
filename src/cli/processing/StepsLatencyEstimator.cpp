@@ -2,7 +2,6 @@
 // Licensed under MIT
 
 #include "processing/StepsLatencyEstimator.hpp"
-#include "core/Pool.hpp"
 #include "core/Time.hpp"
 #include "fmt/IFormatter.hpp"
 

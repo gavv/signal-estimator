@@ -7,11 +7,18 @@
 
 namespace signal_estimator {
 
-Frame::Frame(const Config& config, Pool<Frame>* pool)
+Frame::Frame(const Config& config, FramePool& pool)
     : config_(&config)
-    , pool_(pool)
+    , pool_(&pool)
     , data_(config_->io_period_size) {
-    assert(data_.size() > 0);
+    clear();
+}
+
+void Frame::clear() {
+    std::fill(data_.begin(), data_.end(), sample_t(0));
+
+    io_type_ = FrameType::Output;
+    io_time_ = 0;
 }
 
 size_t Frame::size() const {
@@ -72,10 +79,6 @@ nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
     }
 
     return 0;
-}
-
-Pool<Frame>* Frame::pool() {
-    return pool_;
 }
 
 } // namespace signal_estimator
