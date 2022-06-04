@@ -144,8 +144,8 @@ Usage:
 
  General options:
   -h, --help          Print help message and exit
-  -m, --mode arg      Mode: noop|latency_strikes|latency_impulse|losses
-                      (default: latency_strikes)
+  -m, --mode arg      Mode: noop|latency_steps|latency_convl|losses (default:
+                      latency_steps)
   -o, --output arg    Output device name, required
   -i, --input arg     Input device name, required
   -d, --duration arg  Measurement duration, seconds (default: 10.000000)
@@ -164,10 +164,10 @@ Usage:
                            (default: 5)
 
  Dumping options:
-      --dump-output arg       File to dump output stream
-      --dump-input arg        File to dump input stream
-      --dump-compression arg  Compress dumped samples by given ratio by using
-                              running maximum (default: 64)
+      --dump-out arg          File to dump output stream (`-' for stdout)
+      --dump-in arg           File to dump input stream (`-' for stdout)
+      --dump-compression arg  Compress dumped samples by given ratio using
+                              SMA (default: 64)
 
  Steps latency estimation options:
       --step-period arg         Step period, seconds (default: 1.000000)

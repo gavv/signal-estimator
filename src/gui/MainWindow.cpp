@@ -198,9 +198,9 @@ QStringList MainWindow::set_up_program_() {
 
     // both of these options have to be stdout because we use a pipe
     // that reads from signal_estimator stdout
-    list << "--dump-output"
+    list << "--dump-out"
          << "-";
-    list << "--dump-input"
+    list << "--dump-in"
          << "-";
 
     t = ui->DC->cleanText();

@@ -136,9 +136,9 @@ int main(int argc, char** argv) {
         ;
 
     opts.add_options("Dumping")
-        ("dump-output", "File to dump output stream",
+        ("dump-out", "File to dump output stream (`-' for stdout)",
          cxxopts::value<std::string>())
-        ("dump-input", "File to dump input stream",
+        ("dump-in", "File to dump input stream (`-' for stdout)",
          cxxopts::value<std::string>())
         ("dump-compression", "Compress dumped samples by given ratio using SMA",
          cxxopts::value<size_t>()->default_value(std::to_string(config.dump_compression)))
@@ -239,11 +239,11 @@ int main(int argc, char** argv) {
 
         config.report_sma_window = res["report-sma"].as<size_t>();
 
-        if (res.count("dump-output")) {
-            output_dump = res["dump-output"].as<std::string>();
+        if (res.count("dump-out")) {
+            output_dump = res["dump-out"].as<std::string>();
         }
-        if (res.count("dump-input")) {
-            input_dump = res["dump-input"].as<std::string>();
+        if (res.count("dump-in")) {
+            input_dump = res["dump-in"].as<std::string>();
         }
         config.dump_compression = res["dump-compression"].as<size_t>();
 
