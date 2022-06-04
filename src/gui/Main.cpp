@@ -10,8 +10,7 @@
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
-    // open error window if signal-estimator is not found
-    if (find_signal_estimator().isEmpty()) {
+    if (SignalEstimator::find().isEmpty()) {
         NotFoundDialog w;
         w.exec();
         return 1;

@@ -122,6 +122,7 @@ if(BUILD_GUI)
   qt5_wrap_cpp(GENERATED_SOURCES
     src/gui/MainWindow.hpp
     src/gui/NotFoundDialog.hpp
+    src/gui/SignalEstimator.hpp
     )
 
   set(UI_SOURCES
@@ -138,7 +139,7 @@ if(BUILD_GUI)
     )
 
   add_executable(signal-estimator-gui
-    src/gui/Devices.cpp
+    src/gui/DeviceManager.cpp
     src/gui/Main.cpp
     src/gui/MainWindow.cpp
     src/gui/NotFoundDialog.cpp

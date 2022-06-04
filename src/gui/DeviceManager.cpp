@@ -1,13 +1,13 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "Devices.hpp"
+#include "DeviceManager.hpp"
 
 #include <cstdio>
 #include <cstring>
 #include <memory>
 
-QVector<QString> get_output_devices() {
+QVector<QString> DeviceManager::get_output_devices() {
     char buffer[128];
     QVector<QString> strvec;
     // run pipe to get output devices from aplay
@@ -28,7 +28,7 @@ QVector<QString> get_output_devices() {
     return strvec;
 }
 
-QVector<QString> get_input_devices() {
+QVector<QString> DeviceManager::get_input_devices() {
     char buffer[128];
     QVector<QString> strvec;
     // run pipe to get output devices from arecord
@@ -47,7 +47,7 @@ QVector<QString> get_input_devices() {
     return strvec;
 }
 
-QString format_device_name(QString buffer) {
+QString DeviceManager::format_device_name(QString buffer) {
     const char* c;
     if (buffer.toStdString() == "default")
         return buffer;

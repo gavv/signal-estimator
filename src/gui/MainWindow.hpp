@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "Devices.hpp"
+#include "DeviceManager.hpp"
 #include "NotFoundDialog.hpp"
 #include "PointsBuffer.hpp"
 #include "SignalEstimator.hpp"
@@ -42,7 +42,7 @@ private slots:
 
     void update_graphs();
     void read_graph_data();
-    void check_proc();
+    void show_error(QString error);
 
 private:
     QStringList set_up_program_();
@@ -50,8 +50,6 @@ private:
     void set_update_plots_(bool f) {
         update_plots_ = f;
     }
-
-    void run_estimator_();
 
     Ui::MainWindow* ui;
     bool update_plots_ = false;
@@ -67,5 +65,7 @@ private:
         "Output signal (emitted)") };
 
     QTimer* timer_ = nullptr;
-    QSharedPointer<QProcess> proc_;
+
+    DeviceManager device_manager_;
+    SignalEstimator* signal_estimator_ = nullptr;
 };

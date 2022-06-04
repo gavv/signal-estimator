@@ -11,7 +11,15 @@
 
 #include <exception>
 
-QString find_signal_estimator() {
+SignalEstimator::SignalEstimator(QObject* parent)
+    : QObject(parent) {
+}
+
+SignalEstimator::~SignalEstimator() {
+    stop();
+}
+
+QString SignalEstimator::find() {
     if (auto path = QDir::currentPath() + "/signal-estimator";
         QFileInfo(path).isExecutable()) {
         return path;
@@ -30,20 +38,59 @@ QString find_signal_estimator() {
     return {};
 }
 
-QSharedPointer<QProcess> start_signal_estimator(QStringList args) {
-    // setup qprocess for signal-estimator
-    QSharedPointer<QProcess> proc = QSharedPointer<QProcess>(new QProcess);
-    QString command = find_signal_estimator();
-    proc->setProcessChannelMode(QProcess::MergedChannels);
-    proc->setProgram(command);
-    proc->setArguments(args);
-    proc->setReadChannel(QProcess::StandardOutput);
-    return proc;
+bool SignalEstimator::start(QStringList args) {
+    stop();
+
+    proc_ = QSharedPointer<QProcess>(new QProcess);
+
+    proc_->setProcessChannelMode(QProcess::MergedChannels);
+    proc_->setProgram(find());
+    proc_->setArguments(args);
+    proc_->setReadChannel(QProcess::StandardOutput);
+
+    connect(proc_.data(), &QProcess::readyReadStandardOutput, this,
+        &SignalEstimator::can_read);
+
+    connect(proc_.data(), qOverload<QProcess::ProcessError>(&QProcess::errorOccurred),
+        this, [this]() {
+            if (proc_) {
+                error(proc_->errorString());
+            }
+        });
+
+    if (!proc_->open(QProcess::ReadOnly)) {
+        proc_ = {};
+        return false;
+    }
+
+    return true;
 }
 
-std::tuple<QPointF, PointType> parse_line(QString buffer) {
+void SignalEstimator::stop() {
+    if (proc_ && proc_->isOpen()) {
+        proc_->close();
+    }
+
+    proc_ = {};
+}
+
+std::optional<std::tuple<QPointF, PointType>> SignalEstimator::read() {
+    if (!proc_) {
+        return {};
+    }
+
+    if (!proc_->canReadLine()) {
+        return {};
+    }
+
+    QByteArray buffer = proc_->readLine();
+
+    return parse_(QString(buffer));
+}
+
+std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString buffer) {
     if (buffer[0] == "#") {
-        return std::make_tuple(QPointF {}, PointType::None);
+        return {};
     }
 
     QRegExp reg;
@@ -57,7 +104,7 @@ std::tuple<QPointF, PointType> parse_line(QString buffer) {
 #endif
     );
     if (tokens.count() < 3) {
-        return std::make_tuple(QPointF {}, PointType::None);
+        return {};
     }
 
     QPointF pt;
@@ -65,23 +112,22 @@ std::tuple<QPointF, PointType> parse_line(QString buffer) {
     try {
         pt.setX(tokens[1].toDouble() / 1000000);
     } catch (const std::invalid_argument&) {
-        pt.setX(0.0);
+        return {};
     }
 
     try {
         pt.setY(tokens[2].toDouble() / 1000);
     } catch (const std::invalid_argument&) {
-        pt.setX(0.0);
-        pt.setY(0.0);
+        return {};
     }
 
-    if (!pt.isNull() && tokens[0] == "i") {
+    if (tokens[0] == "i") {
         return std::make_tuple(pt, PointType::Input);
     }
 
-    if (!pt.isNull() && tokens[0] == "o") {
+    if (tokens[0] == "o") {
         return std::make_tuple(pt, PointType::Output);
     }
 
-    return std::make_tuple(QPointF {}, PointType::None);
+    return {};
 }

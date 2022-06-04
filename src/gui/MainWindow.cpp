@@ -16,6 +16,12 @@ MainWindow::MainWindow(QWidget* parent)
     , ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
+    signal_estimator_ = new SignalEstimator(this);
+
+    connect(signal_estimator_, &SignalEstimator::error, this, &MainWindow::show_error);
+    connect(signal_estimator_, &SignalEstimator::can_read, this,
+        &MainWindow::read_graph_data);
+
     ui->OutputSig->setCanvasBackground(Qt::white);
 
     outputCurve_->setPen(QColor(0x1f77b4));
@@ -68,21 +74,52 @@ MainWindow::MainWindow(QWidget* parent)
                                              .arg(QString::number(pos.y())));
     });
 
-    QVector<QString> in = get_input_devices();
-    QVector<QString> out = get_output_devices();
+    QVector<QString> in_devices = device_manager_.get_input_devices();
+    QVector<QString> out_devices = device_manager_.get_output_devices();
 
-    ui->InputDevices->addItems(in.toList()); // add input devices to combobox
-    ui->OutputDevices->addItems(out.toList()); // add output devices to combobox
+    ui->InputDevices->addItems(in_devices.toList());
+    ui->OutputDevices->addItems(out_devices.toList());
 
     show();
 }
 
 MainWindow::~MainWindow() {
-    if (proc_ && proc_->isOpen()) {
-        proc_->close();
+    delete ui;
+}
+
+void MainWindow::on_StartButton_released() {
+    QStringList args = set_up_program_();
+
+    set_update_plots_(true); // must be true to update graphs
+
+    // clear old data when the start button is pressed
+    in_data_.clear_buf();
+    out_data_.clear_buf();
+
+    // reset graphs
+    ui->OutputSig->updateAxes();
+    ui->OutputSig->replot();
+
+    if (!timer_) {
+        timer_ = new QTimer(this);
+        timer_->setInterval(20);
+        timer_->connect(timer_, &QTimer::timeout, this, &MainWindow::update_graphs);
     }
 
-    delete ui;
+    if (signal_estimator_->start(args)) {
+        ui->ErrorLabel->setText("");
+    } else {
+        ui->ErrorLabel->setText(QString("Failed to open signal-estimator"));
+    }
+
+    set_update_plots_(true);
+    timer_->start();
+}
+
+void MainWindow::on_StopButton_clicked() {
+    signal_estimator_->stop();
+
+    set_update_plots_(false);
 }
 
 void MainWindow::update_graphs() {
@@ -105,24 +142,22 @@ void MainWindow::update_graphs() {
 }
 
 void MainWindow::read_graph_data() {
-    QString buffer;
-    std::tuple<QPointF, PointType> pt;
-    QByteArray arr;
-    while (proc_->canReadLine()) {
-        arr = proc_->readLine(); // read line from proc
-        buffer = QString(arr); // convert to QString
-        pt = parse_line(buffer);
-        if (std::get<1>(pt) == PointType::Input) {
-            in_data_.append_point(std::get<0>(pt));
-        } else if (std::get<1>(pt) == PointType::Output) {
-            out_data_.append_point(std::get<0>(pt));
+    while (auto entry = signal_estimator_->read()) {
+        auto [pt, type] = *entry;
+
+        if (type == PointType::Input) {
+            in_data_.append_point(pt);
+        } else if (type == PointType::Output) {
+            out_data_.append_point(pt);
         }
     }
 }
 
+void MainWindow::show_error(QString error) {
+    ui->ErrorLabel->setText(error);
+}
+
 QStringList MainWindow::set_up_program_() {
-    // This program calls the separate signal_estimator cmd line program to get the
-    // graph data
     QStringList list;
     QString t;
 
@@ -131,11 +166,11 @@ QStringList MainWindow::set_up_program_() {
 
     t = ui->OutputDevices->currentText();
     list.append("-o");
-    list.append(format_device_name(t));
+    list.append(device_manager_.format_device_name(t));
 
     t = ui->InputDevices->currentText();
     list.append("-i");
-    list.append(format_device_name(t));
+    list.append(device_manager_.format_device_name(t));
 
     t = ui->SampleRate->cleanText();
     list.append("-r");
@@ -161,8 +196,8 @@ QStringList MainWindow::set_up_program_() {
     list.append("-d");
     list.append(t);
 
-    // both of these options have to be stdout because we use a pipe that reads from
-    // signal_estimator stdout
+    // both of these options have to be stdout because we use a pipe
+    // that reads from signal_estimator stdout
     list << "--dump-output"
          << "-";
     list << "--dump-input"
@@ -209,63 +244,4 @@ QStringList MainWindow::set_up_program_() {
     list.append(t);
 
     return list;
-}
-
-void MainWindow::run_estimator_() {
-    QStringList args = set_up_program_();
-
-    set_update_plots_(true); // must be true to update graphs
-
-    // clear old data when the start button is pressed
-    in_data_.clear_buf();
-    out_data_.clear_buf();
-
-    // reset graphs
-    ui->OutputSig->updateAxes();
-    ui->OutputSig->replot();
-
-    if (proc_ && proc_->isOpen()) {
-        proc_->close();
-    }
-    proc_ = start_signal_estimator(args);
-
-    // proc emits error signal
-    proc_->connect(proc_.data(),
-        qOverload<QProcess::ProcessError>(&QProcess::errorOccurred), this,
-        &MainWindow::check_proc);
-
-    if (!timer_) {
-        timer_ = new QTimer(this);
-        timer_->setInterval(20);
-        timer_->connect(timer_, &QTimer::timeout, this, &MainWindow::update_graphs);
-    }
-
-    proc_->connect(proc_.data(), &QProcess::readyReadStandardOutput, this,
-        &MainWindow::read_graph_data);
-
-    // failing to open signal-estimator?
-    if (proc_->open(QProcess::ReadOnly)) {
-        ui->ErrorLabel->setText("");
-    } else {
-        ui->ErrorLabel->setText(QString("Failed to open signal-estimator"));
-    }
-    set_update_plots_(true);
-    timer_->start();
-}
-
-void MainWindow::on_StartButton_released() {
-    run_estimator_();
-}
-
-void MainWindow::on_StopButton_clicked() {
-    if (proc_->isOpen()) {
-        proc_->close(); // close QProcess
-    }
-
-    set_update_plots_(false); // stop plotting when stop button is pressed
-}
-
-void MainWindow::check_proc() {
-    // get string proc for error
-    ui->ErrorLabel->setText(proc_->errorString());
 }

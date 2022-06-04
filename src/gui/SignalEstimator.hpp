@@ -6,16 +6,34 @@
 #include "PointType.hpp"
 
 #include <QPointF>
-#include <QPointer>
 #include <QProcess>
+#include <QSharedPointer>
 #include <QString>
 #include <QStringList>
-#include <QVector>
 
+#include <optional>
 #include <tuple>
 
-QString find_signal_estimator();
+class SignalEstimator : public QObject {
+    Q_OBJECT
 
-QSharedPointer<QProcess> start_signal_estimator(QStringList args);
+public:
+    static QString find();
 
-std::tuple<QPointF, PointType> parse_line(QString buffer);
+    SignalEstimator(QObject* parent = nullptr);
+    ~SignalEstimator() override;
+
+    bool start(QStringList args);
+    void stop();
+
+    std::optional<std::tuple<QPointF, PointType>> read();
+
+signals:
+    void can_read();
+    void error(QString);
+
+private:
+    std::optional<std::tuple<QPointF, PointType>> parse_(QString buffer);
+
+    QSharedPointer<QProcess> proc_;
+};

@@ -6,5 +6,4 @@
 enum class PointType {
     Input,
     Output,
-    None,
 };
