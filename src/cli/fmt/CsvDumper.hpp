@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <optional>
 #include <vector>
 
 namespace signal_estimator {
@@ -32,12 +33,14 @@ public:
     void write(std::shared_ptr<Frame> frame) override;
 
 private:
-    void print_line_(IOType type, nanoseconds_t timestamp);
+    void print_line_(FrameType type, nanoseconds_t timestamp);
 
     const Config config_;
 
-    std::vector<MovAvg<double>> mavg_;
-    uint64_t pos_ { 0 };
+    std::vector<MovAvg<double>> win_avg_;
+    std::optional<nanoseconds_t> win_time_ { 0 };
+    size_t win_size_ { 0 };
+    size_t win_pos_ { 0 };
 
     FILE* fp_ {};
     std::vector<char> buf_;
