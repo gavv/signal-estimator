@@ -1,8 +1,6 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "alsa/AlsaReader.hpp"
-#include "alsa/AlsaWriter.hpp"
 #include "core/Log.hpp"
 #include "core/Pool.hpp"
 #include "core/Realtime.hpp"
@@ -19,6 +17,8 @@
 #include "processing/LossEstimator.hpp"
 #include "processing/StepsGenerator.hpp"
 #include "processing/StepsLatencyEstimator.hpp"
+#include "sndio/AlsaReader.hpp"
+#include "sndio/AlsaWriter.hpp"
 
 #include <iostream>
 #include <memory>

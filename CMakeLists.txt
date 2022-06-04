@@ -63,9 +63,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(signal-estimator
   src/cli/Main.cpp
-  src/cli/alsa/AlsaReader.cpp
-  src/cli/alsa/AlsaUtils.cpp
-  src/cli/alsa/AlsaWriter.cpp
   src/cli/core/Frame.cpp
   src/cli/core/Realtime.cpp
   src/cli/core/Time.cpp
@@ -83,6 +80,9 @@ add_executable(signal-estimator
   src/cli/processing/SchmittTrigger.cpp
   src/cli/processing/StepsGenerator.cpp
   src/cli/processing/StepsLatencyEstimator.cpp
+  src/cli/sndio/AlsaReader.cpp
+  src/cli/sndio/AlsaUtils.cpp
+  src/cli/sndio/AlsaWriter.cpp
   )
 
 target_compile_options(signal-estimator
