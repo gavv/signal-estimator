@@ -77,6 +77,7 @@ add_executable(signal-estimator
   src/cli/processing/FFTOps.cpp
   src/cli/processing/GradientCounter.cpp
   src/cli/processing/Impulse.cpp
+  src/cli/processing/ImpulseGenerator.cpp
   src/cli/processing/LossEstimator.cpp
   src/cli/processing/RateLimiter.cpp
   src/cli/processing/SchmittTrigger.cpp

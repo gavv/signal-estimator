@@ -278,7 +278,7 @@ int main(int argc, char** argv) {
     if (mode == "noop" || mode == "latency_steps") {
         generator = std::make_unique<StepsGenerator>(config);
     } else if(mode == "latency_convl") {
-        generator = std::make_unique<ImpulseGenerator<decltype(impulse)>>(config, impulse);
+        generator = std::make_unique<ImpulseGenerator>(config, impulse);
     } else {
         generator = std::make_unique<ContinuousGenerator>(config);
     }
@@ -322,6 +322,7 @@ int main(int argc, char** argv) {
     }
 
     Pool<Frame> frame_pool(config);
+
     std::thread input_thread(input_loop, &config, &frame_pool,
             estimator.get(), &input_reader, input_dumper.get());
 
