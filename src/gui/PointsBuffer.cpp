@@ -8,7 +8,13 @@
 void PointsBuffer::append_point(QPointF pt) {
     ringbuf_.push_back(pt);
 
-    if (ringbuf_.back().x() - ringbuf_.front().x() > ring_size_milliseconds_) {
+    // should not actually happen
+    for (size_t n = ringbuf_.size() - 1; n > 0 && ringbuf_[n].x() < ringbuf_[n - 1].x();
+         n--) {
+        std::swap(ringbuf_[n], ringbuf_[n - 1]);
+    }
+
+    while (ringbuf_.back().x() - ringbuf_.front().x() > ring_size_milliseconds_) {
         ringbuf_.pop_front();
     }
 }
