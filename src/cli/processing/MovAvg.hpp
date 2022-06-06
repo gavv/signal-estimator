@@ -32,7 +32,7 @@ public:
         if (++cur_i_ >= window_sz_) {
             cur_i_ = 0;
         }
-        if(init_counter_ < window_sz_){
+        if (init_counter_ < window_sz_) {
             init_counter_++;
         }
     }

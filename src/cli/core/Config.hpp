@@ -96,9 +96,14 @@ struct Config {
         return total_samples() / io_period_size;
     }
 
-    // convert number of samples to number of nanoseconds
+    // convert number of samples (all channels) to number of nanoseconds
     nanoseconds_t samples_to_ns(size_t num_samples) const {
         return nanoseconds_t(num_samples) / n_channels * 1000000000 / sample_rate;
+    }
+
+    // convert number of samples (per channel) to number of nanoseconds
+    nanoseconds_t frames_to_ns(size_t num_samples) const {
+        return nanoseconds_t(num_samples) * 1000000000 / sample_rate;
     }
 };
 

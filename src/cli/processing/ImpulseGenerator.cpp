@@ -2,7 +2,7 @@
 // Licensed under MIT
 
 #include "processing/ImpulseGenerator.hpp"
-#include "processing/Sample.hpp"
+#include "core/Sample.hpp"
 
 #include <cstring>
 

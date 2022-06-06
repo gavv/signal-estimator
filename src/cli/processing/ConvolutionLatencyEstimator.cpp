@@ -4,19 +4,18 @@
 #include "processing/ConvolutionLatencyEstimator.hpp"
 #include "core/Realtime.hpp"
 
-namespace signal_estimator {
+#include <cassert>
 
-static inline double i2ns(const size_t i, const Config &config) {
-    return double(i)/double(config.sample_rate) * 1e9;
-}
+namespace signal_estimator {
 
 ConvolutionLatencyEstimator::ConvolutionLatencyEstimator(
     const Config& config, IFormatter& formatter)
     : config_(config)
     , formatter_(formatter)
     , hw_avg_(config_.report_sma_window)
-    , thread_(&ConvolutionLatencyEstimator::run, this)
-    , causality_timeout_lim_(i2ns(impulse.size() - config_.impulse_peak_detection_width - 1,config_))
+    , thread_(&ConvolutionLatencyEstimator::run_, this)
+    , causality_timeout_lim_(
+          config_.frames_to_ns(impulse.size() - config_.impulse_peak_detection_width - 1))
     , in_processor_(config)
     , out_processor_(config) {
 }
@@ -35,30 +34,24 @@ void ConvolutionLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
     queue_in_.push(frame);
 }
 
-void ConvolutionLatencyEstimator::run() {
-    Timestamp outpeak, inpeak;
-    double last_in_peak = 0, last_out_peak = 0;
+void ConvolutionLatencyEstimator::run_() {
     set_realtime();
+
+    Timestamp in_peak, out_peak;
+    double in_peak_ts = 0, out_peak_ts = 0;
 
     while (true) {
         while (auto out_frame = queue_out_.try_pop()) {
-            if (const auto tmp_out_rep = out_processor_(*out_frame, true, 0)) {
-                causality_timeoute_counter_
-                    = tmp_out_rep.hw + causality_timeout_lim_;
-                outpeak = tmp_out_rep;
-                last_out_peak = outpeak.hw;
+            if (const auto tmp_out_peak = out_processor_(*out_frame, true, 0)) {
+                causality_timeout_counter_ = tmp_out_peak.hw + causality_timeout_lim_;
+                out_peak = tmp_out_peak;
+                out_peak_ts = tmp_out_peak.hw;
             }
-            out_frame.reset();
         }
 
-        if (last_out_peak < last_in_peak) {
-            const double imp_duration
-                = i2ns(impulse.size(), config_);
-            const double hw_ts = (inpeak.hw - outpeak.hw - imp_duration)*1e-6;
-            formatter_.report_latency(
-                (inpeak.sw_hw - outpeak.sw_hw - imp_duration) * 1e-6, hw_ts,
-                (int)config_.report_sma_window, hw_avg_(hw_ts));
-            last_out_peak = last_in_peak = 0;
+        if (out_peak_ts < in_peak_ts) {
+            report_(out_peak, in_peak);
+            out_peak_ts = in_peak_ts = 0;
         }
 
         do {
@@ -66,101 +59,108 @@ void ConvolutionLatencyEstimator::run() {
             if (!in_frame) {
                 return;
             }
-            if (const auto tmp_in_reg
-                = in_processor_(*in_frame, false, causality_timeoute_counter_)) {
-                inpeak = tmp_in_reg;
-                last_in_peak = inpeak.hw;
+            if (const auto tmp_in_peak
+                = in_processor_(*in_frame, false, causality_timeout_counter_)) {
+                in_peak = tmp_in_peak;
+                in_peak_ts = tmp_in_peak.hw;
             }
         } while (!queue_in_.empty());
 
-        if (last_out_peak < last_in_peak) {
-            const double imp_duration
-                = i2ns(impulse.size(), config_);
-            const double hw_ts = (inpeak.hw - outpeak.hw - imp_duration)*1e-6;
-            formatter_.report_latency(
-                (inpeak.sw_hw - outpeak.sw_hw - imp_duration) * 1e-6, hw_ts,
-                (int)config_.report_sma_window, hw_avg_(hw_ts));
-            last_out_peak = last_in_peak = 0;
+        if (out_peak_ts < in_peak_ts) {
+            report_(out_peak, in_peak);
+            out_peak_ts = in_peak_ts = 0;
         }
     }
 }
 
+void ConvolutionLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak) {
+    const double impulse_duration = config_.frames_to_ns(impulse.size());
+
+    const double hw_ts = (in_peak.hw - out_peak.hw - impulse_duration) / Millisecond;
+    const double swhw_ts
+        = (in_peak.sw_hw - out_peak.sw_hw - impulse_duration) / Millisecond;
+
+    formatter_.report_latency(
+        swhw_ts, hw_ts, (int)config_.report_sma_window, hw_avg_(hw_ts));
+}
+
 ConvolutionLatencyEstimator::Processor::Processor(const Config& config)
     : config_(config)
-    , mmax_(config_.impulse_peak_detection_width)
-    , buff_()
-    , inter_buff_i_(0)
-    , intra_buff_counter_(0) {
+    , mmax_(config_.impulse_peak_detection_width) {
     std::fill(buff_.begin(), buff_.end(), 0.f);
-    (void)buff_;
+
+    hw_search_start_ = 0;
+    hw_search_len_
+        = (config_.impulse_period * Second) - config_.frames_to_ns(impulse.size() * 2);
 }
 
 ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::operator()(
-    Frame& frame, const bool plain_simple, double skip_until_ts) {
-    ConvolutionLatencyEstimator::Timestamp result;
+    const Frame& frame, const bool plain_simple, double skip_until_ts) {
+    // Frames should be smaller than buffer.
+    if (frame.size() / config_.n_channels > buff_len_) {
+        return {};
+    }
+
+    // If one more frame won't fit into buff_ -- compute.
+    Timestamp result;
+    if (frame.size() / config_.n_channels > buff_len_ - inter_buff_i_) {
+        if (plain_simple) {
+            result = seek_max_(buff_.data(), buff_.data(), inter_buff_i_, skip_until_ts);
+        } else {
+            result = seek_correlation_(
+                buff_.data(), buff_.data(), inter_buff_i_, skip_until_ts);
+        }
+        inter_buff_i_ = 0;
+    }
+
+    // Update the timestamp of the beginning of the buffer.
+    buff_begin_ts_ = compute_ts_(frame, inter_buff_i_);
+
     // Fill buff till new samples fit inside buff_.
     // Take only left channel.
-    assert(frame.size() <= buff_len_);
     size_t samples_in_a_frame = 0;
-    // Update the timestamp of the beginning of the buffer.
-    buff_begin_ts_ = update_ts(frame, inter_buff_i_);
 
     for (size_t i = 0; i < frame.size(); i += config_.n_channels, samples_in_a_frame++) {
-        buff_[inter_buff_i_ + samples_in_a_frame]
-            = ((float)*(frame.data() + i) / MaxSample);
+        buff_[inter_buff_i_ + samples_in_a_frame] = ((float)frame[i] / MaxSample);
     }
 
     inter_buff_i_ += samples_in_a_frame;
     intra_buff_counter_ += samples_in_a_frame;
 
-    // If one more frame won't fit into buff_ -- compute.
-    // (Assume that frame length is constant across the session).
-    if (buff_len_ - inter_buff_i_ < samples_in_a_frame) {
-        if (plain_simple) {
-            result = seek_max(buff_.data(), buff_.data(), inter_buff_i_, skip_until_ts);
-        } else {
-            result
-                = process_buff(buff_.data(), buff_.data(), inter_buff_i_, skip_until_ts);
-        }
-        inter_buff_i_ = 0;
-    }
     return result;
 }
 
-ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::process_buff(
+ConvolutionLatencyEstimator::Timestamp
+ConvolutionLatencyEstimator::Processor::seek_correlation_(
     const float* from, float* to, const size_t sz, double skip_until_ts) {
-
-    static double hw_search_start_ = 0;
-    static double hw_search_len_ = config_.impulse_period * 1e9 - double (impulse.size()*2) / double(config_.sample_rate) * 1e9;
-    static float max_val_ = 0;
-    static bool active_search = false;
-    static ConvolutionLatencyEstimator::Timestamp tmp_res;
-    ConvolutionLatencyEstimator::Timestamp res;
-
+    // FFT convolution
     optimal_filter_.perform(from, to, sz);
-    // Abs( conv_out)
+
+    // Abs(conv_out)
     std::transform(to, to + sz, to, [](const float x) { return fabs(x); });
 
+    Timestamp res;
+
     for (size_t i = 0; i < sz; ++i) {
-        const double cur_ts = (buff_begin_ts_.hw + i2ns(i,config_));
-        if(skip_until_ts > cur_ts){
+        const double cur_ts = (buff_begin_ts_.hw + config_.frames_to_ns(i));
+
+        if (skip_until_ts > cur_ts) {
             hw_search_start_ = skip_until_ts;
-            active_search = false;
-        } else if((hw_search_start_ + hw_search_len_) > cur_ts) {
-            active_search = true;
+            hw_search_activated_ = false;
+        } else if ((hw_search_start_ + hw_search_len_) > cur_ts) {
+            hw_search_activated_ = true;
 
             const float movmax = mmax_(to[i]);
-            if(movmax > max_val_){
-                max_val_ = movmax;
-                const double idx_2_ns = i2ns(i, config_);
-                tmp_res.samples = buff_begin_ts_.samples + i;
-                tmp_res.sw_hw = buff_begin_ts_.sw_hw + idx_2_ns;
-                tmp_res.hw = buff_begin_ts_.hw + idx_2_ns;
+            if (movmax > max_corr_val_) {
+                max_corr_val_ = movmax;
+                const double idx_2_ns = config_.frames_to_ns(i);
+                max_corr_ts_.sw_hw = buff_begin_ts_.sw_hw + idx_2_ns;
+                max_corr_ts_.hw = buff_begin_ts_.hw + idx_2_ns;
             }
-        } else if(active_search){
-            active_search = false;
-            max_val_ = 0;
-            res = tmp_res;
+        } else if (hw_search_activated_) {
+            hw_search_activated_ = false;
+            max_corr_val_ = 0;
+            res = max_corr_ts_;
             return res;
         }
     }
@@ -168,50 +168,48 @@ ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::p
     return res;
 }
 
-ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::seek_max(
-    float* from, float* to, const size_t sz, double skip_until_ts) {
+ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::seek_max_(
+    const float* from, float* to, const size_t sz, double skip_until_ts) {
+    Timestamp res;
 
-    static bool max_timeout_ = false; // Start warm-up delay.
-    static const size_t timeout_ = buff_len_ * 1.5;
-    static size_t last_max_ = 0;
-
-    ConvolutionLatencyEstimator::Timestamp res;
     for (size_t i = 0; i < sz; ++i) {
-        if (!max_timeout_) {
-            if (fabs(from[i]) > 1e-5 && skip_until_ts < (buff_begin_ts_.hw + i2ns(i, config_))) {
-                const double idx_2_ns = i2ns(i, config_);
-                last_max_ = 0;
-                max_timeout_ = true;
-                res.samples = buff_begin_ts_.samples + i;
+        if (!max_timeout_activated_) {
+            if (fabs(from[i]) > 1e-5
+                && skip_until_ts < (buff_begin_ts_.hw + config_.frames_to_ns(i))) {
+                const double idx_2_ns = config_.frames_to_ns(i);
+
+                max_timeout_counter_ = 0;
+                max_timeout_activated_ = true;
+
                 res.sw_hw = buff_begin_ts_.sw_hw + idx_2_ns;
                 res.hw = buff_begin_ts_.hw + idx_2_ns;
+
                 to[i] = 1.f;
             } else {
                 to[i] = 0.f;
             }
         } else {
             to[i] = 0.f;
-            last_max_++;
-            if (last_max_ > timeout_) {
-                max_timeout_ = false;
+
+            max_timeout_counter_++;
+            if (max_timeout_counter_ > buff_len_ * 1.5) {
+                max_timeout_activated_ = false;
             }
         }
     }
     return res;
 }
 
-ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::update_ts(
-    const Frame& frame, size_t idx) const {
-    assert(intra_buff_counter_ >= idx);
-    Timestamp frame_ts;
+ConvolutionLatencyEstimator::Timestamp
+ConvolutionLatencyEstimator::Processor::compute_ts_(
+    const Frame& frame, size_t frame_offset) const {
+    const double frame_offset_ns = config_.frames_to_ns(frame_offset);
 
-    const double idx_2_ns = i2ns(idx, config_);
+    Timestamp ts;
+    ts.sw_hw = (double)frame.sw_frame_time() - frame_offset_ns;
+    ts.hw = (double)frame.hw_sample_time(0) - frame_offset_ns;
 
-    frame_ts.samples = idx;
-    frame_ts.sw_hw = (double)frame.sw_frame_time() - idx_2_ns;
-    frame_ts.hw =    (double)frame.hw_sample_time(0) - idx_2_ns;
-
-    return frame_ts;
+    return ts;
 }
 
 } // namespace signal_estimator

@@ -30,7 +30,59 @@ public:
     void add_input(std::shared_ptr<Frame> frame) override;
 
 private:
-    void run();
+    struct Timestamp {
+        double sw_hw = 0;
+        double hw = 0;
+
+        explicit operator bool() const {
+            return sw_hw > 0 || hw > 0;
+        }
+    };
+
+    class Processor {
+    public:
+        Processor(const Config& config);
+
+        Timestamp operator()(
+            const Frame& frame, const bool plain_simple, double skip_until_ts);
+
+    private:
+        Timestamp seek_correlation_(
+            const float* from, float* to, const size_t sz, double skip_until_ts);
+        Timestamp seek_max_(
+            const float* from, float* to, const size_t sz, double skip_until_ts);
+
+        // Return what time stamp was frame_offset samples before frame's timestamp.
+        // frame_offset              Frame
+        //  |.......................|*********|
+        Timestamp compute_ts_(const Frame& frame, size_t frame_offset) const;
+
+        const Config& config_;
+
+        static constexpr size_t buff_len_ = impulse.size();
+
+        FFTConvolution<buff_len_, impulse.size(), impulse> optimal_filter_;
+        MovMax<float, false> mmax_;
+
+        std::array<float, buff_len_> buff_;
+        Timestamp buff_begin_ts_;
+
+        size_t inter_buff_i_ = 0;
+        size_t intra_buff_counter_ = 0;
+
+        double hw_search_start_ = 0;
+        double hw_search_len_ = 0;
+        bool hw_search_activated_ = false;
+
+        Timestamp max_corr_ts_;
+        float max_corr_val_ = 0;
+
+        bool max_timeout_activated_ = false;
+        size_t max_timeout_counter_ = 0;
+    };
+
+    void run_();
+    void report_(Timestamp out_peak, Timestamp in_peak);
 
     const Config& config_;
     IFormatter& formatter_;
@@ -40,57 +92,9 @@ private:
     std::thread thread_;
 
     const double causality_timeout_lim_;
-    double causality_timeoute_counter_ = 0;
+    double causality_timeout_counter_ = 0;
 
-    struct Timestamp {
-        size_t samples = 0;
-        double sw_hw = 0;
-        double hw = 0;
-
-        Timestamp() = default;
-
-        constexpr Timestamp& operator=(const Timestamp&) = default;
-
-        explicit operator bool() const {
-            return this->samples > 0;
-        }
-
-        Timestamp operator-(const Timestamp& x) const {
-            Timestamp res;
-            res.samples = samples - x.samples;
-            res.sw_hw = sw_hw - x.sw_hw;
-            res.hw = hw - x.hw;
-            return res;
-        }
-    };
-
-    class Processor {
-    public:
-        Processor(const Config& config);
-
-        Timestamp operator()(
-            Frame&, const bool plain_simple = false, double skip_until_ts = 0);
-
-    private:
-        Timestamp process_buff(
-            const float* from, float* to, const size_t sz, double skip_until_ts = 0);
-        Timestamp seek_max(
-            float* from, float* to, const size_t sz, double skip_until_ts = 0);
-        // Return what time stamp was idx samples before frame's timestamp.
-        // ts                          Frame
-        //  |.......................|*********|
-        Timestamp update_ts(const Frame& frame, size_t idx) const;
-
-        const Config& config_;
-        static constexpr size_t buff_len_ = impulse.size();
-        FFTConvolution<buff_len_, impulse.size(), impulse> optimal_filter_;
-        MovMax<float, false> mmax_;
-
-        std::array<float, buff_len_> buff_;
-        Timestamp buff_begin_ts_;
-        size_t inter_buff_i_;
-        size_t intra_buff_counter_;
-    } in_processor_, out_processor_;
+    Processor in_processor_, out_processor_;
 };
 
 } // namespace signal_estimator
