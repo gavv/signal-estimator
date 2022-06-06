@@ -36,7 +36,9 @@ void output_loop(const Config* config, FramePool* frame_pool, IGenerator* genera
     IEstimator* estimator, AlsaWriter* writer, IDumper* dumper) {
     set_realtime();
 
-    for (size_t n = 0; config->io_num_periods > n; n++) {
+    size_t n = 0;
+
+    for (; config->io_num_periods > n; n++) {
         auto frame = frame_pool->allocate();
 
         if (!writer->write(*frame)) {
@@ -44,13 +46,17 @@ void output_loop(const Config* config, FramePool* frame_pool, IGenerator* genera
         }
     }
 
-    for (size_t n = 0; (config->total_samples() / config->io_period_size) > n; n++) {
+    for (; n < config->total_periods(); n++) {
         auto frame = frame_pool->allocate();
 
         generator->generate(*frame);
 
         if (!writer->write(*frame)) {
             exit(1);
+        }
+
+        if (n < config->warmup_periods()) {
+            continue;
         }
 
         if (estimator) {
@@ -71,11 +77,15 @@ void output_loop(const Config* config, FramePool* frame_pool, IGenerator* genera
 void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estimator,
     AlsaReader* reader, IDumper* dumper) {
     set_realtime();
-    for (size_t n = 0; n < config->total_samples() / config->io_period_size; n++) {
+    for (size_t n = 0; n < config->total_periods(); n++) {
         auto frame = frame_pool->allocate();
 
         if (!reader->read(*frame)) {
             exit(1);
+        }
+
+        if (n < config->warmup_periods()) {
+            continue;
         }
 
         if (estimator) {

@@ -17,7 +17,7 @@ struct Config {
     float measurement_duration { 10 };
 
     // how long do not process signals in seconds
-    float warmup_duration { 1 };
+    float warmup_duration { 0 };
 
     // number of samples per second per channel
     unsigned int sample_rate { 48000 };
@@ -76,9 +76,24 @@ struct Config {
     // glitch detection threshold
     float glitch_detection_threshold { 0.05f };
 
+    // get warmup duration in samples
+    size_t warmup_samples() const {
+        return size_t(sample_rate * warmup_duration) * n_channels;
+    }
+
+    // get warmup duration in periods
+    size_t warmup_periods() const {
+        return warmup_samples() / io_period_size;
+    }
+
     // get test duration in samples
     size_t total_samples() const {
         return size_t(sample_rate * measurement_duration) * n_channels;
+    }
+
+    // get test duration in periods
+    size_t total_periods() const {
+        return total_samples() / io_period_size;
     }
 
     // convert number of samples to number of nanoseconds
