@@ -2,6 +2,7 @@
 // Licensed under MIT
 
 #include "processing/ImpulseGenerator.hpp"
+#include "processing/Sample.hpp"
 
 #include <cstring>
 
@@ -15,7 +16,7 @@ void ImpulseGenerator::generate(Frame& frame) {
              ++counter_, i_frame += config_.n_channels) {
             for (size_t j = 0; j <= config_.n_channels; ++j) {
                 *(frame.data() + i_frame + j)
-                    = sample_t(impulse_data_[counter_] * 32768.);
+                    = sample_t(impulse_data_[counter_] * MaxSample);
             }
         }
         if (i_frame < frame.size() && counter_ < impulse_period_) {

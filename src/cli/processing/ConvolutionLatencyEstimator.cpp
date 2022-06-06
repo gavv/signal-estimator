@@ -107,7 +107,7 @@ ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::o
 
     for (size_t i = 0; i < frame.size(); i += config_.n_channels, samples_in_a_frame++) {
         buff_[inter_buff_i_ + samples_in_a_frame]
-            = ((float)*(frame.data() + i) / 32768.f);
+            = ((float)*(frame.data() + i) / MaxSample);
     }
 
     inter_buff_i_ += samples_in_a_frame;
