@@ -1,22 +1,23 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "io/JSONFormatter.hpp"
+#include "fmt/JsonFormatter.hpp"
 
 #include <cstdio>
 
 namespace signal_estimator {
 
-JSONFormatter::JSONFormatter() {
+JsonFormatter::JsonFormatter() {
     first_output_ = true;
 }
 
-JSONFormatter::~JSONFormatter() {
-    if (!first_output_)
+JsonFormatter::~JsonFormatter() {
+    if (!first_output_) {
         printf("\n]\n");
+    }
 }
 
-void JSONFormatter::report_latency(
+void JsonFormatter::report_latency(
     double sw_hw, double hw, int sma_window, double hw_avg) {
     if (first_output_) {
         printf("[\n");
@@ -31,7 +32,7 @@ void JSONFormatter::report_latency(
     fflush(stdout);
 }
 
-void JSONFormatter::report_losses(
+void JsonFormatter::report_losses(
     double loss_rate, int sma_window, double avg_loss_rate, double loss_ratio) {
     if (first_output_) {
         printf("[\n");

@@ -5,7 +5,7 @@
 
 #include "core/Frame.hpp"
 #include "core/Queue.hpp"
-#include "io/IFormatter.hpp"
+#include "fmt/IFormatter.hpp"
 #include "processing/FFTConvolution.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/Impulse.hpp"
@@ -18,13 +18,13 @@
 
 namespace signal_estimator {
 
-class ImpulseLatencyEstimator : public IEstimator {
+class ConvolutionLatencyEstimator : public IEstimator {
 public:
-    ImpulseLatencyEstimator(const Config& config, IFormatter& formatter);
-    ~ImpulseLatencyEstimator();
+    ConvolutionLatencyEstimator(const Config& config, IFormatter& formatter);
+    ~ConvolutionLatencyEstimator();
 
-    ImpulseLatencyEstimator(const ImpulseLatencyEstimator&) = delete;
-    ImpulseLatencyEstimator& operator=(const ImpulseLatencyEstimator&) = delete;
+    ConvolutionLatencyEstimator(const ConvolutionLatencyEstimator&) = delete;
+    ConvolutionLatencyEstimator& operator=(const ConvolutionLatencyEstimator&) = delete;
 
     void add_output(std::shared_ptr<Frame> frame) override;
     void add_input(std::shared_ptr<Frame> frame) override;
@@ -73,9 +73,9 @@ private:
             Frame&, const bool plain_simple = false, double skip_until_ts = 0);
 
     private:
-        ImpulseLatencyEstimator::Timestamp process_buff(const float* from,
-            float* to, const size_t sz, double skip_until_ts = 0);
-        ImpulseLatencyEstimator::Timestamp seek_max(
+        Timestamp process_buff(
+            const float* from, float* to, const size_t sz, double skip_until_ts = 0);
+        Timestamp seek_max(
             float* from, float* to, const size_t sz, double skip_until_ts = 0);
         // Return what time stamp was idx samples before frame's timestamp.
         // ts                          Frame

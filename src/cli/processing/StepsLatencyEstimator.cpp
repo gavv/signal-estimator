@@ -1,23 +1,24 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "processing/StrikesLatencyEstimator.hpp"
+#include "processing/StepsLatencyEstimator.hpp"
 #include "core/Pool.hpp"
 #include "core/Time.hpp"
-#include "io/IFormatter.hpp"
+#include "fmt/IFormatter.hpp"
 
 namespace signal_estimator {
 
-StrikesLatencyEstimator::StrikeTrigger::StrikeTrigger(const Config& config)
+StepsLatencyEstimator::StepTrigger::StepTrigger(const Config& config)
     : config_(config)
-    , runmax_(config.strike_detection_window)
-    , schmitt_(config.strike_detection_threshold) {
+    , runmax_(config.step_detection_window)
+    , schmitt_(config.step_detection_threshold) {
 }
 
-void StrikesLatencyEstimator::StrikeTrigger::add_frame(Frame* frame) {
+void StepsLatencyEstimator::StepTrigger::add_frame(Frame* frame) {
     if (!frame) {
         return;
     }
+
     auto frame_data = frame->data();
     auto frame_size = frame->size();
 
@@ -34,16 +35,15 @@ void StrikesLatencyEstimator::StrikeTrigger::add_frame(Frame* frame) {
     }
 }
 
-StrikesLatencyEstimator::StrikesLatencyEstimator(
-    const Config& config, IFormatter& formatter)
+StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IFormatter& formatter)
     : config_(config)
     , output_trigger_(config_)
     , input_trigger_(config_)
-    , sma_(config.sma_window)
+    , sma_(config.report_sma_window)
     , format_(formatter) {
 }
 
-void StrikesLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
+void StepsLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
     if (!frame)
         return;
     output_trigger_.add_frame(frame.get());
@@ -56,7 +56,7 @@ void StrikesLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
     frame.reset();
 }
 
-void StrikesLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
+void StepsLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
     if (!frame)
         return;
     input_trigger_.add_frame(frame.get());
@@ -68,29 +68,29 @@ void StrikesLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
     }
 }
 
-bool StrikesLatencyEstimator::check_output_(LatencyReport& report) {
-    std::unique_lock<std::mutex> lock(mutex_);
+bool StepsLatencyEstimator::check_output_(LatencyReport& report) {
+    std::unique_lock lock(mutex_);
 
     if (!output_ts_.is_equal(output_trigger_.last_trigger_ts())) {
         output_ts_ = output_trigger_.last_trigger_ts();
-        return check_strike_(report);
+        return check_step_(report);
     }
 
     return false;
 }
 
-bool StrikesLatencyEstimator::check_input_(LatencyReport& report) {
-    std::unique_lock<std::mutex> lock(mutex_);
+bool StepsLatencyEstimator::check_input_(LatencyReport& report) {
+    std::unique_lock lock(mutex_);
 
     if (!input_ts_.is_equal(input_trigger_.last_trigger_ts())) {
         input_ts_ = input_trigger_.last_trigger_ts();
-        return check_strike_(report);
+        return check_step_(report);
     }
 
     return false;
 }
 
-bool StrikesLatencyEstimator::check_strike_(LatencyReport& report) {
+bool StepsLatencyEstimator::check_step_(LatencyReport& report) {
     if (output_ts_.is_zero() || input_ts_.is_zero()) {
         return false;
     }
@@ -106,9 +106,9 @@ bool StrikesLatencyEstimator::check_strike_(LatencyReport& report) {
     return true;
 }
 
-void StrikesLatencyEstimator::print_report_(const LatencyReport& report) {
+void StepsLatencyEstimator::print_report_(const LatencyReport& report) {
     format_.report_latency(
-        report.sw_hw, report.hw, (int)config_.sma_window, report.hw_avg);
+        report.sw_hw, report.hw, (int)config_.report_sma_window, report.hw_avg);
 }
 
 } // namespace signal_estimator

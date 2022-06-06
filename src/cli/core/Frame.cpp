@@ -10,7 +10,7 @@ namespace signal_estimator {
 Frame::Frame(const Config& config, Pool<Frame>* pool)
     : config_(&config)
     , pool_(pool)
-    , data_(config_->period_size) {
+    , data_(config_->io_period_size) {
     assert(data_.size() > 0);
     std::fill(data_.begin(), data_.end(), sample_t(0));
 }
@@ -49,13 +49,14 @@ nanoseconds_t Frame::hw_sample_time(size_t offset) const {
     switch (io_type_) {
     case IOType::Output:
         return io_end_ts_
-            + nanoseconds_t((config_->n_periods - 1) * config_->period_size + offset)
+            + nanoseconds_t(
+                  (config_->io_num_periods - 1) * config_->io_period_size + offset)
             / config_->n_channels * 1000000000 / config_->sample_rate;
 
     case IOType::Input:
         return io_end_ts_
-            - nanoseconds_t((config_->n_periods - 1) * config_->period_size
-                  + (config_->period_size - offset))
+            - nanoseconds_t((config_->io_num_periods - 1) * config_->io_period_size
+                  + (config_->io_period_size - offset))
             / config_->n_channels * 1000000000 / config_->sample_rate;
     }
 

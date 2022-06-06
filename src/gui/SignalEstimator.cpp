@@ -42,42 +42,46 @@ QSharedPointer<QProcess> start_signal_estimator(QStringList args) {
 }
 
 std::tuple<QPointF, PointType> parse_line(QString buffer) {
-    QPointF pt;
-    QRegExp reg;
-    reg.setPattern(QString("\\s+"));
-    std::tuple<QPointF, PointType> pt_info;
+    if (buffer[0] == "#") {
+        return std::make_tuple(QPointF {}, PointType::None);
+    }
 
-    QStringList token = buffer.split(reg,
+    QRegExp reg;
+    reg.setPattern(QString(",|\\n"));
+
+    QStringList tokens = buffer.split(reg,
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         Qt::SkipEmptyParts
 #else
         QString::SkipEmptyParts
 #endif
     );
-    if (token.count() != 3) {
-        pt_info = std::make_tuple(pt, PointType::None);
-        return pt_info;
+    if (tokens.count() < 3) {
+        return std::make_tuple(QPointF {}, PointType::None);
     }
+
+    QPointF pt;
+
     try {
-        pt.setX(token[1].toDouble() / 1000000);
+        pt.setX(tokens[1].toDouble() / 1000000);
     } catch (const std::invalid_argument&) {
         pt.setX(0.0);
     }
 
     try {
-        pt.setY(token[2].toDouble() / 1000);
+        pt.setY(tokens[2].toDouble() / 1000);
     } catch (const std::invalid_argument&) {
         pt.setX(0.0);
         pt.setY(0.0);
     }
 
-    if (pt.isNull() == false && buffer.contains(QString("in"))) {
-        pt_info = std::make_tuple(pt, PointType::Input);
-    } else if (pt.isNull() == false && buffer.contains(QString("out"))) {
-        pt_info = std::make_tuple(pt, PointType::Output);
-    } else {
-        pt_info = std::make_tuple(pt, PointType::None);
+    if (!pt.isNull() && tokens[0] == "i") {
+        return std::make_tuple(pt, PointType::Input);
     }
 
-    return pt_info;
+    if (!pt.isNull() && tokens[0] == "o") {
+        return std::make_tuple(pt, PointType::Output);
+    }
+
+    return std::make_tuple(QPointF {}, PointType::None);
 }

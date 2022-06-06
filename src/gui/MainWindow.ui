@@ -103,12 +103,12 @@
                 </item>
                 <item>
                  <property name="text">
-                  <string>latency_strikes</string>
+                  <string>latency_steps</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>latency_impulse</string>
+                  <string>latency_convl</string>
                  </property>
                 </item>
                 <item>
@@ -549,35 +549,15 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="Label1_10">
-          <property name="text">
-           <string>Max Value per Frame Dump:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="1">
-         <widget class="QSpinBox" name="MVFD">
-          <property name="suffix">
-           <string/>
-          </property>
-          <property name="maximum">
-           <number>2147483647</number>
-          </property>
-          <property name="value">
-           <number>64</number>
-          </property>
-         </widget>
-        </item>
         <item row="11" column="0">
          <widget class="QLabel" name="Label1_11">
           <property name="text">
-           <string>Dump Rounding:</string>
+           <string>Dump Compression:</string>
           </property>
          </widget>
         </item>
         <item row="11" column="1">
-         <widget class="QSpinBox" name="DR">
+         <widget class="QSpinBox" name="DC">
           <property name="suffix">
            <string/>
           </property>
@@ -585,7 +565,7 @@
            <number>2147483647</number>
           </property>
           <property name="value">
-           <number>10</number>
+           <number>100</number>
           </property>
          </widget>
         </item>
@@ -612,12 +592,12 @@
         <item row="13" column="0">
          <widget class="QLabel" name="Label1_2">
           <property name="text">
-           <string>Strike Period:</string>
+           <string>Step Period:</string>
           </property>
          </widget>
         </item>
         <item row="13" column="1">
-         <widget class="QSpinBox" name="StrikePeriod">
+         <widget class="QSpinBox" name="StepPeriod">
           <property name="suffix">
            <string> seconds</string>
           </property>
@@ -632,12 +612,12 @@
         <item row="14" column="0">
          <widget class="QLabel" name="Label1_3">
           <property name="text">
-           <string>Strike Length:</string>
+           <string>Step Length:</string>
           </property>
          </widget>
         </item>
         <item row="14" column="1">
-         <widget class="QDoubleSpinBox" name="StrikeLength">
+         <widget class="QDoubleSpinBox" name="StepLength">
           <property name="decimals">
            <number>6</number>
           </property>
@@ -655,12 +635,12 @@
         <item row="15" column="0">
          <widget class="QLabel" name="Label1_4">
           <property name="text">
-           <string>Strike Detection Window:</string>
+           <string>Step Detection Window:</string>
           </property>
          </widget>
         </item>
         <item row="15" column="1">
-         <widget class="QSpinBox" name="StrDW">
+         <widget class="QSpinBox" name="StepDW">
           <property name="suffix">
            <string/>
           </property>
@@ -678,12 +658,12 @@
         <item row="16" column="0">
          <widget class="QLabel" name="Label1_5">
           <property name="text">
-           <string>Strike Detection Threshold:</string>
+           <string>Step Detection Threshold:</string>
           </property>
          </widget>
         </item>
         <item row="16" column="1">
-         <widget class="QDoubleSpinBox" name="StrDT">
+         <widget class="QDoubleSpinBox" name="StepDT">
           <property name="decimals">
            <number>6</number>
           </property>

@@ -4,7 +4,7 @@
 #pragma once
 
 #include "core/Config.hpp"
-#include "io/IFormatter.hpp"
+#include "fmt/IFormatter.hpp"
 #include "processing/GradientCounter.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
@@ -28,7 +28,7 @@ public:
 
     ~LossEstimator() override;
 
-    void add_output(std::shared_ptr<Frame>) override;
+    void add_output(std::shared_ptr<Frame> frame) override;
     void add_input(std::shared_ptr<Frame> frame) override;
 
 private:

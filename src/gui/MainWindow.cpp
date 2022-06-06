@@ -121,31 +121,25 @@ void MainWindow::read_graph_data() {
 }
 
 QStringList MainWindow::set_up_program_() {
-    // This program calls the separate signal_estimator cmd line program to get the graph
-    // data
-    QStringList list; // to convert from QString to normal string
-    QString temp;
-    std::string buffer;
+    // This program calls the separate signal_estimator cmd line program to get the
+    // graph data
+    QStringList list;
+    QString t;
 
-    list.append(" -m");
+    list.append("-m");
     list.append(ui->Modes->currentText());
 
-    temp = ui->OutputDevices->currentText();
-    // there might be a problem when there is too much arguments.
-    // the arguments start to corrupt when there is too many of them
-    // so for a lot of options we only add them as arguments when they are not default
-    // value
+    t = ui->OutputDevices->currentText();
     list.append("-o");
-    list.append(format_device_name(temp));
+    list.append(format_device_name(t));
 
-    temp = ui->InputDevices->currentText();
+    t = ui->InputDevices->currentText();
     list.append("-i");
-    list.append(format_device_name(temp));
+    list.append(format_device_name(t));
 
-    QString t;
     t = ui->SampleRate->cleanText();
     list.append("-r");
-    list.append((t));
+    list.append(t);
 
     t = ui->NumChannels->cleanText();
     list.append("-c");
@@ -174,25 +168,28 @@ QStringList MainWindow::set_up_program_() {
     list << "--dump-input"
          << "-";
 
+    t = ui->DC->cleanText();
+    list.append("--dump-compression");
+    list.append(t);
+
     t = ui->SMA->cleanText();
-
-    list.append("--sma");
+    list.append("--report-sma");
     list.append(t);
 
-    t = ui->StrikePeriod->cleanText();
-    list.append("--strike-period");
+    t = ui->StepPeriod->cleanText();
+    list.append("--step-period");
     list.append(t);
 
-    t = ui->StrikeLength->cleanText();
-    list.append("--strike-length");
+    t = ui->StepLength->cleanText();
+    list.append("--step-length");
     list.append(t);
 
-    t = ui->StrDW->cleanText();
-    list.append("--strike-detection-window");
+    t = ui->StepDW->cleanText();
+    list.append("--step-detection-window");
     list.append(t);
 
-    t = ui->StrDT->cleanText();
-    list.append("--strike-detection-threshold");
+    t = ui->StepDT->cleanText();
+    list.append("--step-detection-threshold");
     list.append(t);
 
     t = ui->SigDW->cleanText();
@@ -209,14 +206,6 @@ QStringList MainWindow::set_up_program_() {
 
     t = ui->GliDT->cleanText();
     list.append("--glitch-detection-threshold");
-    list.append(t);
-
-    t = ui->MVFD->cleanText();
-    list.append("--dump-frame");
-    list.append(t);
-
-    t = ui->DR->cleanText();
-    list.append("--dump-rounding");
     list.append(t);
 
     return list;

@@ -194,9 +194,9 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
 
     snd_pcm_uframes_t period_size = 0, buffer_size = 0;
 
-    if (!alsa_set_hw_params(pcm, &period_size, &buffer_size, config.access, config.format,
-            config.sample_rate, (int)config.n_channels, config.n_periods,
-            config.latency_us)) {
+    if (!alsa_set_hw_params(pcm, &period_size, &buffer_size,
+            SND_PCM_ACCESS_RW_INTERLEAVED, SND_PCM_FORMAT_S16_LE, config.sample_rate,
+            (int)config.n_channels, config.io_num_periods, config.io_latency_us)) {
         goto error;
     }
 
@@ -204,7 +204,7 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
         goto error;
     }
 
-    config.period_size = size_t(period_size * config.n_channels);
+    config.io_period_size = size_t(period_size * config.n_channels);
 
     return pcm;
 

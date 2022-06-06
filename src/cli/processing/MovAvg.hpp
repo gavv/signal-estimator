@@ -4,7 +4,7 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
+#include <vector>
 
 namespace signal_estimator {
 
@@ -20,6 +20,11 @@ public:
     }
 
     T operator()(const T x) {
+        add(x);
+        return get();
+    }
+
+    void add(const T x) {
         accum_ -= buff_[cur_i_];
         accum_ += x;
         buff_[cur_i_] = x;
@@ -29,6 +34,9 @@ public:
         if(init_counter_ < window_sz_){
             init_counter_++;
         }
+    }
+
+    T get() const {
         return accum_ / T(init_counter_);
     }
 

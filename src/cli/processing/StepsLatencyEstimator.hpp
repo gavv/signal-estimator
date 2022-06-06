@@ -4,7 +4,7 @@
 #pragma once
 
 #include "core/Config.hpp"
-#include "io/IFormatter.hpp"
+#include "fmt/IFormatter.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
 #include "processing/MovMax.hpp"
@@ -16,15 +16,15 @@
 namespace signal_estimator {
 
 // estimate signal latency
-// assumes that the output signal was produced by StrikeGenerator
+// assumes that the output signal was produced by StepsGenerator
 // detects strikes in output and input signals and calculates the latency between them
-class StrikesLatencyEstimator : public IEstimator {
+class StepsLatencyEstimator : public IEstimator {
 public:
-    StrikesLatencyEstimator(const Config& config, IFormatter& formatter);
-    ~StrikesLatencyEstimator() override = default;
+    StepsLatencyEstimator(const Config& config, IFormatter& formatter);
+    ~StepsLatencyEstimator() override = default;
 
-    StrikesLatencyEstimator(const StrikesLatencyEstimator&) = delete;
-    StrikesLatencyEstimator& operator=(const StrikesLatencyEstimator&) = delete;
+    StepsLatencyEstimator(const StepsLatencyEstimator&) = delete;
+    StepsLatencyEstimator& operator=(const StepsLatencyEstimator&) = delete;
 
     void add_output(std::shared_ptr<Frame> frame) override;
     void add_input(std::shared_ptr<Frame> frame) override;
@@ -49,9 +49,9 @@ private:
         }
     };
 
-    class StrikeTrigger {
+    class StepTrigger {
     public:
-        StrikeTrigger(const Config& config);
+        StepTrigger(const Config& config);
 
         Timestamp last_trigger_ts() const {
             return last_trigger_ts_;
@@ -68,17 +68,17 @@ private:
 
     bool check_output_(LatencyReport&);
     bool check_input_(LatencyReport&);
-    bool check_strike_(LatencyReport&);
+    bool check_step_(LatencyReport&);
 
     void print_report_(const LatencyReport&);
 
     const Config config_;
 
     // accessed only by output thread
-    StrikeTrigger output_trigger_;
+    StepTrigger output_trigger_;
 
     // accessed only by input thread
-    StrikeTrigger input_trigger_;
+    StepTrigger input_trigger_;
 
     // accessed by both threads and protected by mutex
     std::mutex mutex_;

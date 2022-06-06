@@ -3,7 +3,7 @@
 
 #include "processing/LossEstimator.hpp"
 #include "core/Pool.hpp"
-#include "io/IFormatter.hpp"
+#include "fmt/IFormatter.hpp"
 
 #include <algorithm>
 #include <memory>
@@ -15,7 +15,7 @@ LossEstimator::LossEstimator(const Config& config, IFormatter& formatter)
     , signal_runmax_(config.signal_detection_window)
     , gradient_runmax_(config.glitch_detection_window)
     , gradient_schmitt_(config.glitch_detection_threshold)
-    , sma_(config.sma_window)
+    , sma_(config.report_sma_window)
     , format_(formatter) {
 }
 
@@ -68,7 +68,7 @@ void LossEstimator::report_losses_() {
         const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
         format_.report_losses(
-            loss_rate, (int)config_.sma_window, avg_loss_rate, loss_ratio);
+            loss_rate, (int)config_.report_sma_window, avg_loss_rate, loss_ratio);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;

@@ -11,7 +11,9 @@ def load(filename):
     arr_y = []
     with open(filename) as fp:
         for line in fp.readlines():
-            x, y = map(float, line.split()[1:])
+            if line.startswith('#'):
+                continue
+            x, y = map(float, line.split(',')[1:3])
             arr_x.append(float(int(x / 1000000)))
             arr_y.append(abs(y))
     return arr_x, arr_y
@@ -19,8 +21,8 @@ def load(filename):
 wr_x, wr_y = load(sys.argv[1])
 rd_x, rd_y = load(sys.argv[2])
 
-pylab.plot(wr_x, wr_y, '-o', label='writer')
-pylab.plot(rd_x, rd_y, '-o', label='reader')
+pylab.plot(wr_x, wr_y, '-o', label='writer (1)')
+pylab.plot(rd_x, rd_y, '-o', label='reader (2)')
 
 pylab.legend()
 pylab.show()

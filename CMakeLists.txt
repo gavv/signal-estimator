@@ -69,19 +69,19 @@ add_executable(signal-estimator
   src/cli/core/Frame.cpp
   src/cli/core/Realtime.cpp
   src/cli/core/Time.cpp
-  src/cli/io/FileDumper.cpp
-  src/cli/io/JSONFormatter.cpp
-  src/cli/io/TextFormatter.cpp
+  src/cli/fmt/CsvDumper.cpp
+  src/cli/fmt/JsonFormatter.cpp
+  src/cli/fmt/TextFormatter.cpp
   src/cli/processing/ContinuousGenerator.cpp
+  src/cli/processing/ConvolutionLatencyEstimator.cpp
   src/cli/processing/FFTOps.cpp
   src/cli/processing/GradientCounter.cpp
   src/cli/processing/Impulse.cpp
-  src/cli/processing/ImpulseLatencyEstimator.cpp
   src/cli/processing/LossEstimator.cpp
   src/cli/processing/RateLimiter.cpp
   src/cli/processing/SchmittTrigger.cpp
-  src/cli/processing/StrikeGenerator.cpp
-  src/cli/processing/StrikesLatencyEstimator.cpp
+  src/cli/processing/StepsGenerator.cpp
+  src/cli/processing/StepsLatencyEstimator.cpp
   )
 
 target_compile_options(signal-estimator
@@ -97,7 +97,7 @@ add_subdirectory(3rdparty/kissfft)
 
 target_include_directories(signal-estimator SYSTEM
   PRIVATE 3rdparty/cxxopts/include
-  PRIVATE 3rdparty/kissfft/
+  PRIVATE 3rdparty/kissfft
   PRIVATE src/cli
   )
 
