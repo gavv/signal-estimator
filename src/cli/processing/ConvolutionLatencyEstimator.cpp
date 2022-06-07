@@ -15,7 +15,7 @@ ConvolutionLatencyEstimator::ConvolutionLatencyEstimator(
     , hw_avg_(config_.report_sma_window)
     , thread_(&ConvolutionLatencyEstimator::run_, this)
     , causality_timeout_lim_(
-          config_.frames_to_ns(impulse.size() - config_.impulse_peak_detection_width - 1))
+          config_.frames_to_ns(impulse.size()))
     , in_processor_(config)
     , out_processor_(config) {
 }
