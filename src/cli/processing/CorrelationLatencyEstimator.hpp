@@ -18,13 +18,13 @@
 
 namespace signal_estimator {
 
-class ConvolutionLatencyEstimator : public IEstimator {
+class CorrelationLatencyEstimator : public IEstimator {
 public:
-    ConvolutionLatencyEstimator(const Config& config, IFormatter& formatter);
-    ~ConvolutionLatencyEstimator();
+    CorrelationLatencyEstimator(const Config& config, IFormatter& formatter);
+    ~CorrelationLatencyEstimator();
 
-    ConvolutionLatencyEstimator(const ConvolutionLatencyEstimator&) = delete;
-    ConvolutionLatencyEstimator& operator=(const ConvolutionLatencyEstimator&) = delete;
+    CorrelationLatencyEstimator(const CorrelationLatencyEstimator&) = delete;
+    CorrelationLatencyEstimator& operator=(const CorrelationLatencyEstimator&) = delete;
 
     void add_output(std::shared_ptr<Frame> frame) override;
     void add_input(std::shared_ptr<Frame> frame) override;

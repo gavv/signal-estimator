@@ -1,40 +1,39 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "processing/ConvolutionLatencyEstimator.hpp"
+#include "processing/CorrelationLatencyEstimator.hpp"
 #include "core/Realtime.hpp"
 
 #include <cassert>
 
 namespace signal_estimator {
 
-ConvolutionLatencyEstimator::ConvolutionLatencyEstimator(
+CorrelationLatencyEstimator::CorrelationLatencyEstimator(
     const Config& config, IFormatter& formatter)
     : config_(config)
     , formatter_(formatter)
     , hw_avg_(config_.report_sma_window)
-    , thread_(&ConvolutionLatencyEstimator::run_, this)
-    , causality_timeout_lim_(
-          config_.frames_to_ns(impulse.size()))
+    , thread_(&CorrelationLatencyEstimator::run_, this)
+    , causality_timeout_lim_(config_.frames_to_ns(impulse.size()))
     , in_processor_(config)
     , out_processor_(config) {
 }
 
-ConvolutionLatencyEstimator::~ConvolutionLatencyEstimator() {
+CorrelationLatencyEstimator::~CorrelationLatencyEstimator() {
     if (thread_.joinable()) {
         thread_.join();
     }
 }
 
-void ConvolutionLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
+void CorrelationLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
     queue_out_.push(frame);
 }
 
-void ConvolutionLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
+void CorrelationLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
     queue_in_.push(frame);
 }
 
-void ConvolutionLatencyEstimator::run_() {
+void CorrelationLatencyEstimator::run_() {
     set_realtime();
 
     Timestamp in_peak, out_peak;
@@ -73,7 +72,7 @@ void ConvolutionLatencyEstimator::run_() {
     }
 }
 
-void ConvolutionLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak) {
+void CorrelationLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak) {
     const double impulse_duration = config_.frames_to_ns(impulse.size());
 
     const double hw_ts = (in_peak.hw - out_peak.hw - impulse_duration) / Millisecond;
@@ -84,7 +83,7 @@ void ConvolutionLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak)
         swhw_ts, hw_ts, (int)config_.report_sma_window, hw_avg_(hw_ts));
 }
 
-ConvolutionLatencyEstimator::Processor::Processor(const Config& config)
+CorrelationLatencyEstimator::Processor::Processor(const Config& config)
     : config_(config)
     , mmax_(config_.impulse_peak_detection_width)
     , mmavg_(config_.impulse_peak_detection_width) {
@@ -95,7 +94,7 @@ ConvolutionLatencyEstimator::Processor::Processor(const Config& config)
         = (config_.impulse_period * Second) - config_.frames_to_ns(impulse.size() * 2);
 }
 
-ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::operator()(
+CorrelationLatencyEstimator::Timestamp CorrelationLatencyEstimator::Processor::operator()(
     const Frame& frame, const bool plain_simple, double skip_until_ts) {
     // Frames should be smaller than buffer.
     if (frame.size() / config_.n_channels > buff_len_) {
@@ -131,8 +130,8 @@ ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::o
     return result;
 }
 
-ConvolutionLatencyEstimator::Timestamp
-ConvolutionLatencyEstimator::Processor::seek_correlation_(
+CorrelationLatencyEstimator::Timestamp
+CorrelationLatencyEstimator::Processor::seek_correlation_(
     const float* from, float* to, const size_t sz, double skip_until_ts) {
     // FFT convolution
     optimal_filter_.perform(from, to, sz);
@@ -164,7 +163,7 @@ ConvolutionLatencyEstimator::Processor::seek_correlation_(
             hw_search_activated_ = false;
             max_corr_val_ = 0;
             res = max_corr_ts_;
-            max_corr_ts_ = { 0, 0};
+            max_corr_ts_ = { 0, 0 };
             return res;
         }
     }
@@ -172,7 +171,7 @@ ConvolutionLatencyEstimator::Processor::seek_correlation_(
     return res;
 }
 
-ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::seek_max_(
+CorrelationLatencyEstimator::Timestamp CorrelationLatencyEstimator::Processor::seek_max_(
     const float* from, float* to, const size_t sz, double skip_until_ts) {
     Timestamp res;
 
@@ -204,8 +203,8 @@ ConvolutionLatencyEstimator::Timestamp ConvolutionLatencyEstimator::Processor::s
     return res;
 }
 
-ConvolutionLatencyEstimator::Timestamp
-ConvolutionLatencyEstimator::Processor::compute_ts_(
+CorrelationLatencyEstimator::Timestamp
+CorrelationLatencyEstimator::Processor::compute_ts_(
     const Frame& frame, size_t frame_offset) const {
     const double frame_offset_ns = config_.frames_to_ns(frame_offset);
 

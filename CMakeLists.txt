@@ -72,7 +72,7 @@ add_executable(signal-estimator
   src/cli/fmt/JsonFormatter.cpp
   src/cli/fmt/TextFormatter.cpp
   src/cli/processing/ContinuousGenerator.cpp
-  src/cli/processing/ConvolutionLatencyEstimator.cpp
+  src/cli/processing/CorrelationLatencyEstimator.cpp
   src/cli/processing/FFTOps.cpp
   src/cli/processing/Impulse.cpp
   src/cli/processing/ImpulseGenerator.cpp

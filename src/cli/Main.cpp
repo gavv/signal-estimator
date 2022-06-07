@@ -11,7 +11,7 @@
 #include "fmt/JsonFormatter.hpp"
 #include "fmt/TextFormatter.hpp"
 #include "processing/ContinuousGenerator.hpp"
-#include "processing/ConvolutionLatencyEstimator.hpp"
+#include "processing/CorrelationLatencyEstimator.hpp"
 #include "processing/Impulse.hpp"
 #include "processing/ImpulseGenerator.hpp"
 #include "processing/LossEstimator.hpp"
@@ -113,8 +113,8 @@ int main(int argc, char** argv) {
 
     opts.add_options("General")
         ("h,help", "Print help message and exit")
-        ("m,mode", "Mode: noop|latency_steps|latency_convl|losses",
-         cxxopts::value<std::string>()->default_value("latency_steps"))
+        ("m,mode", "Mode: noop|latency_corr|latency_step|losses",
+         cxxopts::value<std::string>()->default_value("latency_corr"))
         ("o,output", "Output device name, required",
          cxxopts::value<std::string>())
         ("i,input", "Input device name, required",
@@ -154,7 +154,18 @@ int main(int argc, char** argv) {
          cxxopts::value<size_t>()->default_value(std::to_string(config.dump_compression)))
         ;
 
-    opts.add_options("Steps latency estimation")
+    opts.add_options("Correlation-based latency estimation")
+        ("impulse-period", "Impulse period, seconds",
+         cxxopts::value<float>()->default_value(std::to_string(config.impulse_period)))
+        ("impulse-peak-noise-ratio", "The peak-to-noise minimum ratio threshold",
+         cxxopts::value<float>()->default_value(
+             std::to_string(config.impulse_avg_2_peak_ration_threshold)))
+        ("impulse-peak-window", "Peak detection window length, in samples",
+         cxxopts::value<size_t>()->default_value(
+             std::to_string(config.impulse_peak_detection_width)))
+        ;
+
+    opts.add_options("Step-based latency estimation")
         ("step-period", "Step period, seconds",
          cxxopts::value<float>()->default_value(std::to_string(config.step_period)))
         ("step-length", "Step length, seconds",
@@ -163,17 +174,6 @@ int main(int argc, char** argv) {
          cxxopts::value<size_t>()->default_value(std::to_string(config.step_detection_window)))
         ("step-detection-threshold", "Step detection threshold, from 0 to 1",
          cxxopts::value<float>()->default_value(std::to_string(config.step_detection_threshold)))
-        ;
-
-    opts.add_options("Convolution latency estimation")
-        ("impulse-period", "Impulse period, seconds",
-         cxxopts::value<float>()->default_value(std::to_string(config.impulse_period)))
-        ("impulse-peak-noise-ratio", "The peak-to-noise minimum ratio threshold",
-         cxxopts::value<float>()->default_value(
-             std::to_string(config.impulse_avg_2_peak_ration_threshold)))
-        ( "impulse-peak-window", "Peak detection window length, in samples",
-         cxxopts::value<size_t>()->default_value(
-             std::to_string(config.impulse_peak_detection_width)))
         ;
 
     opts.add_options("Loss ratio estimation")
@@ -198,8 +198,8 @@ int main(int argc, char** argv) {
                 "I/O",
                 "Reporting",
                 "Dumping",
-                "Steps latency estimation",
-                "Convolution latency estimation",
+                "Correlation-based latency estimation",
+                "Step-based latency estimation",
                 "Loss ratio estimation",
             }) << std::endl;
             exit(0);
@@ -214,12 +214,7 @@ int main(int argc, char** argv) {
 
         mode = res["mode"].as<std::string>();
 
-        // for backward compatibility
-        if (mode == "latency") {
-            mode = "latency_steps";
-        }
-
-        if (mode != "noop" && mode != "latency_steps" &&  mode != "latency_convl"
+        if (mode != "noop" && mode != "latency_corr" &&  mode != "latency_step"
               && mode != "losses") {
             se_log_error("unknown --mode value");
             exit(1);
@@ -257,14 +252,14 @@ int main(int argc, char** argv) {
         }
         config.dump_compression = res["dump-compression"].as<size_t>();
 
+        config.impulse_peak_detection_width = res["impulse-peak-window"].as<size_t>();
+        config.impulse_avg_2_peak_ration_threshold = res["impulse-peak-noise-ratio"].as<float>();
+        config.impulse_period = res["impulse-period"].as<float>();
+
         config.step_period = res["step-period"].as<float>();
         config.step_length = res["step-length"].as<float>();
         config.step_detection_window = res["step-detection-window"].as<size_t>();
         config.step_detection_threshold = res["step-detection-threshold"].as<float>();
-
-        config.impulse_peak_detection_width = res["impulse-peak-window"].as<size_t>();
-        config.impulse_avg_2_peak_ration_threshold = res["impulse-peak-noise-ratio"].as<float>();
-        config.impulse_period = res["impulse-period"].as<float>();
 
         config.signal_detection_window = res["signal-detection-window"].as<size_t>();
         config.signal_detection_threshold = res["signal-detection-threshold"].as<float>();
@@ -289,9 +284,9 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<IGenerator> generator;
 
-    if (mode == "noop" || mode == "latency_steps") {
+    if (mode == "noop" || mode == "latency_step") {
         generator = std::make_unique<StepsGenerator>(config);
-    } else if(mode == "latency_convl") {
+    } else if(mode == "latency_corr") {
         generator = std::make_unique<ImpulseGenerator>(config, impulse);
     } else {
         generator = std::make_unique<ContinuousGenerator>(config);
@@ -307,10 +302,10 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<IEstimator> estimator;
 
-    if (mode == "latency_steps") {
+    if (mode == "latency_step") {
         estimator = std::make_unique<StepsLatencyEstimator>(config, *formatter);
-    } else if (mode == "latency_convl") {
-        estimator = std::make_unique<ConvolutionLatencyEstimator>(config, *formatter);
+    } else if (mode == "latency_corr") {
+        estimator = std::make_unique<CorrelationLatencyEstimator>(config, *formatter);
     } else if (mode == "losses") {
         estimator = std::make_unique<LossEstimator>(config, *formatter);
     }

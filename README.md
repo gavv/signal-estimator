@@ -144,12 +144,12 @@ Usage:
 
  General options:
   -h, --help          Print help message and exit
-  -m, --mode arg      Mode: noop|latency_steps|latency_convl|losses (default:
-                      latency_steps)
+  -m, --mode arg      Mode: noop|latency_corr|latency_step|losses (default:
+                      latency_corr)
   -o, --output arg    Output device name, required
   -i, --input arg     Input device name, required
   -d, --duration arg  Measurement duration, seconds (default: 10.000000)
-  -w, --warmup arg    Warmup duration, seconds (default: 1.000000)
+  -w, --warmup arg    Warmup duration, seconds (default: 0.000000)
 
  I/O options:
   -r, --rate arg     Sample rate (default: 48000)
@@ -169,7 +169,16 @@ Usage:
       --dump-compression arg  Compress dumped samples by given ratio using
                               SMA (default: 64)
 
- Steps latency estimation options:
+ Correlation-based latency estimation options:
+      --impulse-period arg      Impulse period, seconds (default: 1.000000)
+      --impulse-peak-noise-ratio arg
+                                The peak-to-noise minimum ratio threshold
+                                (default: 4.000000)
+      --impulse-peak-window arg
+                                Peak detection window length, in samples
+                                (default: 128)
+
+ Step-based latency estimation options:
       --step-period arg         Step period, seconds (default: 1.000000)
       --step-length arg         Step length, seconds (default: 0.100000)
       --step-detection-window arg
@@ -178,15 +187,6 @@ Usage:
       --step-detection-threshold arg
                                 Step detection threshold, from 0 to 1
                                 (default: 0.400000)
-
- Convolution latency estimation options:
-      --impulse-period arg      Impulse period, seconds (default: 1.000000)
-      --impulse-peak-noise-ratio arg
-                                The peak-to-noise minimum ratio threshold
-                                (default: 8.000000)
-      --impulse-peak-window arg
-                                Peak detection window length, in samples
-                                (default: 128)
 
  Loss ratio estimation options:
       --signal-detection-window arg
@@ -208,58 +208,59 @@ Measuring latency
 
 There are two latency estimation modes:
 
-* **Steps-based latency estimation** (`--mode latency_steps`),
-* **Convolution-based latency estimation** (`--mode latency_convl`).
+* **Correlation-based latency estimation** (`--mode latency_corr`),
+* **Step-based latency estimation** (`--mode latency_step`).
 
 In both modes, the tool generates short periodic impulses and calculates the shift between each sent and received impulse.
 
-In steps mode, the tool generates a step function and detects steps using a Schmitt trigger. In convolution mode, the tool generates M-sequence faded in and out with a Hamming window, and performs cross-correlation to match input and output.
+In correlation mode, the tool generates M-sequence faded in and out with a Hamming window, and performs cross-correlation to match input and output. In step mode, the tool generates a step function and detects steps using a Schmitt trigger.
 
-The convolution mode is known to provide improved precision and stability even under worse signal-to-noise ratio.
+The correlation mode is known to provide improved precision and stability even under worse signal-to-noise ratio. The step mode, on the other hand, is much simpler and easier to verify, and so can be used as a baseline.
 
 
 ```
-$ ./bin/signal-estimator -m latency_steps -o hw:1,0 -i hw:1,0 -d 5
-opening alsa writer for device hw:1,0
+$ sudo ./bin/signal-estimator -m latency_corr -o hw:0 -i hw:0 -d 5
+opening alsa writer for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
 selected_buffer_time: 8000 us
 selected_buffer_size: 384 samples
 selected_period_time: 4000 us
 selected_period_size: 192 samples
-opening alsa reader for device hw:1,0
+opening alsa reader for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
 selected_buffer_time: 8000 us
 selected_buffer_size: 384 samples
 selected_period_time: 4000 us
 selected_period_size: 192 samples
-can't enable real-time scheduling policy
-can't enable real-time scheduling policy
-latency:  sw+hw  13.145ms  hw   2.934ms  hw_avg5   2.934ms
-latency:  sw+hw  12.465ms  hw   2.924ms  hw_avg5   2.929ms
-latency:  sw+hw  13.171ms  hw   2.968ms  hw_avg5   2.942ms
-latency:  sw+hw  12.510ms  hw   2.962ms  hw_avg5   2.947ms
-latency:  sw+hw  12.536ms  hw   3.008ms  hw_avg5   2.959ms
+successfully enabled real-time scheduling policy
+successfully enabled real-time scheduling policy
+successfully enabled real-time scheduling policy
+latency:  sw+hw  10.688ms  hw   2.688ms  hw_avg5   2.688ms
+latency:  sw+hw  10.237ms  hw   2.237ms  hw_avg5   2.462ms
+latency:  sw+hw  11.231ms  hw   3.231ms  hw_avg5   2.719ms
+latency:  sw+hw  10.776ms  hw   2.776ms  hw_avg5   2.733ms
+latency:  sw+hw  11.299ms  hw   3.299ms  hw_avg5   2.846ms
 ```
 
 Notation:
 
 * `sw+hw` - total software + hardware latency, including ALSA ring buffer
 
-  computed as the time interval beginning when the first audio *frame* of the strike was sent to the output ring buffer, and ending when the first frame of the strike was received from the input ring buffer
+  computed as the time interval beginning when the first audio *frame* of the impulse was sent to the output ring buffer, and ending when the first frame of the impulse was received from the input ring buffer
 
 * `hw` - an estimation of hardware latency, excluding ALSA ring buffer
 
-  computed as the time interval beginning when the first audio *sample* of the strike was sent from ring buffer to DAC, and ending when the first sample of the strike was received from ADC and placed to ring buffer
+  computed as the time interval beginning when the first audio *sample* of the impulse was sent from ring buffer to the hardware, and ending when the first sample of the strike was received from the hardware and placed to ring buffer
 
 * `hw_avg5` - moving average of last 5 `hw` values
 
-`sw+hw` latency is affected by the `--latency` parameter, which defines the size of the ALSA ring buffer. You may need to select a higher latency if you're experiencing underruns or overruns.
+`sw+hw` latency is affected by the `--latency` and `--periods` parameters, which defines the layout of ALSA ring buffer. You may need to select a higher latency if you're experiencing underruns or overruns.
 
-`hw` latency, on the other hand, should not be affected by it and should depend only on your hardware and the way how the signal is looped back from output to input.
+`hw` latency, on the other hand, should not be affected by it and should depend only on your hardware and the way how the signal is looped back from output to input (e.g. if it's going by air, the distance will make a difference).
 
-If you're having troubles, you may also need to configure signal volume, or steps / impulse generation and detection parameters.
+If you're having troubles, you may also need to configure signal volume, or impulse and step generation and detection parameters.
 
 Measuring losses
 ----------------
@@ -267,23 +268,23 @@ Measuring losses
 In the loss estimation mode, the tool generates continuous beep and counts for glitches and gaps in the received signal.
 
 ```
-$ ./bin/signal-estimator -m losses -o hw:1,0 -i hw:1,0 -d 10
-opening alsa writer for device hw:1,0
+$ sudo ./bin/signal-estimator -m losses -o hw:0 -i hw:0 -d 5
+opening alsa writer for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
 selected_buffer_time: 8000 us
 selected_buffer_size: 384 samples
 selected_period_time: 4000 us
 selected_period_size: 192 samples
-opening alsa reader for device hw:1,0
+opening alsa reader for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
 selected_buffer_time: 8000 us
 selected_buffer_size: 384 samples
 selected_period_time: 4000 us
 selected_period_size: 192 samples
-can't enable real-time scheduling policy
-can't enable real-time scheduling policy
+successfully enabled real-time scheduling policy
+successfully enabled real-time scheduling policy
 losses:  rate   0.0/sec  rate_avg5   0.0/sec  ratio   0.00%
 losses:  rate   6.0/sec  rate_avg5   3.0/sec  ratio   0.26%
 losses:  rate   3.0/sec  rate_avg5   3.0/sec  ratio   0.20%
@@ -310,7 +311,7 @@ If you're having troubles, you may need to configure signal volume, and signal a
 JSON output
 -----------
 
-JSON output can be enabled by passing the `--format json` or `-f json` flag. By default, output is displayed in text format.
+JSON output can be enabled by passing the `--report-format json` or `-f json` flag. By default, output is displayed in text format.
 
 Sample JSON output format for measuring latency is shown below.
 
@@ -337,36 +338,21 @@ Sample JSON output format for measuring losses is shown below.
 ]
 ```
 
-Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including ALSA ring buffer. Except `sw_hw`, all the notations are the same as mentioned in the measuring latency and losses section. All time units are in milliseconds.
+Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including ALSA ring buffer. All the notations are the same as mentioned in the measuring latency and losses section. All time units are in milliseconds.
 
 Dumping streams
 ---------------
 
-In any mode, including `noop` mode, you can specify `--dump-output` and `--dump-input` options to dump output and input samples and their timestamps to file or stdout (use `-`), in CSV format.
+In any mode, including `noop` mode, you can specify `--dump-out` and `--dump-in` options to dump output and input samples and their timestamps to file or stdout (use `-`), in CSV format.
 
-To reduce the file size, the tool can dump only one (average) value per frame of the size specified by `--dump-compression` option. This is enabled by default.
+To reduce the file size, the tool can dump only one (average) value per frame of the size specified by `--dump-compression` option. This is enabled by default and can be disabled by setting this parameter to zero.
 
-The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to DAC or read from ADC.
+The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to hardware or read from hardware.
 
 ```
-$ ./bin/signal-estimator -m noop -o hw:1,0 -i hw:1,0 -d 5 \
-    --volume 1.0 --dump-output output.csv --dump-input input.csv
-opening alsa writer for device hw:1,0
-suggested_latency: 8000 us
-suggested_buffer_size: 384 samples
-selected_buffer_time: 8000 us
-selected_buffer_size: 384 samples
-selected_period_time: 4000 us
-selected_period_size: 192 samples
-opening alsa reader for device hw:1,0
-suggested_latency: 8000 us
-suggested_buffer_size: 384 samples
-selected_buffer_time: 8000 us
-selected_buffer_size: 384 samples
-selected_period_time: 4000 us
-selected_period_size: 192 samples
-can't enable real-time scheduling policy
-can't enable real-time scheduling policy
+$ sudo ./bin/signal-estimator -m noop -o hw:0 -i hw:0 -d 5 \
+    --volume 1.0 --dump-out output.csv --dump-in input.csv
+...
 ```
 
 The command above will produce two files:
@@ -394,7 +380,7 @@ ALSA output and input device names are the same as passed to `aplay` and `arecor
 
 You may need to configure sample rate and the number of channels. The selected values should be supported by both output and input devices.
 
-You may also need to configure ALSA ring buffer size and the number of periods in the ring buffer. These parameters affect software latency and output / input robustness.
+You may also need to configure ALSA ring buffer size and the number of periods (I/O frames) in the ring buffer. These parameters affect software latency and output / input robustness.
 
 Disabling PulseAudio
 --------------------
@@ -406,12 +392,12 @@ $ systemctl --user stop pulseaudio.socket
 $ systemctl --user stop pulseaudio.service
 ```
 
-Alternatively, you can set `autospawn` to `no` in `/etc/pulse/client.conf` and then run `pulseaudio --kill`.
+Alternatively, you can set `autospawn` to `no` in `/etc/pulse/client.conf` and then run `pulseaudio --kill` or `killall -9 pulseaudio`.
 
 Real-time scheduling policy
 ---------------------------
 
-If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically enable `SCHED_RR` scheduling policy for output and input threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or software being measured) on a loaded system.
+If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically enable `SCHED_RR` scheduling policy sensitive threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or software being measured) on a loaded system and make the measurement more stable and precise.
 
 Acknowledgments
 ---------------
