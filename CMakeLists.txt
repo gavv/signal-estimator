@@ -89,11 +89,11 @@ target_compile_options(signal-estimator
   PRIVATE ${COMPILER_FLAGS}
   )
 
-SET(KISSFFT_PKGCONFIG OFF)
-SET(KISSFFT_STATIC OFF)
-SET(KISSFFT_TEST OFF)
-SET(KISSFFT_TOOLS OFF)
-SET(KISSFFT_USE_ALLOCA OFF)
+option(KISSFFT_PKGCONFIG "" OFF)
+option(KISSFFT_STATIC "" ON)
+option(KISSFFT_TEST "" OFF)
+option(KISSFFT_TOOLS "" OFF)
+option(KISSFFT_USE_ALLOCA "" OFF)
 add_subdirectory(3rdparty/kissfft)
 
 target_include_directories(signal-estimator SYSTEM
