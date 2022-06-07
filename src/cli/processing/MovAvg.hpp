@@ -17,7 +17,6 @@ public:
         , init_counter_(0)
         , cur_i_(0)
         , accum_(0) {
-        std::fill(buff_.begin(), buff_.end(), T { 0 });
     }
 
     T operator()(const T x) {

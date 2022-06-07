@@ -11,13 +11,13 @@ namespace signal_estimator {
 
 // running maximum with amortized O(1) push
 // see https://stackoverflow.com/a/4802260/3169754
-template <typename T = double, bool preload = true> class MovMax {
+template <typename T = double, bool EnablePreload = true> class MovMax {
 public:
     explicit MovMax(size_t size)
         : push_stack_(size)
         , pop_stack_(size)
         , preload_(size) {
-        if (!preload) {
+        if (!EnablePreload) {
             preload_ = 0;
             for (size_t i = 0; i < size; ++i) {
                 push_stack_.push(T(0));
