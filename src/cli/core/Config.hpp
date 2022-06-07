@@ -59,7 +59,7 @@ struct Config {
     size_t impulse_peak_detection_width { 128 };
 
     // the peak-to-noise minimum ratio threshold
-    float impulse_avg_2_peak_ration_threshold { 8.0 };
+    float impulse_avg_2_peak_ration_threshold { 4.0 };
 
     // interval between impulses in seconds
     float impulse_period { 1 };

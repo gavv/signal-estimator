@@ -86,7 +86,8 @@ void ConvolutionLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak)
 
 ConvolutionLatencyEstimator::Processor::Processor(const Config& config)
     : config_(config)
-    , mmax_(config_.impulse_peak_detection_width) {
+    , mmax_(config_.impulse_peak_detection_width)
+    , mmavg_(config_.impulse_peak_detection_width) {
     std::fill(buff_.begin(), buff_.end(), 0.f);
 
     hw_search_start_ = 0;
@@ -151,7 +152,9 @@ ConvolutionLatencyEstimator::Processor::seek_correlation_(
             hw_search_activated_ = true;
 
             const float movmax = mmax_(to[i]);
-            if (movmax > max_corr_val_) {
+            const float movavg = mmavg_(movmax);
+            if (movmax > movavg * config_.impulse_avg_2_peak_ration_threshold
+                && movmax > max_corr_val_) {
                 max_corr_val_ = movmax;
                 const double idx_2_ns = config_.frames_to_ns(i);
                 max_corr_ts_.sw_hw = buff_begin_ts_.sw_hw + idx_2_ns;
@@ -161,6 +164,7 @@ ConvolutionLatencyEstimator::Processor::seek_correlation_(
             hw_search_activated_ = false;
             max_corr_val_ = 0;
             res = max_corr_ts_;
+            max_corr_ts_ = { 0, 0};
             return res;
         }
     }

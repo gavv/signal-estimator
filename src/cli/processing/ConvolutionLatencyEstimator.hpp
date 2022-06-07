@@ -63,6 +63,7 @@ private:
 
         FFTConvolution<buff_len_, impulse.size(), impulse> optimal_filter_;
         MovMax<float, false> mmax_;
+        MovAvg<float> mmavg_;
 
         std::array<float, buff_len_> buff_;
         Timestamp buff_begin_ts_;
