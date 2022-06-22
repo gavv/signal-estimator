@@ -6,6 +6,7 @@
 #include "ui_MainWindow.h"
 
 #include <QCheckBox>
+#include <QPen>
 
 #include <qwt_legend.h>
 #include <qwt_picker_machine.h>
@@ -40,7 +41,7 @@ MainWindow::MainWindow(QWidget* parent)
     QwtPlotPicker* zoomInPicker = new QwtPlotPicker(ui->OutputSig->canvas());
     zoomInPicker->setStateMachine(new QwtPickerDragRectMachine());
     zoomInPicker->setRubberBand(QwtPicker::RectRubberBand);
-    zoomInPicker->setRubberBandPen(QColor(Qt::red));
+    zoomInPicker->setRubberBandPen(QPen(QColor(Qt::red)));
     connect(zoomInPicker, qOverload<const QRectF&>(&QwtPlotPicker::selected),
         [this](const QRectF& rect) {
             ui->OutputSig->setAxisScale(
