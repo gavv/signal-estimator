@@ -15,37 +15,11 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "")
-  set(CMAKE_BUILD_TYPE "Release")
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  list(APPEND COMPILER_FLAGS "-O3")
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  list(APPEND COMPILER_FLAGS "-O0")
-endif()
-
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND COMPILER_FLAGS
-    "-Weverything"
-    "-Wno-alloca"
-    "-Wno-c++98-c++11-c++14-compat"
-    "-Wno-c++98-compat"
-    "-Wno-c++98-compat-pedantic"
-    "-Wno-double-promotion"
-    "-Wno-float-equal"
-    "-Wno-gnu-zero-variadic-macro-arguments"
-    "-Wno-implicit-int-float-conversion"
-    "-Wno-old-style-cast"
-    "-Wno-padded"
-    "-Wno-reserved-id-macro"
-    "-Wno-switch-enum"
-    "-Wno-system-headers"
-    "-Wno-unused-private-field"
-    "-Wno-used-but-marked-unused"
-    "-Wno-weak-vtables"
+    "-Wall"
+    "-Wextra"
+    "-Wno-cast-align"
     )
 endif()
 
@@ -89,12 +63,37 @@ target_compile_options(signal-estimator
   PRIVATE ${COMPILER_FLAGS}
   )
 
+function(checkout_submodule DIRECTORY)
+  set(ABS_DIRECTORY "${PROJECT_SOURCE_DIR}/${DIRECTORY}")
+  if(NOT EXISTS ${ABS_DIRECTORY}/.git)
+    if(GIT_EXECUTABLE STREQUAL "")
+      find_package(Git REQUIRED)
+    endif()
+    message(STATUS "Checking out ${DIRECTORY}...")
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive .
+      WORKING_DIRECTORY ${ABS_DIRECTORY}
+      RESULT_VARIABLE GIT_EXIT_CODE
+      )
+    if(NOT GIT_EXIT_CODE EQUAL "0")
+      message(FATAL_ERROR "Failed to check out ${DIRECTORY}")
+    endif()
+  endif()
+endfunction(checkout_submodule)
+
+checkout_submodule(3rdparty/concurrentqueue)
+checkout_submodule(3rdparty/cxxopts)
+checkout_submodule(3rdparty/kissfft)
+
 option(KISSFFT_PKGCONFIG "" OFF)
 option(KISSFFT_STATIC "" ON)
 option(KISSFFT_TEST "" OFF)
 option(KISSFFT_TOOLS "" OFF)
 option(KISSFFT_USE_ALLOCA "" OFF)
 add_subdirectory(3rdparty/kissfft)
+target_compile_options(kissfft
+  PRIVATE -w
+  )
 
 target_include_directories(signal-estimator SYSTEM
   PRIVATE 3rdparty/concurrentqueue
