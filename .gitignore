@@ -2,3 +2,4 @@ bin
 build
 compile_commands.json
 .dir-locals.el
+.cache
