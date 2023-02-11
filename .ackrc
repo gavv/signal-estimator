@@ -1,4 +1,0 @@
---ignore-dir=bin
---ignore-dir=build
---ignore-dir=3rdparty
---ignore-file=is:compile_commands.json
