@@ -31,6 +31,24 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     "-Wno-switch-enum"
     "-Wno-system-headers"
     )
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    list(APPEND COMPILER_FLAGS
+      "-D_GLIBCXX_ASSERTIONS"
+      "-D_GLIBCXX_DEBUG"
+      "-D_GLIBCXX_SANITIZE_VECTOR"
+      )
+  endif()
+endif()
+
+option(ENABLE_SANITIZERS "enable sanitizers" OFF)
+
+if(ENABLE_SANITIZERS)
+  list(APPEND COMPILER_FLAGS
+    "-fsanitize=address"
+    )
+  list(APPEND LINKER_FLAGS
+    "-fsanitize=address"
+    )
 endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -61,6 +79,10 @@ add_executable(signal-estimator
 
 target_compile_options(signal-estimator
   PRIVATE ${COMPILER_FLAGS}
+  )
+
+target_link_options(signal-estimator
+  PRIVATE ${LINKER_FLAGS}
   )
 
 function(checkout_submodule DIRECTORY)
@@ -151,6 +173,10 @@ if(BUILD_GUI)
 
   target_compile_options(signal-estimator-gui
     PRIVATE ${COMPILER_FLAGS}
+    )
+
+  target_link_options(signal-estimator-gui
+    PRIVATE ${LINKER_FLAGS}
     )
 
   foreach(TARGET IN ITEMS generated_objects signal-estimator-gui)

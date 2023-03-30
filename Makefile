@@ -1,15 +1,16 @@
 NUP_CPU ?= `nproc --all`
 VARIANT ?= Release
+SANITIZERS ?= OFF
 
 all:
 	mkdir -p build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) ..
-	cd build && make -j$(NUM_CPU) --no-print-directory
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DENABLE_SANITIZERS=$(SANITIZERS) ..
+	cd build && make -j$(NUM_CPU) --no-print-directory VERBOSE=1
 
 no_gui:
 	mkdir -p build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DBUILD_GUI=NO ..
-	cd build && make -j$(NUM_CPU) --no-print-directory
+	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DENABLE_SANITIZERS=$(SANITIZERS) -DBUILD_GUI=NO ..
+	cd build && make -j$(NUM_CPU) --no-print-directory VERBOSE=1
 
 install:
 	cd build && make install
