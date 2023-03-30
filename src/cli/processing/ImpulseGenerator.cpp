@@ -25,7 +25,7 @@ void ImpulseGenerator::generate(Frame& frame) {
             assert(i_frame % num_ch == 0);
             assert(i_frame <= frame_size - num_ch);
 
-            for (size_t j = 0; j <= num_ch; ++j) {
+            for (size_t j = 0; j < num_ch; ++j) {
                 assert(i_frame + j < frame_size);
 
                 frame_data[i_frame + j] = sample_t(impulse_data_[counter_] * MaxSample);
