@@ -26,14 +26,17 @@ size_t Frame::size() const {
 }
 
 const sample_t* Frame::data() const {
+    assert(data_.size() > 0);
     return &data_[0];
 }
 
 sample_t* Frame::data() {
+    assert(data_.size() > 0);
     return &data_[0];
 }
 
 sample_t Frame::at(size_t sample_index) const {
+    assert(sample_index < data_.size());
     return data_[sample_index];
 }
 
