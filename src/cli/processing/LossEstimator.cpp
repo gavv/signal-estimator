@@ -27,10 +27,12 @@ void LossEstimator::add_output(std::shared_ptr<Frame> frame) {
 }
 
 void LossEstimator::add_input(std::shared_ptr<Frame> frame) {
-    if (!frame.get())
+    if (!frame.get()) {
         return;
-    auto frame_data = frame->data();
-    auto frame_size = frame->size();
+    }
+
+    const auto frame_data = frame->data();
+    const auto frame_size = frame->size();
 
     for (size_t n = 0; n < frame_size; n++) {
         auto s = double(frame_data[n]);

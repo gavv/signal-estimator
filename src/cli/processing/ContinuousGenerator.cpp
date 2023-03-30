@@ -13,8 +13,8 @@ ContinuousGenerator::ContinuousGenerator(const Config& config)
 }
 
 void ContinuousGenerator::generate(Frame& frame) {
-    auto frame_data = frame.data();
-    auto frame_size = frame.size();
+    const auto frame_data = frame.data();
+    const auto frame_size = frame.size();
 
     for (size_t sn = 0; sn < frame_size;) {
         for (size_t cn = 0; cn < config_.n_channels; cn++) {
