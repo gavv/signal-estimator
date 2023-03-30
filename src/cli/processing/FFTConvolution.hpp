@@ -35,6 +35,14 @@ public:
         kiss_fft(ksfft_state_fwd_, taps.data(), ftaps.data());
     }
 
+    ~FFTConvolution() {
+        free(ksfft_state_fwd_);
+        free(ksfft_state_inv_);
+    }
+
+    FFTConvolution(const FFTConvolution&) = delete;
+    FFTConvolution& operator=(const FFTConvolution&) = delete;
+
     void perform(const float* input_buf, float* out_buf, const size_t sz) {
         assert(sz <= frame_len);
         std::transform(input_buf, input_buf + sz, full_input_buf.begin(),
@@ -73,8 +81,6 @@ public:
                 full_input_buf.begin() + sz + fir_tail_len, fir_tail.begin());
         }
     }
-
-    ~FFTConvolution() = default;
 
 private:
     kiss_fft_cfg ksfft_state_fwd_;
