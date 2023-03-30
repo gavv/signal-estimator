@@ -3,3 +3,4 @@ build
 compile_commands.json
 .dir-locals.el
 .cache
+.gdb_history
