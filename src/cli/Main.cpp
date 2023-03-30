@@ -282,6 +282,8 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
+    FramePool frame_pool(config);
+
     std::unique_ptr<IGenerator> generator;
 
     if (mode == "noop" || mode == "latency_step") {
@@ -337,8 +339,6 @@ int main(int argc, char** argv) {
     if (input_dumper) {
         input_dumper = std::make_unique<AsyncDumper>(std::move(input_dumper));
     }
-
-    FramePool frame_pool(config);
 
     std::thread input_thread(input_loop, &config, &frame_pool,
             estimator.get(), &input_reader, input_dumper.get());
