@@ -131,6 +131,10 @@ void MainWindow::update_graphs() {
     QVector<QPointF> in_current = in_data_.get_current_points();
     QVector<QPointF> out_current = out_data_.get_current_points();
 
+    if (in_current.isEmpty() || out_current.isEmpty()) {
+        return;
+    }
+
     auto xMax = std::max(in_current.back().x(), out_current.back().x());
     auto xMin = xMax - out_data_.size_milliseconds();
 
