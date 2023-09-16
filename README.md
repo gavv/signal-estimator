@@ -19,6 +19,7 @@ Signal Estimator
 - [Dumping streams](#dumping-streams)
 - [ALSA parameters](#alsa-parameters)
 - [Disabling PulseAudio](#disabling-pulseaudio)
+- [Disabling PipeWire](#disabling-pipewire)
 - [Real-time scheduling policy](#real-time-scheduling-policy)
 - [Internals](#internals)
 - [Acknowledgments](#acknowledgments)
@@ -419,14 +420,22 @@ You may also need to configure ALSA ring buffer size and the number of periods (
 Disabling PulseAudio
 --------------------
 
-If you're running a system with PulseAudio, you can stop it using:
+If you're running a system with PulseAudio and need to use signal-estimator with hardware ALSA devices, you can temporary stop PulseAudio using:
 
 ```
-$ systemctl --user stop pulseaudio.socket
-$ systemctl --user stop pulseaudio.service
+systemctl --user stop pulseaudio.socket pulseaudio.service
 ```
 
 Alternatively, you can set `autospawn` to `no` in `/etc/pulse/client.conf` and then run `pulseaudio --kill` or `killall -9 pulseaudio`.
+
+Disabling PipeWire
+------------------
+
+If you're running a system with PipeWire and need to use signal-estimator with hardware ALSA devices, you can temporary stop PipeWire using:
+
+```
+systemctl --user stop pipewire pipewire.socket pipewire-pulse pipewire-pulse.socket
+```
 
 Real-time scheduling policy
 ---------------------------
