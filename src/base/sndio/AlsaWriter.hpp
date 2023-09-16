@@ -5,6 +5,7 @@
 
 #include "core/Config.hpp"
 #include "core/Frame.hpp"
+#include "sndio/IDeviceWriter.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -13,10 +14,10 @@
 
 namespace signal_estimator {
 
-class AlsaWriter {
+class AlsaWriter : public IDeviceWriter {
 public:
     AlsaWriter() = default;
-    ~AlsaWriter();
+    ~AlsaWriter() override;
 
     AlsaWriter(const AlsaWriter&) = delete;
     AlsaWriter& operator=(const AlsaWriter&) = delete;
@@ -24,7 +25,7 @@ public:
     bool open(Config& config, const char* device);
     void close();
 
-    bool write(Frame& frame);
+    bool write(Frame& frame) override;
 
 private:
     Config config_;

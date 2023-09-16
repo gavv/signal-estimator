@@ -19,6 +19,8 @@
 #include "reports/TextReporter.hpp"
 #include "sndio/AlsaReader.hpp"
 #include "sndio/AlsaWriter.hpp"
+#include "sndio/IDeviceReader.hpp"
+#include "sndio/IDeviceWriter.hpp"
 
 #include <iostream>
 #include <memory>
@@ -33,7 +35,7 @@ using namespace signal_estimator;
 namespace {
 
 void output_loop(const Config* config, FramePool* frame_pool, IGenerator* generator,
-    IEstimator* estimator, AlsaWriter* writer, IDumper* dumper) {
+    IEstimator* estimator, IDeviceWriter* writer, IDumper* dumper) {
     set_realtime();
 
     size_t n = 0;
@@ -75,8 +77,9 @@ void output_loop(const Config* config, FramePool* frame_pool, IGenerator* genera
 }
 
 void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estimator,
-    AlsaReader* reader, IDumper* dumper) {
+    IDeviceReader* reader, IDumper* dumper) {
     set_realtime();
+
     for (size_t n = 0; n < config->total_periods(); n++) {
         auto frame = frame_pool->allocate();
 

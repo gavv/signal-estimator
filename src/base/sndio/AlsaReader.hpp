@@ -5,6 +5,7 @@
 
 #include "core/Config.hpp"
 #include "core/Frame.hpp"
+#include "sndio/IDeviceReader.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -13,10 +14,10 @@
 
 namespace signal_estimator {
 
-class AlsaReader {
+class AlsaReader : public IDeviceReader {
 public:
     AlsaReader() = default;
-    ~AlsaReader();
+    ~AlsaReader() override;
 
     AlsaReader(const AlsaReader&) = delete;
     AlsaReader& operator=(const AlsaReader&) = delete;
@@ -24,7 +25,7 @@ public:
     bool open(Config& config, const char* device);
     void close();
 
-    bool read(Frame& frame);
+    bool read(Frame& frame) override;
 
 private:
     Config config_;
