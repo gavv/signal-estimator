@@ -2,7 +2,13 @@ cmake_minimum_required(VERSION 3.5)
 
 project(SignalEstimator)
 
-option(BUILD_GUI "Build Qt GUI" ON)
+option(BUILD_GUI "build Qt GUI" ON)
+
+option(ENABLE_SANITIZERS "enable sanitizers" OFF)
+
+set(TOOLCHAIN_PREFIX "" CACHE STRING "target host triplet, e.g. aarch64-linux-gnu")
+include("cmake/SetupToolchain.cmake")
+include("cmake/ThirdParty.cmake")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
@@ -28,6 +34,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     "-Wall"
     "-Wextra"
     "-Wno-old-style-cast"
+    "-Wno-psabi"
     "-Wno-switch-enum"
     "-Wno-system-headers"
     )
@@ -40,8 +47,6 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
   endif()
 endif()
 
-option(ENABLE_SANITIZERS "enable sanitizers" OFF)
-
 if(ENABLE_SANITIZERS)
   list(APPEND COMPILER_FLAGS
     "-fsanitize=address"
@@ -50,8 +55,6 @@ if(ENABLE_SANITIZERS)
     "-fsanitize=address"
     )
 endif()
-
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(signal-estimator
   src/base/core/Frame.cpp
@@ -77,6 +80,15 @@ add_executable(signal-estimator
   src/cli/Main.cpp
   )
 
+add_dependencies(signal-estimator
+  ${ALL_DEPENDENCIES}
+  )
+
+set(ALL_EXECUTABLES)
+list(APPEND ALL_EXECUTABLES
+  signal-estimator
+  )
+
 target_compile_options(signal-estimator
   PRIVATE ${COMPILER_FLAGS}
   )
@@ -85,50 +97,13 @@ target_link_options(signal-estimator
   PRIVATE ${LINKER_FLAGS}
   )
 
-function(checkout_submodule DIRECTORY)
-  set(ABS_DIRECTORY "${PROJECT_SOURCE_DIR}/${DIRECTORY}")
-  if(NOT EXISTS ${ABS_DIRECTORY}/.git)
-    if(GIT_EXECUTABLE STREQUAL "")
-      find_package(Git REQUIRED)
-    endif()
-    message(STATUS "Checking out ${DIRECTORY}...")
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive .
-      WORKING_DIRECTORY ${ABS_DIRECTORY}
-      RESULT_VARIABLE GIT_EXIT_CODE
-      )
-    if(NOT GIT_EXIT_CODE EQUAL "0")
-      message(FATAL_ERROR "Failed to check out ${DIRECTORY}")
-    endif()
-  endif()
-endfunction(checkout_submodule)
-
-checkout_submodule(3rdparty/concurrentqueue)
-checkout_submodule(3rdparty/cxxopts)
-checkout_submodule(3rdparty/kissfft)
-
-option(KISSFFT_PKGCONFIG "" OFF)
-option(KISSFFT_STATIC "" ON)
-option(KISSFFT_TEST "" OFF)
-option(KISSFFT_TOOLS "" OFF)
-option(KISSFFT_USE_ALLOCA "" OFF)
-add_subdirectory(3rdparty/kissfft)
-target_compile_options(kissfft
-  PRIVATE -w
-  )
-
 target_include_directories(signal-estimator SYSTEM
-  PRIVATE 3rdparty/concurrentqueue
-  PRIVATE 3rdparty/cxxopts/include
-  PRIVATE 3rdparty/kissfft
   PRIVATE src/base
   )
 
 find_package(Threads)
 target_link_libraries(signal-estimator
-  asound
   m
-  kissfft
   ${CMAKE_THREAD_LIBS_INIT}
   )
 
@@ -161,6 +136,10 @@ if(BUILD_GUI)
     ${GENERATED_SOURCES}
     )
 
+  add_dependencies(generated_objects
+    ${ALL_DEPENDENCIES}
+    )
+
   add_executable(signal-estimator-gui
     src/gui/DeviceManager.cpp
     src/gui/Main.cpp
@@ -169,6 +148,14 @@ if(BUILD_GUI)
     src/gui/PointsBuffer.cpp
     src/gui/RightClickPickerMachine.cpp
     src/gui/SignalEstimator.cpp
+    )
+
+  add_dependencies(signal-estimator-gui
+    ${ALL_DEPENDENCIES}
+    )
+
+  list(APPEND ALL_EXECUTABLES
+    signal-estimator-gui
     )
 
   target_compile_options(signal-estimator-gui
@@ -193,7 +180,6 @@ if(BUILD_GUI)
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
-    kissfft
     )
 
   install(
@@ -202,9 +188,45 @@ if(BUILD_GUI)
     )
 endif(BUILD_GUI)
 
-add_custom_command(TARGET signal-estimator POST_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy
-     "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json"
-     "${PROJECT_SOURCE_DIR}/compile_commands.json"
-     COMMENT "Copying compile_commands.json to project root"
-     )
+set(BIN_DIR
+  bin/${CMAKE_C_COMPILER_TARGET}
+  )
+
+set(INSTALLED_EXECUTABLES)
+
+foreach(EXE_TARGET IN LISTS ALL_EXECUTABLES)
+  set(EXE_PATH
+    ${PROJECT_SOURCE_DIR}/${BIN_DIR}/${EXE_TARGET}${CMAKE_EXECUTABLE_SUFFIX}
+  )
+  add_custom_command(
+    COMMENT "Copying ${EXE_TARGET} to ${BIN_DIR}"
+    DEPENDS ${EXE_TARGET}
+    OUTPUT ${EXE_PATH}
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+      ${PROJECT_SOURCE_DIR}/${BIN_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy
+      $<TARGET_FILE:${EXE_TARGET}>
+      ${PROJECT_SOURCE_DIR}/${BIN_DIR}
+    )
+  list(APPEND INSTALLED_EXECUTABLES
+    ${EXE_PATH}
+    )
+endforeach()
+
+add_custom_target(install_executables ALL
+  DEPENDS ${INSTALLED_EXECUTABLES}
+)
+
+if(NOT CMAKE_CROSSCOMPILING)
+  add_custom_command(
+    COMMENT "Copying compile_commands.json to project root"
+    DEPENDS ${TOOL_NAME} ${TESTS}
+    OUTPUT ${PROJECT_SOURCE_DIR}/compile_commands.json
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+      ${PROJECT_SOURCE_DIR}/compile_commands.json
+  )
+  add_custom_target(compile_commands ALL
+    DEPENDS ${PROJECT_SOURCE_DIR}/compile_commands.json
+  )
+endif()

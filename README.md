@@ -10,6 +10,7 @@ Signal Estimator
 - [Supported platforms](#supported-platforms)
 - [Dependencies](#dependencies)
 - [Installation](#installation)
+- [Cross-compilation](#cross-compilation)
 - [Graphical interface](#graphical-interface)
 - [Command-line options](#command-line-options)
 - [Measuring latency](#measuring-latency)
@@ -77,7 +78,7 @@ Dependencies
 External:
 
 * C++17 compiler
-* CMake >= 3.0
+* CMake >= 3.5
 * libasound (ALSA devel)
 * libpng
 * Qt5 and Qwt (for GUI)
@@ -122,6 +123,38 @@ Install into the system (optionally):
 sudo make install
 ```
 
+Alternatively, you can use executables from `bin/<toolchain>` directory, where `<toolchain>` is your host toolchain, e.g. `x86_64-linux-gnu`.
+
+Cross-compilation
+-----------------
+
+If you're using 32-bit or 64-bit Raspberry Pi, you can run:
+
+```
+make arm32
+```
+
+or:
+
+```
+make arm64
+```
+
+These commands require Docker. They will pull and run docker images with prebuilt toolchains compatible with Raspberry Pi, perform build, and place executables into `bin/arm-linux-gnueabihf` and `bin/aarch64-linux-gnu`, respectively.
+
+To use your own toolchain instead of docker images, in most cases you can use `TOOLCHAIN_PREFIX` CMake option:
+
+```
+mkdir -p build/<toolchain>
+cd build/<my_toolchain>
+cmake -DBUILD_GUI=NO -DTOOLCHAIN_PREFIX=<toolchain> ../..
+make
+```
+
+In this case, `<toolchain>` defines toolchain triple of the target system, e.g. `aarch64-linux-gnu`. In this case `aarch64-linux-gnu-gcc` and other tools should be available in `PATH`.
+
+For more complicated cases, refer to [standard instructions](https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html) for cross-compiling using CMake.
+
 Graphical interface
 -------------------
 
@@ -137,7 +170,7 @@ Command-line options
 --------------------
 
 ```
-$ ./bin/signal-estimator --help
+$ signal-estimator --help
 Measure characteristics of a looped back signal
 Usage:
   signal-estimator [OPTION...]
@@ -219,7 +252,7 @@ The correlation mode is known to provide improved precision and stability even u
 
 
 ```
-$ sudo ./bin/signal-estimator -m latency_corr -o hw:0 -i hw:0 -d 5
+$ sudo signal-estimator -m latency_corr -o hw:0 -i hw:0 -d 5
 opening alsa writer for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
@@ -268,7 +301,7 @@ Measuring losses
 In the loss estimation mode, the tool generates continuous beep and counts for glitches and gaps in the received signal.
 
 ```
-$ sudo ./bin/signal-estimator -m losses -o hw:0 -i hw:0 -d 5
+$ sudo signal-estimator -m losses -o hw:0 -i hw:0 -d 5
 opening alsa writer for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
@@ -350,7 +383,7 @@ To reduce the file size, the tool can dump only one (average) value per frame of
 The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to hardware or read from hardware.
 
 ```
-$ sudo ./bin/signal-estimator -m noop -o hw:0 -i hw:0 -d 5 \
+$ sudo signal-estimator -m noop -o hw:0 -i hw:0 -d 5 \
     --volume 1.0 --dump-out output.csv --dump-in input.csv
 ...
 ```

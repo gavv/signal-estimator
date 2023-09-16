@@ -1,16 +1,40 @@
-NUP_CPU ?= `nproc --all`
+NUM_CPU ?= $(shell nproc --all)
 VARIANT ?= Release
 SANITIZERS ?= OFF
 
+MACHINE := $(shell uname -m)-linux-gnu
+
+CMAKE_CMD := cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DENABLE_SANITIZERS=$(SANITIZERS)
+MAKE_CMD := make -j$(NUM_CPU) --no-print-directory
+
+DOCKER_CMD := docker run -t --rm \
+	-u "$(shell id -u)" \
+	-v "$(shell pwd):$(shell pwd)" \
+	-w "$(shell pwd)"
+
 all:
-	mkdir -p build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DENABLE_SANITIZERS=$(SANITIZERS) ..
-	cd build && make -j$(NUM_CPU) --no-print-directory VERBOSE=1
+	mkdir -p build/$(MACHINE)
+	cd build/$(MACHINE) && $(CMAKE_CMD) ../..
+	cd build/$(MACHINE) && $(MAKE_CMD)
 
 no_gui:
-	mkdir -p build
-	cd build && cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DENABLE_SANITIZERS=$(SANITIZERS) -DBUILD_GUI=NO ..
-	cd build && make -j$(NUM_CPU) --no-print-directory VERBOSE=1
+	mkdir -p build/$(MACHINE)
+	cd build/$(MACHINE) && $(CMAKE_CMD) -DBUILD_GUI=NO ../..
+	cd build/$(MACHINE) && $(MAKE_CMD)
+
+arm32:
+	mkdir -p build/arm-linux-gnueabihf
+	$(DOCKER_CMD) rocstreaming/toolchain-arm-linux-gnueabihf /bin/bash -c \
+		"cd build/arm-linux-gnueabihf && \
+			$(CMAKE_CMD) -DBUILD_GUI=NO -DTOOLCHAIN_PREFIX=arm-linux-gnueabihf ../.. && \
+			$(MAKE_CMD)"
+
+arm64:
+	mkdir -p build/aarch64-linux-gnu
+	$(DOCKER_CMD) rocstreaming/toolchain-aarch64-linux-gnu /bin/bash -c \
+		"cd build/aarch64-linux-gnu && \
+			$(CMAKE_CMD) -DBUILD_GUI=NO -DTOOLCHAIN_PREFIX=aarch64-linux-gnu ../.. && \
+			$(MAKE_CMD)"
 
 install:
 	cd build && make install

@@ -1,0 +1,97 @@
+if(TOOLCHAIN_PREFIX)
+  set(CMAKE_CROSSCOMPILING ON)
+  set(CMAKE_SYSTEM_NAME Linux)
+
+  # CMAKE_C_COMPILER_TARGET
+  set(CMAKE_C_COMPILER_TARGET ${TOOLCHAIN_PREFIX})
+  message(STATUS "Using CMAKE_C_COMPILER_TARGET - ${CMAKE_C_COMPILER_TARGET}")
+
+  # CMAKE_CXX_COMPILER_TARGET
+  set(CMAKE_CXX_COMPILER_TARGET ${TOOLCHAIN_PREFIX})
+  message(STATUS "Using CMAKE_CXX_COMPILER_TARGET - ${CMAKE_CXX_COMPILER_TARGET}")
+
+  # CMAKE_C_COMPILER
+  find_program(C_COMPILER ${TOOLCHAIN_PREFIX}-gcc)
+  if(C_COMPILER MATCHES "NOTFOUND")
+    find_program(C_COMPILER ${TOOLCHAIN_PREFIX}-clang)
+  endif()
+  if(C_COMPILER MATCHES "NOTFOUND")
+    message(FATAL_ERROR
+      "Can't deduce CMAKE_C_COMPILER from TOOLCHAIN_PREFIX, define it manually")
+  endif()
+  set(CMAKE_C_COMPILER "${C_COMPILER}")
+  message(STATUS "Using CMAKE_C_COMPILER - ${CMAKE_C_COMPILER}")
+
+  # CMAKE_CXX_COMPILER
+  find_program(CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++)
+  if(CXX_COMPILER MATCHES "NOTFOUND")
+    find_program(CXX_COMPILER ${TOOLCHAIN_PREFIX}-clang++)
+  endif()
+  if(CXX_COMPILER MATCHES "NOTFOUND")
+    message(FATAL_ERROR
+      "Can't deduce CMAKE_CXX_COMPILER from TOOLCHAIN_PREFIX, define it manually")
+  endif()
+  set(CMAKE_CXX_COMPILER "${CXX_COMPILER}")
+  message(STATUS "Using CMAKE_CXX_COMPILER - ${CMAKE_CXX_COMPILER}")
+
+  # CMAKE_AR
+  find_program(AR ${TOOLCHAIN_PREFIX}-ar)
+  if(AR MATCHES "NOTFOUND")
+    message(FATAL_ERROR
+      "Can't detect CMAKE_AR from TOOLCHAIN_PREFIX, define it manually")
+  endif()
+  set(CMAKE_AR ${AR})
+  message(STATUS "Using CMAKE_AR - ${CMAKE_AR}")
+
+  # CMAKE_RANLIB
+  find_program(RANLIB ${TOOLCHAIN_PREFIX}-ranlib)
+  if(RANLIB MATCHES "NOTFOUND")
+    message(FATAL_ERROR
+      "Can't detect CMAKE_RANLIB from TOOLCHAIN_PREFIX, define it manually")
+  endif()
+  set(CMAKE_RANLIB ${RANLIB})
+  message(STATUS "Using CMAKE_RANLIB - ${CMAKE_RANLIB}")
+
+  # CMAKE_STRIP
+  find_program(STRIP ${TOOLCHAIN_PREFIX}-strip)
+  if(STRIP MATCHES "NOTFOUND")
+    message(FATAL_ERROR
+      "Can't detect CMAKE_STRIP from TOOLCHAIN_PREFIX, define it manually")
+  endif()
+  set(CMAKE_STRIP ${STRIP})
+  message(STATUS "Using CMAKE_STRIP - ${CMAKE_STRIP}")
+else(TOOLCHAIN_PREFIX)
+  # CMAKE_C_COMPILER_TARGET
+  if(NOT CMAKE_C_COMPILER_TARGET)
+    execute_process(
+      COMMAND ${CMAKE_C_COMPILER} -v -E -
+      INPUT_FILE /dev/null
+      OUTPUT_VARIABLE COMPILER_STDOUT
+      ERROR_VARIABLE COMPILER_STDERR
+      RESULT_VARIABLE COMPILER_STATUS
+    )
+    if(COMPILER_STATUS EQUAL 0)
+      string(REPLACE "\n" " " COMPILER_STDERR
+        ${COMPILER_STDERR})
+      string(REGEX MATCH "[ ]+Target:[ ]*([^ ]+)[ ]+.*" RESULT
+        ${COMPILER_STDERR})
+      set(CMAKE_C_COMPILER_TARGET ${CMAKE_MATCH_1})
+    endif()
+    if(NOT CMAKE_C_COMPILER_TARGET)
+      message(FATAL_ERROR
+        "Can't detect target platform of C compiler ${CMAKE_C_COMPILER}")
+    endif()
+    message(STATUS "Using CMAKE_C_COMPILER_TARGET - ${CMAKE_C_COMPILER_TARGET}")
+  endif()
+
+  # CMAKE_CXX_COMPILER_TARGET
+  if(NOT CMAKE_CXX_COMPILER_TARGET)
+    set(CMAKE_CXX_COMPILER_TARGET ${CMAKE_C_COMPILER_TARGET})
+  endif()
+  message(STATUS "Using CMAKE_CXX_COMPILER_TARGET - ${CMAKE_CXX_COMPILER_TARGET}")
+
+  # CMAKE_*
+  foreach(VAR IN ITEMS C_COMPILER CXX_COMPILER AR RANLIB STRIP)
+    message(STATUS "Using CMAKE_${VAR} - ${CMAKE_${VAR}}")
+  endforeach()
+endif(TOOLCHAIN_PREFIX)
