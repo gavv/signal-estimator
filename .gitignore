@@ -1,6 +1,7 @@
+.$*
+.cache
+.dir-locals.el
+.gdb_history
 bin
 build
 compile_commands.json
-.dir-locals.el
-.cache
-.gdb_history

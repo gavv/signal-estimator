@@ -20,6 +20,7 @@ Signal Estimator
 - [ALSA parameters](#alsa-parameters)
 - [Disabling PulseAudio](#disabling-pulseaudio)
 - [Real-time scheduling policy](#real-time-scheduling-policy)
+- [Internals](#internals)
 - [Acknowledgments](#acknowledgments)
 - [Authors](#authors)
 - [License](#license)
@@ -431,6 +432,17 @@ Real-time scheduling policy
 ---------------------------
 
 If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically enable `SCHED_RR` scheduling policy sensitive threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or software being measured) on a loaded system and make the measurement more stable and precise.
+
+Internals
+---------
+
+This diagram demonstrates the two main threads and data flow between them:
+
+![](./doc/flow.drawio.png)
+
+And this one shows interfaces and classes that implement them:
+
+![](./doc/classes.drawio.png)
 
 Acknowledgments
 ---------------
