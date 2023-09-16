@@ -17,7 +17,8 @@ on:
     - cron: '0 0 * * 1'
 
 jobs:
-  ubuntu:
+
+  linux-x86_64:
     runs-on: ubuntu-latest
 
     strategy:
@@ -26,7 +27,7 @@ jobs:
         target: [all, no_gui]
         compiler: [g++, clang++]
 
-    name: linux-${{ matrix.target }}-${{ matrix.compiler }}
+    name: linux-x86_64-${{ matrix.target }}-${{ matrix.compiler }}
 
     steps:
       - name: Checkout
@@ -51,8 +52,38 @@ jobs:
         run: make ${{ matrix.target }}
 
       - name: Check cli
-        run: ./bin/signal-estimator -h
+        run: ./bin/x86_64-linux-gnu/signal-estimator -h
 
       - name: Check ui
         if: ${{ matrix.target == 'all' }}
-        run: test -e ./bin/signal-estimator-gui
+        run: test -e ./bin/x86_64-linux-gnu/signal-estimator-gui
+
+  linux-arm32:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Build
+        run: make arm32
+
+      - name: Check
+        run: test -e ./bin/arm-linux-gnueabihf/signal-estimator
+
+  linux-arm64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Build
+        run: make arm64
+
+      - name: Check
+        run: test -e ./bin/aarch64-linux-gnu/signal-estimator
