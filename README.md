@@ -124,13 +124,13 @@ Build without GUI (in this case Qt and Qwt are not needed):
 make no_gui
 ```
 
+Executables are now placed into `bin/<toolchain>` directory, where `<toolchain>` is your host toolchain, e.g. `x86_64-linux-gnu`.
+
 Install into the system (optionally):
 
 ```
 sudo make install
 ```
-
-Alternatively, you can use executables from `bin/<toolchain>` directory, where `<toolchain>` is your host toolchain, e.g. `x86_64-linux-gnu`.
 
 Cross-compilation
 -----------------
@@ -149,16 +149,16 @@ make arm64
 
 These commands require Docker. They will pull and run docker images with prebuilt toolchains compatible with Raspberry Pi, perform build, and place executables into `bin/arm-linux-gnueabihf` and `bin/aarch64-linux-gnu`, respectively.
 
-To use your own toolchain instead of docker images, in most cases you can use `TOOLCHAIN_PREFIX` CMake option:
+To use your own toolchain instead of docker images, in simple cases it is enough just to specify `TOOLCHAIN_PREFIX` CMake option:
 
 ```
 mkdir -p build/<toolchain>
-cd build/<my_toolchain>
+cd build/<toolchain>
 cmake -DBUILD_GUI=NO -DTOOLCHAIN_PREFIX=<toolchain> ../..
 make
 ```
 
-In this case, `<toolchain>` defines toolchain triple of the target system, e.g. `aarch64-linux-gnu`. In this case `aarch64-linux-gnu-gcc` and other tools should be available in `PATH`.
+In example above, `<toolchain>` defines toolchain triple of the target system, e.g. `aarch64-linux-gnu`. In this case `aarch64-linux-gnu-gcc` and other tools should be available in `PATH`.
 
 For more complicated cases, refer to [standard instructions](https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html) for cross-compiling using CMake.
 
