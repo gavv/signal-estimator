@@ -5,8 +5,8 @@
 
 #include "core/Config.hpp"
 #include "core/Frame.hpp"
-#include "fmt/IDumper.hpp"
 #include "processing/MovAvg.hpp"
+#include "reports/IDumper.hpp"
 
 #include <cstdint>
 #include <cstdlib>

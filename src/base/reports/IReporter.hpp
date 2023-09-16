@@ -8,9 +8,9 @@
 
 namespace signal_estimator {
 
-class IFormatter {
+class IReporter {
 public:
-    virtual ~IFormatter() = default;
+    virtual ~IReporter() = default;
 
     virtual void report_latency(double sw_hw, double hw, int sma_window, double hw_avg)
         = 0;

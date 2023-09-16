@@ -4,11 +4,11 @@
 #pragma once
 
 #include "core/Config.hpp"
-#include "fmt/IFormatter.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
 #include "processing/MovMax.hpp"
 #include "processing/SchmittTrigger.hpp"
+#include "reports/IReporter.hpp"
 
 #include <memory>
 #include <mutex>
@@ -20,7 +20,7 @@ namespace signal_estimator {
 // detects strikes in output and input signals and calculates the latency between them
 class StepsLatencyEstimator : public IEstimator {
 public:
-    StepsLatencyEstimator(const Config& config, IFormatter& formatter);
+    StepsLatencyEstimator(const Config& config, IReporter& reporter);
     ~StepsLatencyEstimator() override = default;
 
     StepsLatencyEstimator(const StepsLatencyEstimator&) = delete;
@@ -86,7 +86,7 @@ private:
     Timestamp input_ts_ {};
     MovAvg<double> sma_;
 
-    IFormatter& format_;
+    IReporter& reporter_;
 };
 
 } // namespace signal_estimator

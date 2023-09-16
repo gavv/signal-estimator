@@ -3,7 +3,7 @@
 
 #include "processing/StepsLatencyEstimator.hpp"
 #include "core/Time.hpp"
-#include "fmt/IFormatter.hpp"
+#include "reports/IReporter.hpp"
 
 namespace signal_estimator {
 
@@ -34,12 +34,12 @@ void StepsLatencyEstimator::StepTrigger::add_frame(Frame* frame) {
     }
 }
 
-StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IFormatter& formatter)
+StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IReporter& reporter)
     : config_(config)
     , output_trigger_(config_)
     , input_trigger_(config_)
     , sma_(config.report_sma_window)
-    , format_(formatter) {
+    , reporter_(reporter) {
 }
 
 void StepsLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
@@ -106,7 +106,7 @@ bool StepsLatencyEstimator::check_step_(LatencyReport& report) {
 }
 
 void StepsLatencyEstimator::print_report_(const LatencyReport& report) {
-    format_.report_latency(
+    reporter_.report_latency(
         report.sw_hw, report.hw, (int)config_.report_sma_window, report.hw_avg);
 }
 

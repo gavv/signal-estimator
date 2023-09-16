@@ -1,7 +1,7 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "fmt/AsyncDumper.hpp"
+#include "reports/AsyncDumper.hpp"
 
 namespace signal_estimator {
 

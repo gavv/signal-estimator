@@ -4,12 +4,6 @@
 #include "core/FramePool.hpp"
 #include "core/Log.hpp"
 #include "core/Realtime.hpp"
-#include "fmt/AsyncDumper.hpp"
-#include "fmt/CsvDumper.hpp"
-#include "fmt/IDumper.hpp"
-#include "fmt/IFormatter.hpp"
-#include "fmt/JsonFormatter.hpp"
-#include "fmt/TextFormatter.hpp"
 #include "processing/ContinuousGenerator.hpp"
 #include "processing/CorrelationLatencyEstimator.hpp"
 #include "processing/Impulse.hpp"
@@ -17,6 +11,12 @@
 #include "processing/LossEstimator.hpp"
 #include "processing/StepsGenerator.hpp"
 #include "processing/StepsLatencyEstimator.hpp"
+#include "reports/AsyncDumper.hpp"
+#include "reports/CsvDumper.hpp"
+#include "reports/IDumper.hpp"
+#include "reports/IReporter.hpp"
+#include "reports/JsonReporter.hpp"
+#include "reports/TextReporter.hpp"
 #include "sndio/AlsaReader.hpp"
 #include "sndio/AlsaWriter.hpp"
 
@@ -294,22 +294,22 @@ int main(int argc, char** argv) {
         generator = std::make_unique<ContinuousGenerator>(config);
     }
 
-    std::unique_ptr<IFormatter> formatter;
+    std::unique_ptr<IReporter> reporter;
 
     if (format == "text") {
-        formatter = std::make_unique<TextFormatter>();
+        reporter = std::make_unique<TextReporter>();
     } else if (format == "json") {
-        formatter = std::make_unique<JsonFormatter>();
+        reporter = std::make_unique<JsonReporter>();
     }
 
     std::unique_ptr<IEstimator> estimator;
 
     if (mode == "latency_step") {
-        estimator = std::make_unique<StepsLatencyEstimator>(config, *formatter);
+        estimator = std::make_unique<StepsLatencyEstimator>(config, *reporter);
     } else if (mode == "latency_corr") {
-        estimator = std::make_unique<CorrelationLatencyEstimator>(config, *formatter);
+        estimator = std::make_unique<CorrelationLatencyEstimator>(config, *reporter);
     } else if (mode == "losses") {
-        estimator = std::make_unique<LossEstimator>(config, *formatter);
+        estimator = std::make_unique<LossEstimator>(config, *reporter);
     }
 
     std::unique_ptr<IDumper> output_dumper;

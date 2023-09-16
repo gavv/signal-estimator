@@ -4,13 +4,13 @@
 #pragma once
 
 #include "core/Config.hpp"
-#include "fmt/IFormatter.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
 #include "processing/MovGradient.hpp"
 #include "processing/MovMax.hpp"
 #include "processing/RateLimiter.hpp"
 #include "processing/SchmittTrigger.hpp"
+#include "reports/IReporter.hpp"
 
 #include <memory>
 
@@ -21,7 +21,7 @@ namespace signal_estimator {
 // detects spikes in the output signal
 class LossEstimator : public IEstimator {
 public:
-    LossEstimator(const Config& config, IFormatter& formatter);
+    LossEstimator(const Config& config, IReporter& reporter);
 
     LossEstimator(const LossEstimator&) = delete;
     LossEstimator& operator=(const LossEstimator&) = delete;
@@ -51,7 +51,7 @@ private:
     RateLimiter limiter_ { 2 };
     MovAvg<double> sma_;
 
-    IFormatter& format_;
+    IReporter& reporter_;
 };
 
 } // namespace signal_estimator

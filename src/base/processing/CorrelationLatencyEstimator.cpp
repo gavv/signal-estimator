@@ -9,9 +9,9 @@
 namespace signal_estimator {
 
 CorrelationLatencyEstimator::CorrelationLatencyEstimator(
-    const Config& config, IFormatter& formatter)
+    const Config& config, IReporter& reporter)
     : config_(config)
-    , formatter_(formatter)
+    , reporter_(reporter)
     , hw_avg_(config_.report_sma_window)
     , thread_(&CorrelationLatencyEstimator::run_, this)
     , causality_timeout_lim_(config_.frames_to_ns(impulse.size()))
@@ -79,7 +79,7 @@ void CorrelationLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak)
     const double swhw_ts
         = (in_peak.sw_hw - out_peak.sw_hw - impulse_duration) / Millisecond;
 
-    formatter_.report_latency(
+    reporter_.report_latency(
         swhw_ts, hw_ts, (int)config_.report_sma_window, hw_avg_(hw_ts));
 }
 

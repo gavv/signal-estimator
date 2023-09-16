@@ -5,12 +5,12 @@
 
 #include "core/Frame.hpp"
 #include "core/Queue.hpp"
-#include "fmt/IFormatter.hpp"
 #include "processing/FFTConvolution.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/Impulse.hpp"
 #include "processing/MovAvg.hpp"
 #include "processing/MovMax.hpp"
+#include "reports/IReporter.hpp"
 
 #include <string>
 #include <thread>
@@ -20,7 +20,7 @@ namespace signal_estimator {
 
 class CorrelationLatencyEstimator : public IEstimator {
 public:
-    CorrelationLatencyEstimator(const Config& config, IFormatter& formatter);
+    CorrelationLatencyEstimator(const Config& config, IReporter& reporter);
     ~CorrelationLatencyEstimator();
 
     CorrelationLatencyEstimator(const CorrelationLatencyEstimator&) = delete;
@@ -86,7 +86,7 @@ private:
     void report_(Timestamp out_peak, Timestamp in_peak);
 
     const Config& config_;
-    IFormatter& formatter_;
+    IReporter& reporter_;
     MovAvg<double> hw_avg_;
     Queue<std::shared_ptr<Frame>> queue_in_;
     Queue<std::shared_ptr<Frame>> queue_out_;
