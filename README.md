@@ -6,7 +6,7 @@ Signal Estimator
 <!-- toc -->
 
 - [Features](#features)
-- [Example use cases](#example-use-cases)
+- [Usage examples](#usage-examples)
 - [Supported platforms](#supported-platforms)
 - [Dependencies](#dependencies)
 - [Installation](#installation)
@@ -41,33 +41,38 @@ Features:
 * measurements output in JSON format for easy parsing
 * dump output and input streams to text files and plot them using matplotlib
 
-Example use cases
------------------
+Usage examples
+--------------
 
-* Measure local hardware latency.
+* **Measure hardware latency of sound card (by cable)**
 
-  *Example setups:*
+   Connect computer audio output to its audio input using a jack cable.
 
-  * connect computer's audio output to its audio input using a jack cable
-  * place computer's speakers near the its microphone
+   Measured loopback latency will give you output + input latency of sound card.
 
-* Measure total latency and signal quality of an external hardware + software system.
+* **Measure hardware latency of sound card (by air)**
 
-  *Example setups:*
+   Place computer speakers near microphone.
 
-  * measure Raspberry Pi hardware + software latency
+   Measured loopback latency will give you output + input latency of sound card + latency of spreading over air if distance is significant.
 
-    connect computer's audio output to a Raspberry Pi's input and vice versa, and run a program on Raspberry Pi that loops back signal from input to output
+* **Measure hardware + software latency of Raspberry Pi**
 
-  * measure hardware + software + network latency / quality of the two Raspberry Pies connected via a network transport
+   Connect computer audio output to Raspberry Pi audio input using a jack cable. Connect Raspberry Pi audio output to computer audio input. On Raspberry Pi, run software that loops back signal from input to output device (e.g. snd-aloop).
 
-    connect computer's audio output to the first Raspberry Pi's input, and computer's audio input to the second Raspberry Pi's output, and connect the two Raspberry Pies using some network audio transport
+   Measured loopback latency will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound card + latency of software running on Raspberry Pi.
 
-  * measure the hardware + software + bluetooth latency / quality of a mobile phone with bluetooth microphone and headphones
+* **Measure hardware + software + network latency of two Raspberry Pies connected via LAN**
 
-    place computer's speakers near bluetooth microphone connected to a mobile phone, place computer's microphone near bluetooth headphones connected to the phone, and run a mobile app that loops back signal from bluetooth microphone to bluetooth headphones
+   Connect computer audio output to audio input of first Raspberry Pi. Connect audio output of second Raspberry Pi to computer audio input. Run software that reads audio input on first Raspberry Pi, sends it to second Raspberry Pi, and writes to its audio output.
 
-  In these examples, you'll need to measure the latency of your local harware first, and then subtract it from the measurements results, to get the actual latency of the external system being tested.
+   Measured loopback latency will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound cards + latency of software running on Raspberry Pi + latency of network.
+
+* **Measure hardware + software + bluetooth latency of mobile phone with Bluetooth headset**
+
+   Place computer speakers near bluetooth microphone connected to a mobile phone. Place computer microphone near bluetooth headphones connected to the phone. Run a mobile app that loops back signal from bluetooth microphone to bluetooth headphones.
+
+   Measured loopback latency will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Bluetooth stack and software running on phone + latency of Bluetooth.
 
 Supported platforms
 -------------------
@@ -82,7 +87,7 @@ External:
 * C++17 compiler
 * CMake >= 3.5
 * libasound (ALSA devel)
-* libpng
+* libpng (for GUI)
 * Qt5 and Qwt (for GUI)
 
 Vendored (git submodules):
