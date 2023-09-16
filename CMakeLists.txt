@@ -54,27 +54,27 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(signal-estimator
+  src/base/core/Frame.cpp
+  src/base/core/FramePool.cpp
+  src/base/core/Realtime.cpp
+  src/base/core/Time.cpp
+  src/base/fmt/AsyncDumper.cpp
+  src/base/fmt/CsvDumper.cpp
+  src/base/fmt/JsonFormatter.cpp
+  src/base/fmt/TextFormatter.cpp
+  src/base/processing/ContinuousGenerator.cpp
+  src/base/processing/CorrelationLatencyEstimator.cpp
+  src/base/processing/FFTOps.cpp
+  src/base/processing/Impulse.cpp
+  src/base/processing/ImpulseGenerator.cpp
+  src/base/processing/LossEstimator.cpp
+  src/base/processing/RateLimiter.cpp
+  src/base/processing/StepsGenerator.cpp
+  src/base/processing/StepsLatencyEstimator.cpp
+  src/base/sndio/AlsaReader.cpp
+  src/base/sndio/AlsaUtils.cpp
+  src/base/sndio/AlsaWriter.cpp
   src/cli/Main.cpp
-  src/cli/core/Frame.cpp
-  src/cli/core/FramePool.cpp
-  src/cli/core/Realtime.cpp
-  src/cli/core/Time.cpp
-  src/cli/fmt/AsyncDumper.cpp
-  src/cli/fmt/CsvDumper.cpp
-  src/cli/fmt/JsonFormatter.cpp
-  src/cli/fmt/TextFormatter.cpp
-  src/cli/processing/ContinuousGenerator.cpp
-  src/cli/processing/CorrelationLatencyEstimator.cpp
-  src/cli/processing/FFTOps.cpp
-  src/cli/processing/Impulse.cpp
-  src/cli/processing/ImpulseGenerator.cpp
-  src/cli/processing/LossEstimator.cpp
-  src/cli/processing/RateLimiter.cpp
-  src/cli/processing/StepsGenerator.cpp
-  src/cli/processing/StepsLatencyEstimator.cpp
-  src/cli/sndio/AlsaReader.cpp
-  src/cli/sndio/AlsaUtils.cpp
-  src/cli/sndio/AlsaWriter.cpp
   )
 
 target_compile_options(signal-estimator
@@ -121,7 +121,7 @@ target_include_directories(signal-estimator SYSTEM
   PRIVATE 3rdparty/concurrentqueue
   PRIVATE 3rdparty/cxxopts/include
   PRIVATE 3rdparty/kissfft
-  PRIVATE src/cli
+  PRIVATE src/base
   )
 
 find_package(Threads)
