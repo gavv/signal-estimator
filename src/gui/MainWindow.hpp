@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "DeviceManager.hpp"
+#include "../base/IDeviceManager.hpp"
 #include "NotFoundDialog.hpp"
 #include "PointsBuffer.hpp"
 #include "SignalEstimator.hpp"
@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(IDeviceManager& device_manager, QWidget* parent = nullptr);
     ~MainWindow() override;
 
 private slots:
@@ -66,6 +66,6 @@ private:
 
     QTimer* timer_ = nullptr;
 
-    DeviceManager device_manager_;
+    IDeviceManager& device_manager_;
     SignalEstimator* signal_estimator_ = nullptr;
 };

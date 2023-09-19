@@ -6,17 +6,40 @@
 #include "ui_MainWindow.h"
 
 #include <QCheckBox>
+#include <QList>
 #include <QPen>
 
 #include <qwt_legend.h>
 #include <qwt_picker_machine.h>
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow) {
-    ui->setupUi(this);
+#include <cstring>
 
-    signal_estimator_ = new SignalEstimator(this);
+namespace {
+
+QString format_device_name(QString buffer) {
+    const char* c;
+    if (buffer.toStdString() == "default")
+        return buffer;
+    else {
+        QByteArray temp = buffer.toLocal8Bit();
+        buffer = "hw:";
+        c = (std::strstr(temp.data(), "card ") + 5); // get card number
+        buffer.push_back(*c); // hw:X
+        c = (std::strstr(temp.data(), " device ") + 8); // get device
+        buffer.append(","); // hw:X,
+        buffer.push_back(*c); // hw:X,Y
+        return buffer;
+    }
+}
+
+}
+
+MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+    , device_manager_(device_manager)
+    , signal_estimator_(new SignalEstimator(this)) {
+    ui->setupUi(this);
 
     connect(signal_estimator_, &SignalEstimator::error, this, &MainWindow::show_error);
     connect(signal_estimator_, &SignalEstimator::can_read, this,
@@ -74,11 +97,20 @@ MainWindow::MainWindow(QWidget* parent)
                                              .arg(QString::number(pos.y())));
     });
 
-    QVector<QString> in_devices = device_manager_.get_input_devices();
-    QVector<QString> out_devices = device_manager_.get_output_devices();
+    const std::vector<std::string> in_devices = device_manager_.get_input_devices();
+    const std::vector<std::string> out_devices = device_manager_.get_output_devices();
 
-    ui->InputDevices->addItems(in_devices.toList());
-    ui->OutputDevices->addItems(out_devices.toList());
+    auto to_list = [](const std::vector<std::string>& device_names) {
+        QList<QString> result;
+        result.reserve(device_names.size());
+        for (const std::string& device_name : device_names) {
+            result.push_back(QString::fromStdString(device_name));
+        }
+        return result;
+    };
+
+    ui->InputDevices->addItems(to_list(in_devices));
+    ui->OutputDevices->addItems(to_list(out_devices));
 
     show();
 }
@@ -170,11 +202,11 @@ QStringList MainWindow::set_up_program_() {
 
     t = ui->OutputDevices->currentText();
     list.append("-o");
-    list.append(device_manager_.format_device_name(t));
+    list.append(format_device_name(t));
 
     t = ui->InputDevices->currentText();
     list.append("-i");
-    list.append(device_manager_.format_device_name(t));
+    list.append(format_device_name(t));
 
     t = ui->SampleRate->cleanText();
     list.append("-r");

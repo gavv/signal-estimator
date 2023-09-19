@@ -1,6 +1,7 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
+#include "../base/AlsaDeviceManager.hpp"
 #include "MainWindow.hpp"
 #include "NotFoundDialog.hpp"
 #include "SignalEstimator.hpp"
@@ -16,6 +17,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    MainWindow w;
+    AlsaDeviceManager device_manager;
+    MainWindow w { device_manager };
     return a.exec();
 }

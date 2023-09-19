@@ -141,7 +141,7 @@ if(BUILD_GUI)
     )
 
   add_executable(signal-estimator-gui
-    src/gui/DeviceManager.cpp
+    src/base/AlsaDeviceManager.cpp
     src/gui/Main.cpp
     src/gui/MainWindow.cpp
     src/gui/NotFoundDialog.cpp
