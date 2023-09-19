@@ -102,7 +102,7 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
     auto to_list = [](const std::vector<std::string>& device_names) {
         QList<QString> result;
-        result.reserve(device_names.size());
+        result.reserve(static_cast<int>(device_names.size()));
         for (const std::string& device_name : device_names) {
             result.push_back(QString::fromStdString(device_name));
         }
