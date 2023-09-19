@@ -48,31 +48,41 @@ Usage examples
 
    Connect computer audio output to its audio input using a jack cable.
 
-   Measured loopback latency will give you output + input latency of sound card.
+   Measured loopback latency (bold red) will give you output + input latency of sound card.
+
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_soundcard_jack.drawio.png" width="400" />
 
 * **Measure hardware latency of sound card (by air)**
 
    Place computer speakers near microphone.
 
-   Measured loopback latency will give you output + input latency of sound card + latency of spreading over air if distance is significant.
+   Measured loopback latency (bold red) will give you output + input latency of sound card + latency of spreading over air if distance is significant.
 
-* **Measure hardware + software latency of Raspberry Pi**
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_soundcard_air.drawio.png" width="400" />
+
+* **Measure hardware + software latency of Raspberry Pi soundcard loopback**
 
    Connect computer audio output to Raspberry Pi audio input using a jack cable. Connect Raspberry Pi audio output to computer audio input. On Raspberry Pi, run software that loops back signal from input to output device (e.g. snd-aloop).
 
-   Measured loopback latency will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound card + latency of software running on Raspberry Pi.
+   Measured loopback latency (bold red) will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound card + latency of software running on Raspberry Pi.
+
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_raspberry.drawio.png" width="700" />
 
 * **Measure hardware + software + network latency of two Raspberry Pies connected via LAN**
 
    Connect computer audio output to audio input of first Raspberry Pi. Connect audio output of second Raspberry Pi to computer audio input. Run software that reads audio input on first Raspberry Pi, sends it to second Raspberry Pi, and writes to its audio output.
 
-   Measured loopback latency will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound cards + latency of software running on Raspberry Pi + latency of network.
+   Measured loopback latency (bold red) will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound cards + latency of software running on Raspberry Pi + latency of network.
+
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_raspberry_net.drawio.png" width="700" />
 
 * **Measure hardware + software + bluetooth latency of mobile phone with Bluetooth headset**
 
    Place computer speakers near bluetooth microphone connected to a mobile phone. Place computer microphone near bluetooth headphones connected to the phone. Run a mobile app that loops back signal from bluetooth microphone to bluetooth headphones.
 
-   Measured loopback latency will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Bluetooth stack and software running on phone + latency of Bluetooth.
+   Measured loopback latency (bold red) will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Bluetooth stack and software running on phone + latency of Bluetooth.
+
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_bluetooth.drawio.png" width="700" />
 
 Supported platforms
 -------------------
