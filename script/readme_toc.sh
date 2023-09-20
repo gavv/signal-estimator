@@ -1,4 +1,4 @@
-#! /bin/bash
+#!env bash
 set -euo pipefail
 
 if ! which markdown-toc >/dev/null 2>&1; then
