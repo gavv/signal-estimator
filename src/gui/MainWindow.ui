@@ -103,12 +103,12 @@
                 </item>
                 <item>
                  <property name="text">
-                  <string>latency_steps</string>
+                  <string>latency_step</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>latency_convl</string>
+                  <string>latency_corr</string>
                  </property>
                 </item>
                 <item>
