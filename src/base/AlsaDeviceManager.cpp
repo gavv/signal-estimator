@@ -1,15 +1,15 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "DeviceManager.hpp"
+#include "AlsaDeviceManager.hpp"
 
 #include <cstdio>
 #include <cstring>
 #include <memory>
 
-QVector<QString> DeviceManager::get_output_devices() {
+std::vector<std::string> AlsaDeviceManager::get_output_devices() {
     char buffer[128];
-    QVector<QString> strvec;
+    std::vector<std::string> strvec;
     // run pipe to get output devices from aplay
     std::unique_ptr<FILE, decltype(&pclose)> pipe1(popen("aplay -l", "r"), pclose);
 
@@ -22,15 +22,15 @@ QVector<QString> DeviceManager::get_output_devices() {
         // if line has both card and device in it
         if (std::strstr(buffer, "card") != nullptr
             && std::strstr(buffer, "device") != nullptr) {
-            strvec.append(QString::fromStdString(buffer));
+            strvec.emplace_back(buffer);
         }
     }
     return strvec;
 }
 
-QVector<QString> DeviceManager::get_input_devices() {
+std::vector<std::string> AlsaDeviceManager::get_input_devices() {
     char buffer[128];
-    QVector<QString> strvec;
+    std::vector<std::string> strvec;
     // run pipe to get output devices from arecord
     std::unique_ptr<FILE, decltype(&pclose)> pipe2(popen("arecord -l", "r"), pclose);
     if (!pipe2) {
@@ -41,24 +41,22 @@ QVector<QString> DeviceManager::get_input_devices() {
         // if line has both card and device in it
         if (std::strstr(buffer, "card") != nullptr
             && std::strstr(buffer, "device") != nullptr) {
-            strvec.append(QString::fromStdString(buffer));
+            strvec.emplace_back(buffer);
         }
     }
     return strvec;
 }
 
-QString DeviceManager::format_device_name(QString buffer) {
-    const char* c;
-    if (buffer.toStdString() == "default")
-        return buffer;
-    else {
-        QByteArray temp = buffer.toLocal8Bit();
-        buffer = "hw:";
-        c = (std::strstr(temp.data(), "card ") + 5); // get card number
-        buffer.push_back(*c); // hw:X
-        c = (std::strstr(temp.data(), " device ") + 8); // get device
-        buffer.append(","); // hw:X,
-        buffer.push_back(*c); // hw:X,Y
-        return buffer;
+std::string AlsaDeviceManager::format_device_name(std::string_view buffer) {
+    if (buffer == "default" || buffer.empty()) {
+        return std::string { buffer };
     }
+
+    std::string result { "hw:" };
+    const char* c = (std::strstr(buffer.data(), "card ") + 5); // get card number
+    result += *c; // hw:X
+    c = (std::strstr(buffer.data(), " device ") + 8); // get device
+    result += ","; // hw:X,
+    result += *c; // hw:X,Y
+    return result;
 }
