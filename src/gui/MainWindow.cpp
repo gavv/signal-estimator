@@ -12,28 +12,6 @@
 #include <qwt_legend.h>
 #include <qwt_picker_machine.h>
 
-#include <cstring>
-
-namespace {
-
-QString format_device_name(QString buffer) {
-    const char* c;
-    if (buffer.toStdString() == "default")
-        return buffer;
-    else {
-        QByteArray temp = buffer.toLocal8Bit();
-        buffer = "hw:";
-        c = (std::strstr(temp.data(), "card ") + 5); // get card number
-        buffer.push_back(*c); // hw:X
-        c = (std::strstr(temp.data(), " device ") + 8); // get device
-        buffer.append(","); // hw:X,
-        buffer.push_back(*c); // hw:X,Y
-        return buffer;
-    }
-}
-
-}
-
 MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -202,11 +180,13 @@ QStringList MainWindow::set_up_program_() {
 
     t = ui->OutputDevices->currentText();
     list.append("-o");
-    list.append(format_device_name(t));
+    list.append(
+        QString::fromStdString(device_manager_.format_device_name(t.toStdString())));
 
     t = ui->InputDevices->currentText();
     list.append("-i");
-    list.append(format_device_name(t));
+    list.append(
+        QString::fromStdString(device_manager_.format_device_name(t.toStdString())));
 
     t = ui->SampleRate->cleanText();
     list.append("-r");

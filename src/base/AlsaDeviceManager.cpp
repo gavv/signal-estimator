@@ -46,3 +46,17 @@ std::vector<std::string> AlsaDeviceManager::get_input_devices() {
     }
     return strvec;
 }
+
+std::string AlsaDeviceManager::format_device_name(std::string_view buffer) {
+    if (buffer == "default" || buffer.empty()) {
+        return std::string { buffer };
+    }
+
+    std::string result { "hw:" };
+    const char* c = (std::strstr(buffer.data(), "card ") + 5); // get card number
+    result += *c; // hw:X
+    c = (std::strstr(buffer.data(), " device ") + 8); // get device
+    result += ","; // hw:X,
+    result += *c; // hw:X,Y
+    return result;
+}
