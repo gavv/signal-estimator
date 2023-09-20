@@ -26,6 +26,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     "-Wall"
     "-Wextra"
     "-Wno-cast-align"
+    "-Wno-unused-private-field"
     )
 endif()
 
