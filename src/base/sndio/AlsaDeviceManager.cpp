@@ -55,11 +55,18 @@ std::string AlsaDeviceManager::format_device_name(std::string_view buffer) {
     }
 
     std::string result { "hw:" };
-    const char* c = (std::strstr(buffer.data(), "card ") + 5); // get card number
-    result += *c; // hw:X
-    c = (std::strstr(buffer.data(), " device ") + 8); // get device
-    result += ","; // hw:X,
-    result += *c; // hw:X,Y
+
+    const char* card_prefix = "card ";
+    if (const char* str = std::strstr(buffer.data(), card_prefix)) {
+        result += *(str + strlen(card_prefix));
+    }
+
+    const char* device_prefix = " device ";
+    if (const char* str = std::strstr(buffer.data(), device_prefix)) {
+        result += ',';
+        result += *(str + strlen(device_prefix));
+    }
+
     return result;
 }
 
