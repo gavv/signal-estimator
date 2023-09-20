@@ -1,11 +1,13 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "AlsaDeviceManager.hpp"
+#include "sndio/AlsaDeviceManager.hpp"
 
 #include <cstdio>
 #include <cstring>
 #include <memory>
+
+namespace signal_estimator {
 
 std::vector<std::string> AlsaDeviceManager::get_output_devices() {
     char buffer[128];
@@ -60,3 +62,5 @@ std::string AlsaDeviceManager::format_device_name(std::string_view buffer) {
     result += *c; // hw:X,Y
     return result;
 }
+
+} // namespace signal_estimator

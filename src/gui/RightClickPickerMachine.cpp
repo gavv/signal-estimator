@@ -7,6 +7,8 @@
 
 #include <QMouseEvent>
 
+namespace signal_estimator {
+
 RightClickPickerMachine::RightClickPickerMachine()
     : QwtPickerMachine(PointSelection) {
 }
@@ -42,3 +44,5 @@ QList<QwtPickerMachine::Command> RightClickPickerMachine::transition(
 
     return cmdList;
 }
+
+} // namespace signal_estimator

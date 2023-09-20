@@ -5,6 +5,8 @@
 
 #include <algorithm>
 
+namespace signal_estimator {
+
 void PointsBuffer::append_point(QPointF pt) {
     ringbuf_.push_back(pt);
 
@@ -29,3 +31,5 @@ QVector<QPointF> PointsBuffer::get_current_points() {
 void PointsBuffer::clear_buf() {
     ringbuf_.clear();
 }
+
+} // namespace signal_estimator

@@ -1,12 +1,15 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "../base/AlsaDeviceManager.hpp"
+#include "sndio/AlsaDeviceManager.hpp"
+
 #include "MainWindow.hpp"
 #include "NotFoundDialog.hpp"
 #include "SignalEstimator.hpp"
 
 #include <QApplication>
+
+using namespace signal_estimator;
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
@@ -19,5 +22,6 @@ int main(int argc, char* argv[]) {
 
     AlsaDeviceManager device_manager;
     MainWindow w { device_manager };
+
     return a.exec();
 }

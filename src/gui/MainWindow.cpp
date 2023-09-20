@@ -12,6 +12,8 @@
 #include <qwt_legend.h>
 #include <qwt_picker_machine.h>
 
+namespace signal_estimator {
+
 MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -261,3 +263,5 @@ QStringList MainWindow::set_up_program_() {
 
     return list;
 }
+
+} // namespace signal_estimator

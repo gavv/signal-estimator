@@ -9,6 +9,8 @@ namespace Ui {
 class NotFoundDialog;
 }
 
+namespace signal_estimator {
+
 class NotFoundDialog : public QDialog {
     Q_OBJECT
 
@@ -22,3 +24,5 @@ private slots:
 private:
     Ui::NotFoundDialog* ui;
 };
+
+} // namespace signal_estimator

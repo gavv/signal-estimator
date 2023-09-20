@@ -11,6 +11,8 @@
 
 #include <exception>
 
+namespace signal_estimator {
+
 SignalEstimator::SignalEstimator(QObject* parent)
     : QObject(parent) {
 }
@@ -131,3 +133,5 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
 
     return {};
 }
+
+} // namespace signal_estimator

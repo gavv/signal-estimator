@@ -3,10 +3,12 @@
 
 #pragma once
 
-#include "IDeviceManager.hpp"
+#include "sndio/IDeviceManager.hpp"
 
 #include <string>
 #include <vector>
+
+namespace signal_estimator {
 
 class AlsaDeviceManager : public IDeviceManager {
 public:
@@ -14,3 +16,5 @@ public:
     std::vector<std::string> get_input_devices() override;
     std::string format_device_name(std::string_view buffer) override;
 };
+
+} // namespace signal_estimator

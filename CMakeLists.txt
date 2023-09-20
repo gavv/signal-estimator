@@ -56,7 +56,7 @@ if(ENABLE_SANITIZERS)
     )
 endif()
 
-add_executable(signal-estimator
+add_library(base_objects OBJECT
   src/base/core/Frame.cpp
   src/base/core/FramePool.cpp
   src/base/core/Realtime.cpp
@@ -74,9 +74,29 @@ add_executable(signal-estimator
   src/base/reports/CsvDumper.cpp
   src/base/reports/JsonReporter.cpp
   src/base/reports/TextReporter.cpp
+  src/base/sndio/AlsaDeviceManager.cpp
   src/base/sndio/AlsaReader.cpp
   src/base/sndio/AlsaUtils.cpp
   src/base/sndio/AlsaWriter.cpp
+)
+
+add_dependencies(base_objects
+  ${ALL_DEPENDENCIES}
+  )
+
+target_compile_options(base_objects
+  PRIVATE ${COMPILER_FLAGS}
+  )
+
+target_link_options(base_objects
+  PRIVATE ${LINKER_FLAGS}
+  )
+
+target_include_directories(base_objects
+  PRIVATE src/base
+  )
+
+add_executable(signal-estimator
   src/cli/Main.cpp
   )
 
@@ -97,12 +117,13 @@ target_link_options(signal-estimator
   PRIVATE ${LINKER_FLAGS}
   )
 
-target_include_directories(signal-estimator SYSTEM
+target_include_directories(signal-estimator
   PRIVATE src/base
   )
 
 find_package(Threads)
 target_link_libraries(signal-estimator
+  base_objects
   m
   ${CMAKE_THREAD_LIBS_INIT}
   )
@@ -140,8 +161,11 @@ if(BUILD_GUI)
     ${ALL_DEPENDENCIES}
     )
 
+  target_include_directories(generated_objects
+    PRIVATE src/base
+    )
+
   add_executable(signal-estimator-gui
-    src/base/AlsaDeviceManager.cpp
     src/gui/Main.cpp
     src/gui/MainWindow.cpp
     src/gui/NotFoundDialog.cpp
@@ -166,6 +190,10 @@ if(BUILD_GUI)
     PRIVATE ${LINKER_FLAGS}
     )
 
+  target_include_directories(signal-estimator-gui
+    PRIVATE src/base
+    )
+
   foreach(TARGET IN ITEMS generated_objects signal-estimator-gui)
     target_include_directories(${TARGET} SYSTEM PRIVATE
       ${CMAKE_CURRENT_BINARY_DIR}
@@ -177,6 +205,7 @@ if(BUILD_GUI)
 
   target_link_libraries(signal-estimator-gui
     generated_objects
+    base_objects
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
@@ -220,7 +249,7 @@ add_custom_target(install_executables ALL
 if(NOT CMAKE_CROSSCOMPILING)
   add_custom_command(
     COMMENT "Copying compile_commands.json to project root"
-    DEPENDS ${TOOL_NAME} ${TESTS}
+    DEPENDS ${ALL_EXECUTABLES}
     OUTPUT ${PROJECT_SOURCE_DIR}/compile_commands.json
     COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json

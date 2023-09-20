@@ -8,6 +8,8 @@
 
 #include <deque>
 
+namespace signal_estimator {
+
 class PointsBuffer {
 public:
     void append_point(QPointF);
@@ -24,3 +26,5 @@ private:
 
     std::deque<QPointF> ringbuf_;
 };
+
+} // namespace signal_estimator

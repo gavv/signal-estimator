@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include "../base/IDeviceManager.hpp"
+#include "sndio/IDeviceManager.hpp"
+
 #include "NotFoundDialog.hpp"
 #include "PointsBuffer.hpp"
 #include "SignalEstimator.hpp"
@@ -28,6 +29,8 @@
 namespace Ui {
 class MainWindow;
 }
+
+namespace signal_estimator {
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -69,3 +72,5 @@ private:
     IDeviceManager& device_manager_;
     SignalEstimator* signal_estimator_ = nullptr;
 };
+
+} // namespace signal_estimator

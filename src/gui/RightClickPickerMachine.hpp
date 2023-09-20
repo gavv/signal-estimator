@@ -5,6 +5,8 @@
 
 #include <qwt_picker_machine.h>
 
+namespace signal_estimator {
+
 class RightClickPickerMachine : public QwtPickerMachine {
 public:
     RightClickPickerMachine();
@@ -12,3 +14,5 @@ public:
     QList<Command> transition(
         const QwtEventPattern& eventPattern, const QEvent* event) override;
 };
+
+} // namespace signal_estimator

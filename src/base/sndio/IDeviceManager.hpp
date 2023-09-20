@@ -7,6 +7,8 @@
 #include <string_view>
 #include <vector>
 
+namespace signal_estimator {
+
 class IDeviceManager {
 public:
     virtual ~IDeviceManager() = default;
@@ -15,3 +17,5 @@ public:
     virtual std::vector<std::string> get_input_devices() = 0;
     virtual std::string format_device_name(std::string_view buffer) = 0;
 };
+
+} // namespace signal_estimator

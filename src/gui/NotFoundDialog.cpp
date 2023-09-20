@@ -4,6 +4,8 @@
 #include "NotFoundDialog.hpp"
 #include "ui_NotFoundDialog.h"
 
+namespace signal_estimator {
+
 NotFoundDialog::NotFoundDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::NotFoundDialog) {
@@ -17,3 +19,5 @@ NotFoundDialog::~NotFoundDialog() {
 void NotFoundDialog::on_pushButton_clicked() {
     close();
 }
+
+} // namespace signal_estimator

@@ -14,6 +14,8 @@
 #include <optional>
 #include <tuple>
 
+namespace signal_estimator {
+
 class SignalEstimator : public QObject {
     Q_OBJECT
 
@@ -37,3 +39,5 @@ private:
 
     QSharedPointer<QProcess> proc_;
 };
+
+} // namespace signal_estimator
