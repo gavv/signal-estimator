@@ -207,6 +207,7 @@ if(BUILD_GUI)
   target_link_libraries(signal-estimator-gui
     generated_objects
     base_objects
+    ${CMAKE_THREAD_LIBS_INIT}
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
