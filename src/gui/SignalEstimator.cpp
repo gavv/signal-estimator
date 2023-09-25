@@ -84,7 +84,7 @@ QString SignalEstimator::find() {
     return {};
 }
 
-bool SignalEstimator::start(QStringList args) {
+bool SignalEstimator::start(const QStringList& args) {
     stop();
 
     proc_ = QSharedPointer<QProcess>(new QProcess);
@@ -97,15 +97,19 @@ bool SignalEstimator::start(QStringList args) {
     connect(proc_.data(), &QProcess::readyReadStandardOutput, this,
         &SignalEstimator::can_read);
 
-    connect(proc_.data(), qOverload<QProcess::ProcessError>(&QProcess::errorOccurred),
-        this, [this]() {
+    connect(
+        proc_.data(), qOverload<QProcess::ProcessError>(&QProcess::errorOccurred), this,
+        [this]() {
             if (proc_) {
-                error(proc_->errorString());
+                emit error(proc_->errorString());
             }
-        });
+        },
+        Qt::QueuedConnection);
+    connect(proc_.data(), qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this,
+        [this](int, QProcess::ExitStatus) { emit finished(); });
 
     if (!proc_->open(QProcess::ReadOnly)) {
-        proc_ = {};
+        proc_.reset();
         return false;
     }
 
@@ -116,8 +120,7 @@ void SignalEstimator::stop() {
     if (proc_ && proc_->isOpen()) {
         proc_->close();
     }
-
-    proc_ = {};
+    proc_.reset();
 }
 
 std::optional<std::tuple<QPointF, PointType>> SignalEstimator::read() {
@@ -169,7 +172,7 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(
     QPointF pt;
 
     try {
-        pt.setX(tokens[1].toDouble() / 1000000);
+        pt.setX(tokens[1].toDouble() / 1'000'000);
     } catch (const std::invalid_argument&) {
         return {};
     }
