@@ -199,6 +199,21 @@
              </layout>
             </item>
             <item>
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QLabel">
+                <property name="text">
+                 <string>Average Measurement: </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="averageMeasurementResult">
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
                 <widget class ="QCheckBox" name="GridCheckBox">
