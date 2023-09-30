@@ -53,6 +53,7 @@ private:
     void set_update_plots_(bool f) {
         update_plots_ = f;
     }
+    void update_latency(std::array<double, 3> latency);
 
     Ui::MainWindow* ui;
     bool update_plots_ = false;

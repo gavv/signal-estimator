@@ -135,10 +135,13 @@ void MainWindow::on_StopButton_clicked() {
 }
 
 void MainWindow::update_graphs() {
+    if (auto latencyValues = signal_estimator_->latencyUpdate()) {
+        update_latency(*latencyValues);
+    }
+
     if (!update_plots_) {
         return;
     }
-
     // update both input and output signal graphs
     QVector<QPointF> in_current = in_data_.get_current_points();
     QVector<QPointF> out_current = out_data_.get_current_points();
@@ -166,6 +169,10 @@ void MainWindow::read_graph_data() {
         } else if (type == PointType::Output) {
             out_data_.append_point(pt);
         }
+    }
+    if(auto latencyValues = signal_estimator_->latencyUpdate())
+    {
+        
     }
 }
 
@@ -262,6 +269,12 @@ QStringList MainWindow::set_up_program_() {
     list.append(t);
 
     return list;
+}
+
+void MainWindow::update_latency(std::array<double, 3> latency)
+{
+
+    ui->averageMeasurementResult->setText(QString::number(latency[0], 'f', 2));
 }
 
 } // namespace signal_estimator

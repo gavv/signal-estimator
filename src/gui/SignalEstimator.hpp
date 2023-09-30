@@ -29,15 +29,18 @@ public:
     void stop();
 
     std::optional<std::tuple<QPointF, PointType>> read();
+    std::optional<std::array<double, 3>> latencyUpdate();
 
 signals:
     void can_read();
     void error(QString);
 
 private:
+    std::optional<std::array<double, 3>> parseLatency_(QString buffer);
     std::optional<std::tuple<QPointF, PointType>> parse_(QString buffer);
-
     QSharedPointer<QProcess> proc_;
+    std::array<double, 3> latency_;
+    bool latencyChanged_;
 };
 
 } // namespace signal_estimator

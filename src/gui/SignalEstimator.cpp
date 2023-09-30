@@ -14,7 +14,9 @@
 namespace signal_estimator {
 
 SignalEstimator::SignalEstimator(QObject* parent)
-    : QObject(parent) {
+    : QObject(parent) 
+    , latencyChanged_(false)
+    {
 }
 
 SignalEstimator::~SignalEstimator() {
@@ -95,6 +97,14 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
         return {};
     }
 
+    if (buffer[0] == "l")
+    {
+        if(auto latencyValues = parseLatency_(buffer)){
+            std::copy(latencyValues->begin(), latencyValues->end(), latency_.begin());
+            latencyChanged_ = true;
+        }
+    }
+
     QRegExp reg;
     reg.setPattern(QString(",|\\n"));
 
@@ -131,6 +141,25 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
         return std::make_tuple(pt, PointType::Output);
     }
 
+    return {};
+}
+
+std::optional<std::array<double, 3>> SignalEstimator::parseLatency_(QString buffer)
+{
+    std::array<double, 3> values;
+    values[0] = 0;
+    values[1] = 0;
+    values[2] = 0;
+    return values;
+}
+
+std::optional<std::array<double, 3>> SignalEstimator::latencyUpdate()
+{
+    if(latencyChanged_)
+    {
+        latencyChanged_ = false;
+        return latency_;
+    }
     return {};
 }
 
