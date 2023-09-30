@@ -10,6 +10,7 @@
 #include <QStandardPaths>
 
 #include <exception>
+#include <iostream>
 
 namespace signal_estimator {
 
@@ -145,12 +146,27 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
     return {};
 }
 
+
+
 std::optional<std::array<double, 3>> SignalEstimator::parseLatency_(QString buffer)
 {
     std::array<double, 3> values;
-    values[0] = 0;
-    values[1] = 0;
-    values[2] = 0;
+    QRegExp reg;
+    QStringList list;
+    int pos = 0;
+    reg.setPattern("([\\d\\.]+)ms");
+    while ((pos = reg.indexIn(buffer, pos)) != -1){
+        list << reg.cap(1);
+        pos += reg.matchedLength();
+    }
+
+    if (list.size() != 3){
+        return {};
+    }
+
+    values[0] = list[0].toDouble();
+    values[1] = list[1].toDouble();
+    values[2] = list[2].toDouble();
     return values;
 }
 
