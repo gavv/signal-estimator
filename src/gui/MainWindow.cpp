@@ -170,10 +170,6 @@ void MainWindow::read_graph_data() {
             out_data_.append_point(pt);
         }
     }
-    if(auto latencyValues = signal_estimator_->latencyUpdate())
-    {
-        
-    }
 }
 
 void MainWindow::show_error(QString error) {
@@ -273,8 +269,7 @@ QStringList MainWindow::set_up_program_() {
 
 void MainWindow::update_latency(std::array<double, 3> latency)
 {
-
-    ui->averageMeasurementResult->setText(QString::number(latency[0], 'f', 2));
+    ui->averageMeasurementResult->setText(QString::number(latency[0], 'f', 3));
 }
 
 } // namespace signal_estimator

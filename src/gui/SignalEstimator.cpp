@@ -99,6 +99,7 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
 
     if (buffer[0] == "l")
     {
+
         if(auto latencyValues = parseLatency_(buffer)){
             std::copy(latencyValues->begin(), latencyValues->end(), latency_.begin());
             latencyChanged_ = true;
