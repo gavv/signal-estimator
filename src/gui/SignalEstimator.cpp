@@ -10,7 +10,6 @@
 #include <QStandardPaths>
 
 #include <exception>
-#include <iostream>
 
 namespace signal_estimator {
 

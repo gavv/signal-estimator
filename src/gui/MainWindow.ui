@@ -203,12 +203,42 @@
               <item>
                <widget class="QLabel">
                 <property name="text">
-                 <string>Average Measurement: </string>
+                 <string>Hardware + Software Latency: </string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="averageMeasurementResult">
+               <widget class="QLabel" name="HwSwLatency">
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QLabel">
+                <property name="text">
+                 <string>Software Latency: </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="SwLatency">
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QLabel">
+                <property name="text">
+                 <string>Hardware Average 5 Latency: </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="HwAvg5Latency">
                </widget>
               </item>
              </layout>
