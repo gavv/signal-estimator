@@ -267,11 +267,11 @@ QStringList MainWindow::set_up_program_() {
     return list;
 }
 
-void MainWindow::update_latency(std::array<double, 3> latency)
+void MainWindow::update_latency(LatencyResult latency)
 {
-    ui->HwSwLatency->setText(QString::number(latency[0], 'f', 3) + QString("ms"));
-    ui->SwLatency->setText(QString::number(latency[1], 'f', 3)+ QString("ms"));
-    ui->HwAvg5Latency->setText(QString::number(latency[2], 'f', 3)+ QString("ms"));
+    ui->HwSwLatency->setText(QString::number(latency.swHw, 'f', 3) + QString("ms"));
+    ui->SwLatency->setText(QString::number(latency.hw, 'f', 3)+ QString("ms"));
+    ui->HwAvg5Latency->setText(QString::number(latency.hwAvg5, 'f', 3)+ QString("ms"));
 }
 
 } // namespace signal_estimator

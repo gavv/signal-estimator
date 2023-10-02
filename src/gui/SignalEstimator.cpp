@@ -6,7 +6,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStandardPaths>
 
 #include <exception>
@@ -15,7 +15,6 @@ namespace signal_estimator {
 
 SignalEstimator::SignalEstimator(QObject* parent)
     : QObject(parent) 
-    , latencyChanged_(false)
     {
 }
 
@@ -101,21 +100,14 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
     {
 
         if(auto latencyValues = parseLatency_(buffer)){
-            std::copy(latencyValues->begin(), latencyValues->end(), latency_.begin());
+            latency_ = *latencyValues;
             latencyChanged_ = true;
         }
     }
 
-    QRegExp reg;
-    reg.setPattern(QString(",|\\n"));
+    QRegularExpression reg(",|\\n");
 
-    QStringList tokens = buffer.split(reg,
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-        Qt::SkipEmptyParts
-#else
-        QString::SkipEmptyParts
-#endif
-    );
+    QStringList tokens = buffer.split(reg, Qt::SkipEmptyParts);
     if (tokens.count() < 3) {
         return {};
     }
@@ -147,29 +139,28 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
 
 
 
-std::optional<std::array<double, 3>> SignalEstimator::parseLatency_(QString buffer)
+std::optional<LatencyResult> SignalEstimator::parseLatency_(QString buffer)
 {
-    std::array<double, 3> values;
-    QRegExp reg;
+    LatencyResult values;
+    QRegularExpression reg("([\\d\\.]+)ms");
     QStringList list;
-    int pos = 0;
-    reg.setPattern("([\\d\\.]+)ms");
-    while ((pos = reg.indexIn(buffer, pos)) != -1){
-        list << reg.cap(1);
-        pos += reg.matchedLength();
+    QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
+    while(i.hasNext()){
+        QRegularExpressionMatch match = i.next();
+        list << match.captured(1);
     }
 
     if (list.size() != 3){
         return {};
     }
 
-    values[0] = list[0].toDouble();
-    values[1] = list[1].toDouble();
-    values[2] = list[2].toDouble();
+    values.swHw = list[0].toDouble();
+    values.hw = list[1].toDouble();
+    values.hwAvg5 = list[2].toDouble();
     return values;
 }
 
-std::optional<std::array<double, 3>> SignalEstimator::latencyUpdate()
+std::optional<LatencyResult> SignalEstimator::latencyUpdate()
 {
     if(latencyChanged_)
     {
