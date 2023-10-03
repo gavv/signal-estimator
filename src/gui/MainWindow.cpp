@@ -138,6 +138,9 @@ void MainWindow::update_graphs() {
     if (auto latencyValues = signal_estimator_->latencyUpdate()) {
         update_latency(*latencyValues);
     }
+    if (auto lossesValues = signal_estimator_->lossesUpdate()) {
+        update_losses(*lossesValues);
+    }
 
     if (!update_plots_) {
         return;
@@ -267,11 +270,30 @@ QStringList MainWindow::set_up_program_() {
     return list;
 }
 
-void MainWindow::update_latency(LatencyResult latency)
-{
-    ui->HwSwLatency->setText(QString::number(latency.swHw, 'f', 3) + QString("ms"));
-    ui->SwLatency->setText(QString::number(latency.hw, 'f', 3)+ QString("ms"));
-    ui->HwAvgNLatency->setText(QString::number(latency.hwAvgN, 'f', 3)+ QString("ms"));
+void MainWindow::update_latency(LatencyResult latency) {
+    display_latency_text();
+    ui->Result1->setText(QString::number(latency.swHw, 'f', 3) + QString("ms"));
+    ui->Result2->setText(QString::number(latency.hw, 'f', 3)+ QString("ms"));
+    ui->Result3->setText(QString::number(latency.hwAvgN, 'f', 3)+ QString("ms"));
+}
+
+void MainWindow::update_losses(LossesResult latency) {
+    display_losses_text();
+    ui->Result1->setText(QString::number(latency.rate, 'f', 3) + QString("/sec"));
+    ui->Result2->setText(QString::number(latency.avgRate, 'f', 3)+ QString("/sec"));
+    ui->Result3->setText(QString::number(latency.ratio, 'f', 3)+ QString("%"));
+}
+
+void MainWindow::display_latency_text() {
+    ui->ResultLabel1->setText("Hardware + Software Latency:");
+    ui->ResultLabel2->setText("Software Latency:");
+    ui->ResultLabel3->setText("Hardware Average Latency:");
+}
+
+void MainWindow::display_losses_text() {
+    ui->ResultLabel1->setText("Rate:");
+    ui->ResultLabel2->setText("Average Rate:");
+    ui->ResultLabel3->setText("Ratio:");
 }
 
 } // namespace signal_estimator

@@ -54,6 +54,9 @@ private:
         update_plots_ = f;
     }
     void update_latency(LatencyResult latency);
+    void update_losses(LossesResult losses);
+    void display_latency_text();
+    void display_losses_text();
 
     Ui::MainWindow* ui;
     bool update_plots_ = false;

@@ -88,19 +88,23 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::read() {
 
     QByteArray buffer = proc_->readLine();
 
-    return parse_(QString(buffer));
+    return parseIO_(QString(buffer));
 }
 
-std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString buffer) {
+std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(QString buffer) {
     if (buffer[0] == "#") {
         return {};
     }
 
-    if (buffer[0] == "l")
-    {
-
+    if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "a"){
         if(auto latencyValues = parseLatency_(buffer)){
             latency_ = *latencyValues;
+        }
+    }
+
+    if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "o"){
+        if(auto lossesValues = parseLosses_(buffer)){
+            losses_ = *lossesValues;
         }
     }
 
@@ -136,10 +140,7 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
     return {};
 }
 
-
-
-std::optional<LatencyResult> SignalEstimator::parseLatency_(QString buffer)
-{
+std::optional<LatencyResult> SignalEstimator::parseLatency_(QString buffer) {
     LatencyResult values;
     QRegularExpression reg("([\\d\\.]+)ms");
     QStringList list;
@@ -159,12 +160,37 @@ std::optional<LatencyResult> SignalEstimator::parseLatency_(QString buffer)
     return values;
 }
 
-std::optional<LatencyResult> SignalEstimator::latencyUpdate()
-{
+std::optional<LossesResult> SignalEstimator::parseLosses_(QString buffer) {
+    LossesResult values;
+    QRegularExpression reg("([\\d\\.]+)/sec|([\\d\\.]+)%");
+    QStringList list;
+    QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
+    while(i.hasNext()){
+        QRegularExpressionMatch match = i.next();
+        list << match.captured(1);
+    }
+
+    if (list.size() != 3){
+        return {};
+    }
+
+    values.rate = list[0].toDouble();
+    values.avgRate = list[1].toDouble();
+    values.ratio = list[2].toDouble();
+    return values;
+}
+
+std::optional<LatencyResult> SignalEstimator::latencyUpdate() {
     std::optional<LatencyResult> latencyTmp = latency_;
     latency_ = {};
     return latencyTmp;
-
 }
+
+std::optional<LossesResult> SignalEstimator::lossesUpdate() {
+    std::optional<LossesResult> lossesTmp = losses_;
+    losses_ = {};
+    return lossesTmp;
+}
+
 
 } // namespace signal_estimator

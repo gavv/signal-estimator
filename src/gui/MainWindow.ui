@@ -175,7 +175,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="">
+             <widget class="QFrame" name="frame">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QPushButton" name="StartButton">
@@ -218,42 +218,63 @@
                <item>
                 <layout class="QHBoxLayout" name="HwSwLayout">
                  <item>
-                  <widget class="QLabel" name="HwSwLabel">
+                  <widget class="QLabel" name="ResultLabel1">
                    <property name="text">
-                    <string>Hardware + Software Latency: </string>
+                    <string/>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="HwSwLatency"/>
+                  <widget class="QLabel" name="Result1">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </item>
                <item>
                 <layout class="QHBoxLayout" name="SWLayout">
                  <item>
-                  <widget class="QLabel" name="SwLabel">
+                  <widget class="QLabel" name="ResultLabel2">
                    <property name="text">
-                    <string>Software Latency: </string>
+                    <string/>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="SwLatency"/>
+                  <widget class="QLabel" name="Result2">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </item>
                <item>
                 <layout class="QHBoxLayout" name="HardwareAverageLayout">
                  <item>
-                  <widget class="QLabel" name="HwAvgLabel">
+                  <widget class="QLabel" name="ResultLabel3">
                    <property name="text">
-                    <string>Hardware Average Latency: </string>
+                    <string/>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="HwAvgNLatency"/>
+                  <widget class="QLabel" name="Result3">
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </item>
