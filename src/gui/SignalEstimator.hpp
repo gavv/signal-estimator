@@ -19,7 +19,7 @@ namespace signal_estimator {
 struct LatencyResult{
     double swHw;
     double hw;
-    double hwAvg5;
+    double hwAvgN;
 };
 
 class SignalEstimator : public QObject {
@@ -45,8 +45,7 @@ private:
     std::optional<LatencyResult> parseLatency_(QString buffer);
     std::optional<std::tuple<QPointF, PointType>> parse_(QString buffer);
     QSharedPointer<QProcess> proc_;
-    LatencyResult latency_;
-    bool latencyChanged_ = false;
+    std::optional<LatencyResult> latency_ = {};
 };
 
 } // namespace signal_estimator

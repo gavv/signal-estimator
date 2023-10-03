@@ -101,7 +101,6 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parse_(QString bu
 
         if(auto latencyValues = parseLatency_(buffer)){
             latency_ = *latencyValues;
-            latencyChanged_ = true;
         }
     }
 
@@ -156,18 +155,16 @@ std::optional<LatencyResult> SignalEstimator::parseLatency_(QString buffer)
 
     values.swHw = list[0].toDouble();
     values.hw = list[1].toDouble();
-    values.hwAvg5 = list[2].toDouble();
+    values.hwAvgN = list[2].toDouble();
     return values;
 }
 
 std::optional<LatencyResult> SignalEstimator::latencyUpdate()
 {
-    if(latencyChanged_)
-    {
-        latencyChanged_ = false;
-        return latency_;
-    }
-    return {};
+    std::optional<LatencyResult> latencyTmp = latency_;
+    latency_ = {};
+    return latencyTmp;
+
 }
 
 } // namespace signal_estimator
