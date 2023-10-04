@@ -91,19 +91,26 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::read() {
     return parseIO_(QString(buffer));
 }
 
+void SignalEstimator::clearResults_(){
+    latency_ = {};
+    losses_ = {};
+}
+
 std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(QString buffer) {
     if (buffer[0] == "#") {
         return {};
     }
 
     if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "a"){
-        if(auto latencyValues = parseLatency_(buffer)){
+        if(auto latencyValues = parseLatency(buffer)){
+            clearResults_();
             latency_ = *latencyValues;
         }
     }
 
     if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "o"){
-        if(auto lossesValues = parseLosses_(buffer)){
+        if(auto lossesValues = parseLosses(buffer)){
+            clearResults_();
             losses_ = *lossesValues;
         }
     }
@@ -140,7 +147,7 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(QString 
     return {};
 }
 
-std::optional<LatencyResult> SignalEstimator::parseLatency_(QString buffer) {
+std::optional<LatencyResult> parseLatency(QString buffer) {
     LatencyResult values;
     QRegularExpression reg("([\\d\\.]+)ms");
     QStringList list;
@@ -160,7 +167,7 @@ std::optional<LatencyResult> SignalEstimator::parseLatency_(QString buffer) {
     return values;
 }
 
-std::optional<LossesResult> SignalEstimator::parseLosses_(QString buffer) {
+std::optional<LossesResult> parseLosses(QString buffer) {
     LossesResult values;
     QRegularExpression reg("([\\d\\.]+)/sec|([\\d\\.]+)%");
     QStringList list;

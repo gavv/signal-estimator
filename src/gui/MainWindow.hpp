@@ -53,10 +53,11 @@ private:
     void set_update_plots_(bool f) {
         update_plots_ = f;
     }
-    void update_latency(LatencyResult latency);
-    void update_losses(LossesResult losses);
-    void display_latency_text();
-    void display_losses_text();
+    void update_latency_(LatencyResult latency);
+    void update_losses_(LossesResult losses);
+    void display_latency_text_();
+    void display_losses_text_();
+    void clear_results_text_();
 
     Ui::MainWindow* ui;
     bool update_plots_ = false;
