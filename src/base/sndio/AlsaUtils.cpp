@@ -183,6 +183,50 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
 
 } // namespace
 
+void alsa_vol_set(const char *device, long volume) {
+    snd_mixer_t *mixer;
+    snd_mixer_selem_id_t *sid;
+    snd_mixer_elem_t* elem;
+    long min, max;
+    int err;
+    
+    if ((err = snd_mixer_open(&mixer, 0)) < 0) {
+        se_log_error("can't open alsa mixer: snd_mixer_open(): %s", snd_strerror(err));
+        return;
+    }
+    
+    if (snd_mixer_attach(mixer, device))
+        goto close_mixer;
+    
+    if (snd_mixer_selem_register(mixer, nullptr, nullptr))
+        goto close_mixer;
+    
+    if (snd_mixer_load(mixer))
+        goto close_mixer;
+    
+    snd_mixer_selem_id_alloca(&sid);
+    snd_mixer_selem_id_set_index(sid, 0);
+    snd_mixer_selem_id_set_name(sid, "Master");
+
+    if (!(elem = snd_mixer_find_selem(mixer, sid)))
+        goto close_mixer;
+
+    if(snd_mixer_selem_get_playback_volume_range(elem, &min, &max))
+        goto close_mixer;
+
+    if (snd_mixer_selem_set_playback_volume_all(elem, volume * max / 100))
+        goto close_mixer;
+    
+
+close_mixer:
+    if ((err = snd_mixer_close(mixer)) < 0) {
+        se_log_error("can't close alsa mixer: snd_mixer_close(): %s", snd_strerror(err));
+        return;
+    }
+
+}
+
+
 snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) {
     snd_pcm_t* pcm = nullptr;
 
