@@ -50,8 +50,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>833</width>
-             <height>752</height>
+             <width>827</width>
+             <height>784</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -206,7 +206,7 @@
                <bool>true</bool>
               </property>
               <property name="frameShape">
-               <enum>QFrame::Box</enum>
+               <enum>QFrame::StyledPanel</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
@@ -284,7 +284,11 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
-               <widget class="QCheckBox" name="GridCheckBox"/>
+               <widget class="QCheckBox" name="GridCheckBox">
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="GridCheckBoxLabel">
@@ -332,7 +336,7 @@
             </item>
             <item>
              <widget class="QwtPlot" name="OutputSig">
-              <property name="autoReplot" stdset="0">
+              <property name="autoReplot">
                <bool>false</bool>
               </property>
              </widget>
@@ -779,7 +783,7 @@
      <x>0</x>
      <y>0</y>
      <width>879</width>
-     <height>19</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

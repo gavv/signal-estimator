@@ -35,8 +35,8 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
     ui->OutputSig->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
 
-    grid_->enableX(false);
-    grid_->enableY(false);
+    grid_->enableX(ui->GridCheckBox->isChecked());
+    grid_->enableY(ui->GridCheckBox->isChecked());
     grid_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
     grid_->attach(ui->OutputSig);
 
