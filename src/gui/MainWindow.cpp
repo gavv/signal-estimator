@@ -271,6 +271,10 @@ QStringList MainWindow::set_up_program_() {
     return list;
 }
 
+void MainWindow::set_update_plots_(bool f) {
+    update_plots_ = f;
+}
+
 void MainWindow::update_latency_(LatencyResult latency) {
     display_latency_text_();
     ui->Result1->setText(QString::number(latency.swHw, 'f', 3) + QString("ms"));

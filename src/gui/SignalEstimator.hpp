@@ -28,9 +28,6 @@ struct LossesResult {
     double ratio { 0 };
 };
 
-std::optional<LatencyResult> parseLatency(QString buffer);
-std::optional<LossesResult> parseLosses(QString buffer);
-
 class SignalEstimator : public QObject {
     Q_OBJECT
 
@@ -52,8 +49,9 @@ signals:
     void error(QString);
 
 private:
-    std::optional<std::tuple<QPointF, PointType>> parseIO_(QString buffer);
+    std::optional<std::tuple<QPointF, PointType>> parseIO_(const QString& buffer);
     void clearResults_();
+
     QSharedPointer<QProcess> proc_;
     std::optional<LatencyResult> latency_ = {};
     std::optional<LossesResult> losses_ = {};

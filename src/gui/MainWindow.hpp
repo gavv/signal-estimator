@@ -50,9 +50,7 @@ private slots:
 private:
     QStringList set_up_program_();
 
-    void set_update_plots_(bool f) {
-        update_plots_ = f;
-    }
+    void set_update_plots_(bool f);
     void update_latency_(LatencyResult latency);
     void update_losses_(LossesResult losses);
     void display_latency_text_();

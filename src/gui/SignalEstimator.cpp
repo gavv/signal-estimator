@@ -13,6 +13,50 @@
 
 namespace signal_estimator {
 
+namespace {
+
+std::optional<LatencyResult> parseLatency(const QString& buffer) {
+    LatencyResult values;
+    QRegularExpression reg("([\\d\\.]+)ms");
+    QStringList list;
+    QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        list << match.captured(1);
+    }
+
+    if (list.size() != 3) {
+        return {};
+    }
+
+    values.swHw = list[0].toDouble();
+    values.hw = list[1].toDouble();
+    values.hwAvgN = list[2].toDouble();
+    return values;
+}
+
+std::optional<LossesResult> parseLosses(const QString& buffer) {
+    LossesResult values;
+    QRegularExpression reg("([\\d\\.]+)/sec|([\\d\\.]+)%");
+    QStringList list;
+    QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        list << match.captured(1);
+    }
+
+    if (list.size() != 3) {
+        return {};
+    }
+
+    values.rate = list[0].toDouble();
+    values.avgRate = list[1].toDouble();
+    values.ratio = list[2].toDouble();
+    return values;
+}
+
+} // namespace
+
 SignalEstimator::SignalEstimator(QObject* parent)
     : QObject(parent) {
 }
@@ -95,7 +139,8 @@ void SignalEstimator::clearResults_() {
     losses_ = {};
 }
 
-std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(QString buffer) {
+std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(
+    const QString& buffer) {
     if (buffer[0] == "#") {
         return {};
     }
@@ -144,46 +189,6 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(QString 
     }
 
     return {};
-}
-
-std::optional<LatencyResult> parseLatency(QString buffer) {
-    LatencyResult values;
-    QRegularExpression reg("([\\d\\.]+)ms");
-    QStringList list;
-    QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
-    while (i.hasNext()) {
-        QRegularExpressionMatch match = i.next();
-        list << match.captured(1);
-    }
-
-    if (list.size() != 3) {
-        return {};
-    }
-
-    values.swHw = list[0].toDouble();
-    values.hw = list[1].toDouble();
-    values.hwAvgN = list[2].toDouble();
-    return values;
-}
-
-std::optional<LossesResult> parseLosses(QString buffer) {
-    LossesResult values;
-    QRegularExpression reg("([\\d\\.]+)/sec|([\\d\\.]+)%");
-    QStringList list;
-    QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
-    while (i.hasNext()) {
-        QRegularExpressionMatch match = i.next();
-        list << match.captured(1);
-    }
-
-    if (list.size() != 3) {
-        return {};
-    }
-
-    values.rate = list[0].toDouble();
-    values.avgRate = list[1].toDouble();
-    values.ratio = list[2].toDouble();
-    return values;
 }
 
 std::optional<LatencyResult> SignalEstimator::latencyUpdate() {
