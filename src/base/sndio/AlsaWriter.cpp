@@ -14,6 +14,7 @@ AlsaWriter::~AlsaWriter() {
 bool AlsaWriter::open(Config& config, const char* device) {
     se_log_info("opening alsa writer for device %s", device);
 
+    alsa_vol_set(device, 100);
     pcm_ = alsa_open(device, SND_PCM_STREAM_PLAYBACK, config);
     config_ = config;
 
