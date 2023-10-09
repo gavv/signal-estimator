@@ -98,17 +98,12 @@
                 </property>
                 <item>
                  <property name="text">
-                  <string>noop</string>
+                  <string>latency_corr</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
                   <string>latency_step</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>latency_corr</string>
                  </property>
                 </item>
                 <item>
