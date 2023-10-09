@@ -16,6 +16,21 @@
 
 namespace signal_estimator {
 
+struct LatencyResult{
+    double swHw {0};
+    double hw {0};
+    double hwAvgN {0};
+};
+
+struct LossesResult{
+    double rate {0};
+    double avgRate {0};
+    double ratio {0};
+};
+
+std::optional<LatencyResult> parseLatency(QString buffer);
+std::optional<LossesResult> parseLosses(QString buffer);
+
 class SignalEstimator : public QObject {
     Q_OBJECT
 
@@ -29,15 +44,19 @@ public:
     void stop();
 
     std::optional<std::tuple<QPointF, PointType>> read();
+    std::optional<LatencyResult> latencyUpdate();
+    std::optional<LossesResult> lossesUpdate();
 
 signals:
     void can_read();
     void error(QString);
 
 private:
-    std::optional<std::tuple<QPointF, PointType>> parse_(QString buffer);
-
+    std::optional<std::tuple<QPointF, PointType>> parseIO_(QString buffer);
+    void clearResults_();
     QSharedPointer<QProcess> proc_;
+    std::optional<LatencyResult> latency_ = {};
+    std::optional<LossesResult> losses_ = {};
 };
 
 } // namespace signal_estimator

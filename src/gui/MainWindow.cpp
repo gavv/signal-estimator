@@ -125,6 +125,7 @@ void MainWindow::on_StartButton_released() {
     }
 
     set_update_plots_(true);
+    clear_results_text_();
     timer_->start();
 }
 
@@ -135,10 +136,16 @@ void MainWindow::on_StopButton_clicked() {
 }
 
 void MainWindow::update_graphs() {
+    if (auto latencyValues = signal_estimator_->latencyUpdate()) {
+        update_latency_(*latencyValues);
+    }
+    if (auto lossesValues = signal_estimator_->lossesUpdate()) {
+        update_losses_(*lossesValues);
+    }
+
     if (!update_plots_) {
         return;
     }
-
     // update both input and output signal graphs
     QVector<QPointF> in_current = in_data_.get_current_points();
     QVector<QPointF> out_current = out_data_.get_current_points();
@@ -262,6 +269,41 @@ QStringList MainWindow::set_up_program_() {
     list.append(t);
 
     return list;
+}
+
+void MainWindow::update_latency_(LatencyResult latency) {
+    display_latency_text_();
+    ui->Result1->setText(QString::number(latency.swHw, 'f', 3) + QString("ms"));
+    ui->Result2->setText(QString::number(latency.hw, 'f', 3)+ QString("ms"));
+    ui->Result3->setText(QString::number(latency.hwAvgN, 'f', 3)+ QString("ms"));
+}
+
+void MainWindow::update_losses_(LossesResult latency) {
+    display_losses_text_();
+    ui->Result1->setText(QString::number(latency.rate, 'f', 3) + QString("/sec"));
+    ui->Result2->setText(QString::number(latency.avgRate, 'f', 3)+ QString("/sec"));
+    ui->Result3->setText(QString::number(latency.ratio, 'f', 3)+ QString("%"));
+}
+
+void MainWindow::display_latency_text_() {
+    ui->ResultLabel1->setText("Hardware + Software Latency:");
+    ui->ResultLabel2->setText("Hardware Latency:");
+    ui->ResultLabel3->setText("Average Hardware Latency:");
+}
+
+void MainWindow::display_losses_text_() {
+    ui->ResultLabel1->setText("Loss Rate:");
+    ui->ResultLabel2->setText("Average Loss Rate:");
+    ui->ResultLabel3->setText("Loss Ratio:");
+}
+
+void MainWindow::clear_results_text_() {
+    ui->ResultLabel1->setText("");
+    ui->ResultLabel2->setText("");
+    ui->ResultLabel3->setText("");
+    ui->Result1->setText("");
+    ui->Result2->setText("");
+    ui->Result3->setText("");
 }
 
 } // namespace signal_estimator
