@@ -16,16 +16,16 @@
 
 namespace signal_estimator {
 
-struct LatencyResult{
-    double swHw {0};
-    double hw {0};
-    double hwAvgN {0};
+struct LatencyResult {
+    double swHw { 0 };
+    double hw { 0 };
+    double hwAvgN { 0 };
 };
 
-struct LossesResult{
-    double rate {0};
-    double avgRate {0};
-    double ratio {0};
+struct LossesResult {
+    double rate { 0 };
+    double avgRate { 0 };
+    double ratio { 0 };
 };
 
 std::optional<LatencyResult> parseLatency(QString buffer);

@@ -14,8 +14,7 @@
 namespace signal_estimator {
 
 SignalEstimator::SignalEstimator(QObject* parent)
-    : QObject(parent) 
-    {
+    : QObject(parent) {
 }
 
 SignalEstimator::~SignalEstimator() {
@@ -91,7 +90,7 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::read() {
     return parseIO_(QString(buffer));
 }
 
-void SignalEstimator::clearResults_(){
+void SignalEstimator::clearResults_() {
     latency_ = {};
     losses_ = {};
 }
@@ -101,15 +100,15 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(QString 
         return {};
     }
 
-    if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "a"){
-        if(auto latencyValues = parseLatency(buffer)){
+    if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "a") {
+        if (auto latencyValues = parseLatency(buffer)) {
             clearResults_();
             latency_ = *latencyValues;
         }
     }
 
-    if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "o"){
-        if(auto lossesValues = parseLosses(buffer)){
+    if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "o") {
+        if (auto lossesValues = parseLosses(buffer)) {
             clearResults_();
             losses_ = *lossesValues;
         }
@@ -152,12 +151,12 @@ std::optional<LatencyResult> parseLatency(QString buffer) {
     QRegularExpression reg("([\\d\\.]+)ms");
     QStringList list;
     QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
-    while(i.hasNext()){
+    while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
         list << match.captured(1);
     }
 
-    if (list.size() != 3){
+    if (list.size() != 3) {
         return {};
     }
 
@@ -172,12 +171,12 @@ std::optional<LossesResult> parseLosses(QString buffer) {
     QRegularExpression reg("([\\d\\.]+)/sec|([\\d\\.]+)%");
     QStringList list;
     QRegularExpressionMatchIterator i = reg.globalMatch(buffer);
-    while(i.hasNext()){
+    while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
         list << match.captured(1);
     }
 
-    if (list.size() != 3){
+    if (list.size() != 3) {
         return {};
     }
 
@@ -198,6 +197,5 @@ std::optional<LossesResult> SignalEstimator::lossesUpdate() {
     losses_ = {};
     return lossesTmp;
 }
-
 
 } // namespace signal_estimator

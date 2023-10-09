@@ -274,15 +274,15 @@ QStringList MainWindow::set_up_program_() {
 void MainWindow::update_latency_(LatencyResult latency) {
     display_latency_text_();
     ui->Result1->setText(QString::number(latency.swHw, 'f', 3) + QString("ms"));
-    ui->Result2->setText(QString::number(latency.hw, 'f', 3)+ QString("ms"));
-    ui->Result3->setText(QString::number(latency.hwAvgN, 'f', 3)+ QString("ms"));
+    ui->Result2->setText(QString::number(latency.hw, 'f', 3) + QString("ms"));
+    ui->Result3->setText(QString::number(latency.hwAvgN, 'f', 3) + QString("ms"));
 }
 
 void MainWindow::update_losses_(LossesResult latency) {
     display_losses_text_();
     ui->Result1->setText(QString::number(latency.rate, 'f', 3) + QString("/sec"));
-    ui->Result2->setText(QString::number(latency.avgRate, 'f', 3)+ QString("/sec"));
-    ui->Result3->setText(QString::number(latency.ratio, 'f', 3)+ QString("%"));
+    ui->Result2->setText(QString::number(latency.avgRate, 'f', 3) + QString("/sec"));
+    ui->Result3->setText(QString::number(latency.ratio, 'f', 3) + QString("%"));
 }
 
 void MainWindow::display_latency_text_() {
