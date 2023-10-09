@@ -50,8 +50,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>827</width>
-             <height>784</height>
+             <width>845</width>
+             <height>757</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -336,6 +336,12 @@
             </item>
             <item>
              <widget class="QwtPlot" name="OutputSig">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>300</height>
+               </size>
+              </property>
               <property name="autoReplot">
                <bool>false</bool>
               </property>
