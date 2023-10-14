@@ -3,9 +3,9 @@
 
 #include "sndio/AlsaDeviceManager.hpp"
 
-#include "spdlog/spdlog.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/spdlog.h"
 
 #include "MainWindow.hpp"
 #include "NotFoundDialog.hpp"
@@ -17,8 +17,8 @@ using namespace signal_estimator;
 
 int main(int argc, char* argv[]) {
 
-	auto err_logger = spdlog::stderr_color_mt<spdlog::async_factory>("stderr");
-	spdlog::set_default_logger(err_logger);
+    auto err_logger = spdlog::stderr_color_mt<spdlog::async_factory>("stderr");
+    spdlog::set_default_logger(err_logger);
 
     QApplication a(argc, argv);
 
