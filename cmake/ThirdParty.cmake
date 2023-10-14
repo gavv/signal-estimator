@@ -122,6 +122,9 @@ include_directories(SYSTEM
 )
 
 # spdlog
+checkout_submodule(
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/spdlog
+  )
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/3rdparty/spdlog/cmake")
 find_package(spdlog REQUIRED)
 
