@@ -125,8 +125,8 @@ target_include_directories(signal-estimator
 find_package(Threads)
 target_link_libraries(signal-estimator
   base_objects
-  m
   ${CMAKE_THREAD_LIBS_INIT}
+  spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>
   )
 
 install(
@@ -157,6 +157,10 @@ if(BUILD_GUI)
   add_library(generated_objects OBJECT
     ${GENERATED_SOURCES}
     )
+
+  target_link_libraries(generated_objects
+	  PRIVATE spdlog::spdlog
+	  )
 
   add_dependencies(generated_objects
     ${ALL_DEPENDENCIES}
@@ -211,6 +215,7 @@ if(BUILD_GUI)
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
+	spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>
     )
 
   install(

@@ -38,7 +38,7 @@ bool CsvDumper::open(const char* filename) {
     }
 
     if (!fp_) {
-        se_log_error("can't open output file %s: %s", filename, strerror(errno));
+        se_log_error("can't open output file {}: {}", filename, strerror(errno));
         return false;
     }
 

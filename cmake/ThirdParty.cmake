@@ -121,6 +121,10 @@ include_directories(SYSTEM
   ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts/include
 )
 
+# spdlog
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/3rdparty/spdlog/cmake")
+find_package(spdlog REQUIRED)
+
 # serialize dependencies
 set(ALL_DEPENDENCIES
   alsa_lib
