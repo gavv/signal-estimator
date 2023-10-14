@@ -129,6 +129,7 @@ target_include_directories(signal-estimator
 find_package(Threads)
 target_link_libraries(signal-estimator
   base_objects
+  m
   ${CMAKE_THREAD_LIBS_INIT}
   )
 
