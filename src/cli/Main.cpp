@@ -22,8 +22,9 @@
 #include "sndio/IDeviceReader.hpp"
 #include "sndio/IDeviceWriter.hpp"
 
-#include "spdlog/async.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/async.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <iostream>
 #include <memory>

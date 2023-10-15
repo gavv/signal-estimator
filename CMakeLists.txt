@@ -97,9 +97,9 @@ target_include_directories(base_objects
   PRIVATE src/base
   )
 
-target_link_libraries(base_objects
-  PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>
-  )
+#target_link_libraries(base_objects
+#  PUBLIC spdlog::spdlog
+#  )
 
 add_executable(signal-estimator
   src/cli/Main.cpp
