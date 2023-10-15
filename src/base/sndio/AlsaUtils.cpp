@@ -72,8 +72,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     }
     if (rate != sample_rate) {
         se_log_error("can't set hw params: exact sample rate value is not supported:"
-                     " requested={:d} supported={:d}",
-            (int)sample_rate, (int)rate);
+                     " requested={:d} supported={:d}", sample_rate, rate);
         return false;
     }
 
@@ -117,12 +116,12 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
         return false;
     }
 
-    se_log_info("suggested_latency: {:u} us", (unsigned)latency_us);
-    se_log_info("suggested_buffer_size: {:u} samples", (unsigned)suggested_buffer_size);
-    se_log_info("selected_buffer_time: {:u} us", (unsigned)buffer_time);
-    se_log_info("selected_buffer_size: {:u} samples", (unsigned)*buffer_size);
-    se_log_info("selected_period_time: {:u} us", (unsigned)period_time);
-    se_log_info("selected_period_size: {:u} samples", (unsigned)*period_size);
+    se_log_info("suggested_latency: {:u} us", latency_us);
+    se_log_info("suggested_buffer_size: {:u} samples", suggested_buffer_size);
+    se_log_info("selected_buffer_time: {:u} us", buffer_time);
+    se_log_info("selected_buffer_size: {:u} samples", *buffer_size);
+    se_log_info("selected_period_time: {:u} us", period_time);
+    se_log_info("selected_period_size: {:u} samples", *period_size);
 
     // send hw_params to ALSA
     if ((err = snd_pcm_hw_params(pcm, hw_params)) < 0) {
