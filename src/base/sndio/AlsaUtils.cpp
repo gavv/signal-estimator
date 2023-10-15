@@ -72,7 +72,8 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     }
     if (rate != sample_rate) {
         se_log_error("can't set hw params: exact sample rate value is not supported:"
-                     " requested={:d} supported={:d}", sample_rate, rate);
+                     " requested={:d} supported={:d}",
+            sample_rate, rate);
         return false;
     }
 
