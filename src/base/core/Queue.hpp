@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <atomic>
-
 #include <blockingconcurrentqueue.h>
+
+#include <atomic>
 
 namespace signal_estimator {
 
@@ -20,8 +20,8 @@ public:
         return size_ == 0;
     }
 
-    void push(const T val) {
-        queue_.enqueue(val);
+    void push(T val) {
+        queue_.enqueue(std::move(val));
         size_++;
     }
 
