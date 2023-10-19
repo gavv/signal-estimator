@@ -2,7 +2,7 @@
 // Licensed under MIT
 
 #include "core/Log.hpp"
-#include "sndio/AlsaDeviceManager.hpp"
+#include "io/AlsaDeviceManager.hpp"
 
 #include "MainWindow.hpp"
 #include "NotFoundDialog.hpp"

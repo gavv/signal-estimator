@@ -77,6 +77,12 @@ add_library(base_objects OBJECT
   src/base/core/Log.cpp
   src/base/core/Realtime.cpp
   src/base/core/Time.cpp
+  src/base/dumps/AsyncDumper.cpp
+  src/base/dumps/CsvDumper.cpp
+  src/base/io/AlsaDeviceManager.cpp
+  src/base/io/AlsaReader.cpp
+  src/base/io/AlsaUtils.cpp
+  src/base/io/AlsaWriter.cpp
   src/base/processing/ContinuousGenerator.cpp
   src/base/processing/CorrelationLatencyEstimator.cpp
   src/base/processing/FFTOps.cpp
@@ -86,14 +92,8 @@ add_library(base_objects OBJECT
   src/base/processing/RateLimiter.cpp
   src/base/processing/StepsGenerator.cpp
   src/base/processing/StepsLatencyEstimator.cpp
-  src/base/reports/AsyncDumper.cpp
-  src/base/reports/CsvDumper.cpp
   src/base/reports/JsonReporter.cpp
   src/base/reports/TextReporter.cpp
-  src/base/sndio/AlsaDeviceManager.cpp
-  src/base/sndio/AlsaReader.cpp
-  src/base/sndio/AlsaUtils.cpp
-  src/base/sndio/AlsaWriter.cpp
 )
 
 add_dependencies(base_objects

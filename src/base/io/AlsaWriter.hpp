@@ -5,7 +5,7 @@
 
 #include "core/Config.hpp"
 #include "core/Frame.hpp"
-#include "sndio/IDeviceWriter.hpp"
+#include "io/IDeviceWriter.hpp"
 
 #include <cstdint>
 #include <cstdlib>

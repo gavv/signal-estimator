@@ -4,7 +4,7 @@
 #pragma once
 
 #include "core/Queue.hpp"
-#include "reports/IDumper.hpp"
+#include "dumps/IDumper.hpp"
 
 #include <memory>
 #include <thread>

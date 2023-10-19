@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "sndio/IDeviceManager.hpp"
+#include "io/IDeviceManager.hpp"
 
 #include <string>
 #include <vector>

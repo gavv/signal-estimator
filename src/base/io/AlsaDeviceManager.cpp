@@ -1,7 +1,7 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "sndio/AlsaDeviceManager.hpp"
+#include "io/AlsaDeviceManager.hpp"
 
 #include <cstdio>
 #include <cstring>

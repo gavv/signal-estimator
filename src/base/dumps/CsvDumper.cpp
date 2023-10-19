@@ -1,7 +1,7 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "reports/CsvDumper.hpp"
+#include "dumps/CsvDumper.hpp"
 #include "core/Frame.hpp"
 #include "core/Log.hpp"
 #include "core/Time.hpp"

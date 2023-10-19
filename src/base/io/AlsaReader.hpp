@@ -5,7 +5,7 @@
 
 #include "core/Config.hpp"
 #include "core/Frame.hpp"
-#include "sndio/IDeviceReader.hpp"
+#include "io/IDeviceReader.hpp"
 
 #include <cstdint>
 #include <cstdlib>

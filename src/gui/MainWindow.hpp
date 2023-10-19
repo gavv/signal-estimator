@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "sndio/IDeviceManager.hpp"
+#include "io/IDeviceManager.hpp"
 
 #include "NotFoundDialog.hpp"
 #include "PointsBuffer.hpp"

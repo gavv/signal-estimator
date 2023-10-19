@@ -1,9 +1,9 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "sndio/AlsaReader.hpp"
+#include "io/AlsaReader.hpp"
 #include "core/Log.hpp"
-#include "sndio/AlsaUtils.hpp"
+#include "io/AlsaUtils.hpp"
 
 namespace signal_estimator {
 
