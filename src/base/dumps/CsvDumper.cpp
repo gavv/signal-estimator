@@ -66,21 +66,25 @@ void CsvDumper::write(std::shared_ptr<Frame> frame) {
         return;
     }
 
-    for (size_t n = 0; n < frame->size(); n++) {
+    print_(*frame);
+}
+
+void CsvDumper::print_(const Frame& frame) {
+    for (size_t n = 0; n < frame.size(); n++) {
         if (n % config_.n_channels == 0) {
             if (win_pos_ == win_size_) {
-                print_line_(frame->type(), *win_time_);
+                print_line_(frame.type(), *win_time_);
 
                 win_time_ = {};
                 win_pos_ = 0;
             }
             if (!win_time_) {
-                win_time_ = frame->hw_sample_time(n)
+                win_time_ = frame.hw_sample_time(n)
                     + config_.samples_to_ns(win_size_ / 2 * config_.n_channels);
             }
             win_pos_++;
         }
-        win_avg_[n % config_.n_channels].add(frame->at(n));
+        win_avg_[n % config_.n_channels].add(frame[n]);
     }
 }
 

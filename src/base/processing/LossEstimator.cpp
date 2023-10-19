@@ -31,11 +31,8 @@ void LossEstimator::add_input(std::shared_ptr<Frame> frame) {
         return;
     }
 
-    const auto frame_data = frame->data();
-    const auto frame_size = frame->size();
-
-    for (size_t n = 0; n < frame_size; n++) {
-        auto s = double(frame_data[n]);
+    for (size_t n = 0; n < frame->size(); n++) {
+        auto s = double((*frame)[n]);
 
         if (signal_runmax_(std::abs(s))
             >= MaxSample * config_.signal_detection_threshold) {

@@ -7,6 +7,7 @@
 #include "core/Sample.hpp"
 #include "core/Time.hpp"
 
+#include <cassert>
 #include <cstdint>
 #include <cstdlib>
 #include <vector>
@@ -22,11 +23,10 @@ class FramePool;
 
 class Frame {
 public:
-    explicit Frame(const Config&, FramePool&);
-    virtual ~Frame() = default;
+    Frame(const Config&, FramePool&);
 
-    Frame(Frame&&) noexcept = default;
-    Frame& operator=(Frame&&) noexcept = default;
+    Frame(const Frame&) = delete;
+    Frame& operator=(const Frame&) = delete;
 
     // reset frame to initial state
     void clear();
@@ -35,7 +35,6 @@ public:
     size_t size() const;
     const sample_t* data() const;
     sample_t* data();
-    sample_t at(size_t sample_index) const;
 
     // frame type (input or output)
     FrameType type() const;
@@ -55,27 +54,21 @@ public:
     // this method takes into account OS buffer size and position of sample in frame
     nanoseconds_t hw_sample_time(size_t sample_index) const;
 
-    // convenience wrappers
-    auto begin() {
-        return data_.begin();
-    }
-    auto end() {
-        return data_.end();
-    }
-
-    // convenience wrappers
-    auto operator[](const size_t index) const {
+    // index access
+    const sample_t& operator[](const size_t index) const {
+        assert(index < data_.size());
         return data_[index];
     }
-    auto& operator[](const size_t index) {
+    sample_t& operator[](const size_t index) {
+        assert(index < data_.size());
         return data_[index];
     }
 
 private:
     friend class FramePool;
 
-    const Config* config_;
-    FramePool* pool_;
+    const Config& config_;
+    FramePool& pool_;
 
     FrameType io_type_;
     nanoseconds_t io_time_;

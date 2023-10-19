@@ -33,6 +33,7 @@ public:
     void write(std::shared_ptr<Frame> frame) override;
 
 private:
+    void print_(const Frame& frame);
     void print_line_(FrameType type, nanoseconds_t timestamp);
 
     const Config config_;

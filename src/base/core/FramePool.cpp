@@ -30,7 +30,7 @@ std::shared_ptr<Frame> FramePool::allocate() {
     }
 
     return std::shared_ptr<Frame>(
-        frame, [](auto frame) { frame->pool_->release_frame_(frame); });
+        frame, [](auto frame) { frame->pool_.release_frame_(frame); });
 }
 
 void FramePool::release_frame_(Frame* frame) {

@@ -8,9 +8,9 @@
 namespace signal_estimator {
 
 Frame::Frame(const Config& config, FramePool& pool)
-    : config_(&config)
-    , pool_(&pool)
-    , data_(config_->io_period_size) {
+    : config_(config)
+    , pool_(pool)
+    , data_(config_.io_period_size) {
     clear();
 }
 
@@ -35,11 +35,6 @@ sample_t* Frame::data() {
     return &data_[0];
 }
 
-sample_t Frame::at(size_t sample_index) const {
-    assert(sample_index < data_.size());
-    return data_[sample_index];
-}
-
 FrameType Frame::type() const {
     return io_type_;
 }
@@ -60,11 +55,11 @@ nanoseconds_t Frame::hw_frame_time() const {
     switch (io_type_) {
     case FrameType::Output:
         return io_time_
-            + config_->samples_to_ns(
-                (config_->io_num_periods - 1) * config_->io_period_size);
+            + config_.samples_to_ns(
+                (config_.io_num_periods - 1) * config_.io_period_size);
 
     case FrameType::Input:
-        return io_time_ - config_->samples_to_ns(config_->io_period_size);
+        return io_time_ - config_.samples_to_ns(config_.io_period_size);
     }
 
     return 0;
@@ -74,11 +69,11 @@ nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
     switch (io_type_) {
     case FrameType::Output:
         return io_time_
-            + config_->samples_to_ns(
-                (config_->io_num_periods - 1) * config_->io_period_size + sample_index);
+            + config_.samples_to_ns(
+                (config_.io_num_periods - 1) * config_.io_period_size + sample_index);
 
     case FrameType::Input:
-        return io_time_ - config_->samples_to_ns(config_->io_period_size - sample_index);
+        return io_time_ - config_.samples_to_ns(config_.io_period_size - sample_index);
     }
 
     return 0;

@@ -13,23 +13,16 @@ StepsLatencyEstimator::StepTrigger::StepTrigger(const Config& config)
     , schmitt_(config.step_detection_threshold) {
 }
 
-void StepsLatencyEstimator::StepTrigger::add_frame(Frame* frame) {
-    if (!frame) {
-        return;
-    }
-
-    const auto frame_data = frame->data();
-    const auto frame_size = frame->size();
-
-    for (size_t n = 0; n < frame_size; n++) {
-        auto s = double(frame_data[n]);
+void StepsLatencyEstimator::StepTrigger::add_frame(const Frame& frame) {
+    for (size_t n = 0; n < frame.size(); n++) {
+        auto s = double(frame[n]);
 
         s = std::abs(s);
         s = runmax_(s);
 
         if (schmitt_(s)) {
-            last_trigger_ts_.sw_hw = (double)frame->sw_frame_time() / 1000000.0;
-            last_trigger_ts_.hw = (double)frame->hw_sample_time(n) / 1000000.0;
+            last_trigger_ts_.sw_hw = (double)frame.sw_frame_time() / 1000000.0;
+            last_trigger_ts_.hw = (double)frame.hw_sample_time(n) / 1000000.0;
         }
     }
 }
@@ -43,9 +36,10 @@ StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IReporter& re
 }
 
 void StepsLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
-    if (!frame)
+    if (!frame) {
         return;
-    output_trigger_.add_frame(frame.get());
+    }
+    output_trigger_.add_frame(*frame);
 
     LatencyReport report;
 
@@ -56,9 +50,10 @@ void StepsLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
 }
 
 void StepsLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
-    if (!frame)
+    if (!frame) {
         return;
-    input_trigger_.add_frame(frame.get());
+    }
+    input_trigger_.add_frame(*frame);
 
     LatencyReport report;
 

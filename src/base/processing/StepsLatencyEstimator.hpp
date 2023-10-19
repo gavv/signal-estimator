@@ -57,7 +57,7 @@ private:
             return last_trigger_ts_;
         }
 
-        void add_frame(Frame* frame);
+        void add_frame(const Frame& frame);
 
     private:
         const Config& config_;

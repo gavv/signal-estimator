@@ -16,15 +16,15 @@ StepsGenerator::StepsGenerator(const Config& config)
 }
 
 void StepsGenerator::generate(Frame& frame) {
-    auto frame_data = frame.data();
-    auto frame_size = frame.size();
-
-    memset(frame_data, 0, frame_size * sizeof(frame_data[0]));
+    std::fill_n(frame.data(), frame.size(), 0);
 
     if (warmup_countdown_ != 0) {
         warmup_countdown_--;
         return;
     }
+
+    size_t frame_size = frame.size();
+    size_t frame_pos = 0;
 
     while (frame_size != 0) {
         if (step_countdown_ != 0) {
@@ -36,7 +36,7 @@ void StepsGenerator::generate(Frame& frame) {
             }
 
             if (step_countdown_ < n_samples) {
-                frame_data += step_countdown_ * config_.n_channels;
+                frame_pos += step_countdown_ * config_.n_channels;
                 frame_size -= step_countdown_ * config_.n_channels;
                 step_countdown_ = 0;
             }
@@ -50,9 +50,9 @@ void StepsGenerator::generate(Frame& frame) {
             }
 
             for (size_t cn = 0; cn < config_.n_channels; cn++) {
-                *frame_data = sample_t(MaxSample * config_.volume
+                frame[frame_pos] = sample_t(MaxSample * config_.volume
                     * std::sin(2 * M_PI / config_.sample_rate * 880 * step_pos_));
-                frame_data++;
+                frame_pos++;
                 frame_size--;
             }
         }

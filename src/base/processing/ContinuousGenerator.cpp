@@ -13,12 +13,9 @@ ContinuousGenerator::ContinuousGenerator(const Config& config)
 }
 
 void ContinuousGenerator::generate(Frame& frame) {
-    const auto frame_data = frame.data();
-    const auto frame_size = frame.size();
-
-    for (size_t sn = 0; sn < frame_size;) {
+    for (size_t sn = 0; sn < frame.size();) {
         for (size_t cn = 0; cn < config_.n_channels; cn++) {
-            frame_data[sn++] = sample_t(MaxSample * config_.volume
+            frame[sn++] = sample_t(MaxSample * config_.volume
                 * std::sin(2 * M_PI / config_.sample_rate * 500 * pos_));
         }
         pos_++;
