@@ -16,17 +16,19 @@ Frame::Frame(const Config& config, FramePool& pool)
 }
 
 int Frame::get_ref() const {
-    assert(refcount_ >= 0);
     return refcount_;
 }
 
 void Frame::add_ref() {
     const int oldcount = refcount_++;
+
+    (void)oldcount;
     assert(oldcount >= 0);
 }
 
 void Frame::sub_ref() {
     const int oldcount = refcount_--;
+
     assert(oldcount > 0);
 
     if (oldcount == 1) {
