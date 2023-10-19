@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.24)
+  cmake_policy(SET CMP0135 OLD)
+endif()
+
 project(SignalEstimator)
 
 option(BUILD_GUI "build Qt GUI" ON)
@@ -21,11 +25,19 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+list(APPEND COMPILER_FLAGS
+  "-pthread"
+  )
+list(APPEND LINKER_FLAGS
+  "-pthread"
+  )
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND COMPILER_FLAGS
     "-Wall"
     "-Wextra"
     "-Wno-cast-align"
+    "-Wno-system-headers"
     "-Wno-unused-private-field"
     )
 endif()
@@ -51,9 +63,11 @@ endif()
 if(ENABLE_SANITIZERS)
   list(APPEND COMPILER_FLAGS
     "-fsanitize=address"
+    "-fsanitize=undefined"
     )
   list(APPEND LINKER_FLAGS
     "-fsanitize=address"
+    "-fsanitize=undefined"
     )
 endif()
 
@@ -123,11 +137,9 @@ target_include_directories(signal-estimator
   PRIVATE src/base
   )
 
-find_package(Threads)
 target_link_libraries(signal-estimator
   base_objects
   m
-  ${CMAKE_THREAD_LIBS_INIT}
   )
 
 install(
@@ -208,7 +220,6 @@ if(BUILD_GUI)
   target_link_libraries(signal-estimator-gui
     generated_objects
     base_objects
-    ${CMAKE_THREAD_LIBS_INIT}
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
