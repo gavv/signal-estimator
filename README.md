@@ -103,6 +103,7 @@ External:
 Vendored (git submodules):
 
 * [concurrentqueue](https://github.com/cameron314/concurrentqueue)
+* [spdlog](https://github.com/gabime/spdlog)
 * [cxxopts](https://github.com/jarro2783/cxxopts)
 * [kissfft](https://github.com/mborgerding/kissfft)
 

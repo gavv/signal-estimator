@@ -2,6 +2,8 @@
 .cache
 .dir-locals.el
 .gdb_history
+GNUmakefile
+TODO.org
 bin
 build
 compile_commands.json
