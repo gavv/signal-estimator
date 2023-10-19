@@ -60,6 +60,7 @@ endif()
 add_library(base_objects OBJECT
   src/base/core/Frame.cpp
   src/base/core/FramePool.cpp
+  src/base/core/Log.cpp
   src/base/core/Realtime.cpp
   src/base/core/Time.cpp
   src/base/processing/ContinuousGenerator.cpp

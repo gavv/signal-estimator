@@ -22,17 +22,13 @@
 #include "sndio/IDeviceReader.hpp"
 #include "sndio/IDeviceWriter.hpp"
 
-#include <spdlog/spdlog.h>
-#include <spdlog/async.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include <cxxopts.hpp>
 
 #include <iostream>
 #include <memory>
 #include <memory>
 #include <thread>
 #include <vector>
-
-#include <cxxopts.hpp>
 
 using namespace signal_estimator;
 
@@ -113,9 +109,7 @@ void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estima
 } // namespace
 
 int main(int argc, char** argv) {
-
-	auto err_logger = spdlog::stderr_color_mt<spdlog::async_factory>("stderr");
-	spdlog::set_default_logger(err_logger);
+    se_log_init();
 
     Config config;
 

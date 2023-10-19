@@ -13,9 +13,9 @@ void set_realtime() {
     param.sched_priority = sched_get_priority_max(SCHED_RR);
 
     if (sched_setscheduler(0, SCHED_RR, &param) == 0) {
-        se_log_info("successfully enabled real-time scheduling policy");
+        se_log_debug("successfully enabled real-time scheduling policy");
     } else {
-        se_log_info("can't enable real-time scheduling policy");
+        se_log_warn("can't enable real-time scheduling policy");
     }
 }
 
