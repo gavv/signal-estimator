@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include "processing/FFTOps.hpp"
-
 #include <algorithm>
 #include <array>
-#include <assert.h>
+#include <cassert>
 #include <complex>
 #include <cstdint>
 
@@ -55,7 +53,7 @@ public:
         kiss_fft(ksfft_state_fwd_, full_input_buf.data(), fft_out.data());
         for (auto pout = fft_out.begin(), ptaps = ftaps.begin(); pout != fft_out.end();
              pout++, ptaps++) {
-            *pout = *pout * *ptaps;
+            *pout = multiply_(*pout, *ptaps);
         }
 
         std::fill(
@@ -83,6 +81,10 @@ public:
     }
 
 private:
+    static kiss_fft_cpx multiply_(const kiss_fft_cpx& x, const kiss_fft_cpx& y) {
+        return kiss_fft_cpx { x.r * y.r - x.i * y.i, x.r * y.i + x.i * y.r };
+    }
+
     kiss_fft_cfg ksfft_state_fwd_;
     kiss_fft_cfg ksfft_state_inv_;
 
