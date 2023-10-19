@@ -75,6 +75,7 @@ add_library(base_objects OBJECT
   src/base/core/Frame.cpp
   src/base/core/FramePool.cpp
   src/base/core/Log.cpp
+  src/base/core/RateLimiter.cpp
   src/base/core/Realtime.cpp
   src/base/core/Time.cpp
   src/base/dumps/AsyncDumper.cpp
@@ -88,7 +89,6 @@ add_library(base_objects OBJECT
   src/base/processing/Impulse.cpp
   src/base/processing/ImpulseGenerator.cpp
   src/base/processing/LossEstimator.cpp
-  src/base/processing/RateLimiter.cpp
   src/base/processing/StepsGenerator.cpp
   src/base/processing/StepsLatencyEstimator.cpp
   src/base/reports/JsonReporter.cpp

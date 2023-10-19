@@ -1,7 +1,7 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "processing/RateLimiter.hpp"
+#include "core/RateLimiter.hpp"
 
 namespace signal_estimator {
 

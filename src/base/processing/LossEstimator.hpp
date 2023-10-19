@@ -4,11 +4,11 @@
 #pragma once
 
 #include "core/Config.hpp"
+#include "core/RateLimiter.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
 #include "processing/MovGradient.hpp"
 #include "processing/MovMax.hpp"
-#include "processing/RateLimiter.hpp"
 #include "processing/SchmittTrigger.hpp"
 #include "reports/IReporter.hpp"
 
