@@ -20,13 +20,13 @@ public:
     AsyncDumper(const AsyncDumper&) = delete;
     AsyncDumper& operator=(const AsyncDumper&) = delete;
 
-    void write(std::shared_ptr<Frame> frame) override;
+    void write(FramePtr frame) override;
 
 private:
     void run_();
 
     std::unique_ptr<IDumper> dumper_;
-    Queue<std::shared_ptr<Frame>> queue_;
+    Queue<FramePtr> queue_;
     std::thread thread_;
 };
 

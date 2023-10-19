@@ -113,6 +113,14 @@ include_directories(SYSTEM
   ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/concurrentqueue
 )
 
+# isptr
+checkout_submodule(
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/intrusive_shared_ptr
+)
+include_directories(SYSTEM
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/intrusive_shared_ptr/inc
+)
+
 # cxxopts
 checkout_submodule(
   ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts

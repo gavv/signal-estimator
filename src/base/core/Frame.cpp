@@ -2,6 +2,7 @@
 // Licensed under MIT
 
 #include "core/Frame.hpp"
+#include "core/FramePool.hpp"
 
 #include <cassert>
 
@@ -12,6 +13,25 @@ Frame::Frame(const Config& config, FramePool& pool)
     , pool_(pool)
     , data_(config_.io_period_size) {
     clear();
+}
+
+int Frame::get_ref() const {
+    assert(refcount_ >= 0);
+    return refcount_;
+}
+
+void Frame::add_ref() {
+    const int oldcount = refcount_++;
+    assert(oldcount >= 0);
+}
+
+void Frame::sub_ref() {
+    const int oldcount = refcount_--;
+    assert(oldcount > 0);
+
+    if (oldcount == 1) {
+        pool_.release_frame_(this);
+    }
 }
 
 void Frame::clear() {

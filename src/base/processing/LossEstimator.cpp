@@ -21,13 +21,13 @@ LossEstimator::LossEstimator(const Config& config, IReporter& reporter)
 LossEstimator::~LossEstimator() {
 }
 
-void LossEstimator::add_output(std::shared_ptr<Frame> frame) {
+void LossEstimator::add_output(FramePtr frame) {
     // noop
     (void)frame;
 }
 
-void LossEstimator::add_input(std::shared_ptr<Frame> frame) {
-    if (!frame.get()) {
+void LossEstimator::add_input(FramePtr frame) {
+    if (!frame) {
         return;
     }
 

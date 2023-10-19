@@ -28,8 +28,8 @@ public:
 
     ~LossEstimator() override;
 
-    void add_output(std::shared_ptr<Frame> frame) override;
-    void add_input(std::shared_ptr<Frame> frame) override;
+    void add_output(FramePtr frame) override;
+    void add_input(FramePtr frame) override;
 
 private:
     void report_losses_();

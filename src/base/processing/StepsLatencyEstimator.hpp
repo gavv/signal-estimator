@@ -26,8 +26,8 @@ public:
     StepsLatencyEstimator(const StepsLatencyEstimator&) = delete;
     StepsLatencyEstimator& operator=(const StepsLatencyEstimator&) = delete;
 
-    void add_output(std::shared_ptr<Frame> frame) override;
-    void add_input(std::shared_ptr<Frame> frame) override;
+    void add_output(FramePtr frame) override;
+    void add_input(FramePtr frame) override;
 
 private:
     struct LatencyReport {

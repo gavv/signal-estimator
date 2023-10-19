@@ -104,6 +104,7 @@ Vendored (git submodules):
 
 * [concurrentqueue](https://github.com/cameron314/concurrentqueue)
 * [spdlog](https://github.com/gabime/spdlog)
+* [intrusive_shared_ptr](https://github.com/gershnik/intrusive_shared_ptr)
 * [cxxopts](https://github.com/jarro2783/cxxopts)
 * [kissfft](https://github.com/mborgerding/kissfft)
 

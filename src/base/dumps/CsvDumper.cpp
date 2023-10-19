@@ -57,7 +57,7 @@ void CsvDumper::close() {
     }
 }
 
-void CsvDumper::write(std::shared_ptr<Frame> frame) {
+void CsvDumper::write(FramePtr frame) {
     if (!frame) {
         return;
     }

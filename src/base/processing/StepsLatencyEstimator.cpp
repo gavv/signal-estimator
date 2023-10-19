@@ -35,7 +35,7 @@ StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IReporter& re
     , reporter_(reporter) {
 }
 
-void StepsLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
+void StepsLatencyEstimator::add_output(FramePtr frame) {
     if (!frame) {
         return;
     }
@@ -49,7 +49,7 @@ void StepsLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
     frame.reset();
 }
 
-void StepsLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
+void StepsLatencyEstimator::add_input(FramePtr frame) {
     if (!frame) {
         return;
     }

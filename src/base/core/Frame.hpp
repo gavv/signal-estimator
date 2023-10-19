@@ -7,20 +7,25 @@
 #include "core/Sample.hpp"
 #include "core/Time.hpp"
 
+#include <intrusive_shared_ptr/intrusive_shared_ptr.h>
+
+#include <atomic>
 #include <cassert>
-#include <cstdint>
 #include <cstdlib>
 #include <vector>
 
 namespace signal_estimator {
 
+class FramePool;
+class FrameTraits;
+
+// Frame type
 enum class FrameType {
     Output,
     Input,
 };
 
-class FramePool;
-
+// Audio frame
 class Frame {
 public:
     Frame(const Config&, FramePool&);
@@ -66,6 +71,11 @@ public:
 
 private:
     friend class FramePool;
+    friend class FrameTraits;
+
+    int get_ref() const;
+    void add_ref();
+    void sub_ref();
 
     const Config& config_;
     FramePool& pool_;
@@ -74,6 +84,22 @@ private:
     nanoseconds_t io_time_;
 
     std::vector<sample_t> data_;
+    std::atomic<int> refcount_ { 0 };
 };
+
+// For FramePtr
+class FrameTraits {
+public:
+    static void add_ref(Frame* frame) noexcept {
+        frame->add_ref();
+    }
+
+    static void sub_ref(Frame* frame) noexcept {
+        frame->sub_ref();
+    }
+};
+
+// Intrusive shared pointer to frame
+using FramePtr = isptr::intrusive_shared_ptr<Frame, FrameTraits>;
 
 } // namespace signal_estimator

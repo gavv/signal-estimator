@@ -20,9 +20,11 @@ public:
     FramePool(const FramePool&) = delete;
     FramePool& operator=(const FramePool&) = delete;
 
-    std::shared_ptr<Frame> allocate();
+    FramePtr allocate();
 
 private:
+    friend class Frame;
+
     void release_frame_(Frame*);
 
     Frame* create_frame_();

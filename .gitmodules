@@ -11,3 +11,6 @@
 	path = 3rdparty/spdlog
 	url = https://github.com/gabime/spdlog
 	branch = v1.x
+[submodule "3rdparty/intrusive_shared_ptr"]
+	path = 3rdparty/intrusive_shared_ptr
+	url = https://github.com/gershnik/intrusive_shared_ptr.git

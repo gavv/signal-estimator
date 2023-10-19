@@ -20,7 +20,7 @@ FramePool::~FramePool() {
     }
 }
 
-std::shared_ptr<Frame> FramePool::allocate() {
+FramePtr FramePool::allocate() {
     Frame* frame = nullptr;
 
     if (free_list_.try_dequeue(frame)) {
@@ -29,11 +29,14 @@ std::shared_ptr<Frame> FramePool::allocate() {
         frame = create_frame_();
     }
 
-    return std::shared_ptr<Frame>(
-        frame, [](auto frame) { frame->pool_.release_frame_(frame); });
+    assert(frame->get_ref() == 0);
+
+    return FramePtr::ref(frame);
 }
 
 void FramePool::release_frame_(Frame* frame) {
+    assert(frame->get_ref() == 0);
+
     free_list_.enqueue(frame);
 }
 
@@ -42,6 +45,8 @@ Frame* FramePool::create_frame_() {
 }
 
 void FramePool::delete_frame_(Frame* frame) {
+    assert(frame->get_ref() == 0);
+
     delete frame;
 }
 

@@ -25,11 +25,11 @@ CorrelationLatencyEstimator::~CorrelationLatencyEstimator() {
     }
 }
 
-void CorrelationLatencyEstimator::add_output(std::shared_ptr<Frame> frame) {
+void CorrelationLatencyEstimator::add_output(FramePtr frame) {
     queue_out_.push(frame);
 }
 
-void CorrelationLatencyEstimator::add_input(std::shared_ptr<Frame> frame) {
+void CorrelationLatencyEstimator::add_input(FramePtr frame) {
     queue_in_.push(frame);
 }
 

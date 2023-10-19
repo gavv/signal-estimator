@@ -26,8 +26,8 @@ public:
     CorrelationLatencyEstimator(const CorrelationLatencyEstimator&) = delete;
     CorrelationLatencyEstimator& operator=(const CorrelationLatencyEstimator&) = delete;
 
-    void add_output(std::shared_ptr<Frame> frame) override;
-    void add_input(std::shared_ptr<Frame> frame) override;
+    void add_output(FramePtr frame) override;
+    void add_input(FramePtr frame) override;
 
 private:
     struct Timestamp {
@@ -88,8 +88,8 @@ private:
     const Config& config_;
     IReporter& reporter_;
     MovAvg<double> hw_avg_;
-    Queue<std::shared_ptr<Frame>> queue_in_;
-    Queue<std::shared_ptr<Frame>> queue_out_;
+    Queue<FramePtr> queue_in_;
+    Queue<FramePtr> queue_out_;
     std::thread thread_;
 
     const double causality_timeout_lim_;

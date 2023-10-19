@@ -30,7 +30,7 @@ public:
     bool open(const char* filename);
     void close();
 
-    void write(std::shared_ptr<Frame> frame) override;
+    void write(FramePtr frame) override;
 
 private:
     void print_(const Frame& frame);

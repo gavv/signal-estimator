@@ -18,7 +18,7 @@ AsyncDumper::~AsyncDumper() {
     }
 }
 
-void AsyncDumper::write(std::shared_ptr<Frame> frame) {
+void AsyncDumper::write(FramePtr frame) {
     queue_.push(frame);
 }
 
