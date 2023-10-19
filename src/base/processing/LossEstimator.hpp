@@ -32,6 +32,7 @@ public:
     void add_input(FramePtr frame) override;
 
 private:
+    void process_frame_(const Frame& frame);
     void report_losses_();
 
     const Config config_;

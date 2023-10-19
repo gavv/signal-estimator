@@ -31,8 +31,14 @@ void LossEstimator::add_input(FramePtr frame) {
         return;
     }
 
-    for (size_t n = 0; n < frame->size(); n++) {
-        auto s = double((*frame)[n]);
+    process_frame_(*frame);
+
+    report_losses_();
+}
+
+void LossEstimator::process_frame_(const Frame& frame) {
+    for (size_t n = 0; n < frame.size(); n++) {
+        auto s = double(frame[n]);
 
         if (signal_runmax_(std::abs(s))
             >= MaxSample * config_.signal_detection_threshold) {
@@ -52,8 +58,6 @@ void LossEstimator::add_input(FramePtr frame) {
             losses_++;
         }
     }
-
-    report_losses_();
 }
 
 void LossEstimator::report_losses_() {
