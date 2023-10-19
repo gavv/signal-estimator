@@ -121,10 +121,41 @@ include_directories(SYSTEM
   ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts/include
 )
 
+# spdlog
+checkout_submodule(
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/spdlog
+  )
+ExternalProject_Add(spdlog_lib
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/spdlog
+  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-build
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-prefix
+  CMAKE_ARGS
+    -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DCMAKE_C_COMPILER_TARGET=${CMAKE_C_COMPILER_TARGET}
+    -DCMAKE_CXX_COMPILER_TARGET=${CMAKE_CXX_COMPILER_TARGET}
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+    -DCMAKE_AR=${CMAKE_AR}
+    -DCMAKE_RANLIB=${CMAKE_RANLIB}
+    -DCMAKE_STRIP=${CMAKE_STRIP}
+  LOG_DOWNLOAD YES
+  LOG_CONFIGURE YES
+  LOG_BUILD YES
+  LOG_INSTALL YES
+)
+include_directories(SYSTEM
+  ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-prefix/include
+)
+link_libraries(
+  ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-prefix/lib/${LIBPREFIX}spdlog${LIBSUFFIX}
+)
+
 # serialize dependencies
 set(ALL_DEPENDENCIES
   alsa_lib
   kissfft_lib
+  spdlog_lib
   )
 
 list(REVERSE ALL_DEPENDENCIES)

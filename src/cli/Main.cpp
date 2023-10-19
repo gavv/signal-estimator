@@ -22,6 +22,10 @@
 #include "sndio/IDeviceReader.hpp"
 #include "sndio/IDeviceWriter.hpp"
 
+#include <spdlog/spdlog.h>
+#include <spdlog/async.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 #include <iostream>
 #include <memory>
 #include <memory>
@@ -109,6 +113,10 @@ void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estima
 } // namespace
 
 int main(int argc, char** argv) {
+
+	auto err_logger = spdlog::stderr_color_mt<spdlog::async_factory>("stderr");
+	spdlog::set_default_logger(err_logger);
+
     Config config;
 
     cxxopts::Options opts(
@@ -269,7 +277,7 @@ int main(int argc, char** argv) {
         config.glitch_detection_window = res["glitch-detection-window"].as<size_t>();
         config.glitch_detection_threshold = res["glitch-detection-threshold"].as<float>();
     } catch (std::exception& exc) {
-        se_log_error("%s", exc.what());
+        se_log_error("{}", exc.what());
         exit(1);
     }
 

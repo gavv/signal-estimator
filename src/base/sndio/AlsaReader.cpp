@@ -12,7 +12,7 @@ AlsaReader::~AlsaReader() {
 }
 
 bool AlsaReader::open(Config& config, const char* device) {
-    se_log_info("opening alsa reader for device %s", device);
+    se_log_info("opening alsa reader for device {}", device);
 
     pcm_ = alsa_open(device, SND_PCM_STREAM_CAPTURE, config);
     config_ = config;
@@ -41,7 +41,7 @@ bool AlsaReader::read(Frame& frame) {
     }
 
     if (err < 0) {
-        se_log_error("alsa reader: %s", snd_strerror((int)err));
+        se_log_error("alsa reader: {}", snd_strerror((int)err));
         return false;
     }
 

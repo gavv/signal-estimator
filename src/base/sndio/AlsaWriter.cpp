@@ -12,7 +12,7 @@ AlsaWriter::~AlsaWriter() {
 }
 
 bool AlsaWriter::open(Config& config, const char* device) {
-    se_log_info("opening alsa writer for device %s", device);
+    se_log_info("opening alsa writer for device {}", device);
 
     pcm_ = alsa_open(device, SND_PCM_STREAM_PLAYBACK, config);
     config_ = config;
@@ -41,7 +41,7 @@ bool AlsaWriter::write(Frame& frame) {
     }
 
     if (err < 0) {
-        se_log_error("alsa writer: %s", snd_strerror((int)err));
+        se_log_error("alsa writer: {}", snd_strerror((int)err));
         return false;
     }
 

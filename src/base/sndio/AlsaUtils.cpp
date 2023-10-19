@@ -30,13 +30,13 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // initialize hw_params
     if ((err = snd_pcm_hw_params_any(pcm, hw_params)) < 0) {
         se_log_error(
-            "can't set hw params: snd_pcm_hw_params_any(): %s", snd_strerror(err));
+            "can't set hw params: snd_pcm_hw_params_any(): {}", snd_strerror(err));
         return false;
     }
 
     // disable software resampling
     if ((err = snd_pcm_hw_params_set_rate_resample(pcm, hw_params, 0)) < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_set_rate_resample: %s",
+        se_log_error("can't set hw params: snd_pcm_hw_params_set_rate_resample: {}",
             snd_strerror(err));
         return false;
     }
@@ -44,7 +44,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // set number of channels
     if ((err = snd_pcm_hw_params_set_channels(pcm, hw_params, (unsigned int)n_channels))
         < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_set_channels(): %s",
+        se_log_error("can't set hw params: snd_pcm_hw_params_set_channels(): {}",
             snd_strerror(err));
         return false;
     }
@@ -52,28 +52,28 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // set access
     if ((err = snd_pcm_hw_params_set_access(pcm, hw_params, access)) < 0) {
         se_log_error(
-            "can't set hw params: snd_pcm_hw_params_set_access(): %s", snd_strerror(err));
+            "can't set hw params: snd_pcm_hw_params_set_access(): {}", snd_strerror(err));
         return false;
     }
 
     // set format
     if ((err = snd_pcm_hw_params_set_format(pcm, hw_params, format)) < 0) {
         se_log_error(
-            "can't set hw params: snd_pcm_hw_params_set_format(): %s", snd_strerror(err));
+            "can't set hw params: snd_pcm_hw_params_set_format(): {}", snd_strerror(err));
         return false;
     }
 
     // set sample rate
     unsigned int rate = sample_rate;
     if ((err = snd_pcm_hw_params_set_rate_near(pcm, hw_params, &rate, nullptr)) < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_set_rate_near(): %s",
+        se_log_error("can't set hw params: snd_pcm_hw_params_set_rate_near(): {}",
             snd_strerror(err));
         return false;
     }
     if (rate != sample_rate) {
         se_log_error("can't set hw params: exact sample rate value is not supported:"
-                     " requested=%d supported=%d",
-            (int)sample_rate, (int)rate);
+                     " requested={:d} supported={:d}",
+            sample_rate, rate);
         return false;
     }
 
@@ -87,7 +87,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     if ((err = snd_pcm_hw_params_set_period_size_near(
              pcm, hw_params, period_size, nullptr))
         < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_set_period_size_near(): %s",
+        se_log_error("can't set hw params: snd_pcm_hw_params_set_period_size_near(): {}",
             snd_strerror(err));
         return false;
     }
@@ -95,7 +95,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // get period time
     unsigned int period_time = 0;
     if ((err = snd_pcm_hw_params_get_period_time(hw_params, &period_time, nullptr)) < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_get_period_time(): %s",
+        se_log_error("can't set hw params: snd_pcm_hw_params_get_period_time(): {}",
             snd_strerror(err));
         return false;
     }
@@ -103,7 +103,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // set buffer size, i.e. number of samples in circular buffer
     *buffer_size = *period_size * n_periods;
     if ((err = snd_pcm_hw_params_set_buffer_size_near(pcm, hw_params, buffer_size)) < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_set_buffer_size_near(): %s",
+        se_log_error("can't set hw params: snd_pcm_hw_params_set_buffer_size_near(): {}",
             snd_strerror(err));
         return false;
     }
@@ -112,21 +112,21 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     // calculated from 'sample_rate' and 'buffer_size'
     unsigned int buffer_time = 0;
     if ((err = snd_pcm_hw_params_get_buffer_time(hw_params, &buffer_time, nullptr)) < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params_get_buffer_time(): %s",
+        se_log_error("can't set hw params: snd_pcm_hw_params_get_buffer_time(): {}",
             snd_strerror(err));
         return false;
     }
 
-    se_log_info("suggested_latency: %u us", (unsigned)latency_us);
-    se_log_info("suggested_buffer_size: %u samples", (unsigned)suggested_buffer_size);
-    se_log_info("selected_buffer_time: %u us", (unsigned)buffer_time);
-    se_log_info("selected_buffer_size: %u samples", (unsigned)*buffer_size);
-    se_log_info("selected_period_time: %u us", (unsigned)period_time);
-    se_log_info("selected_period_size: %u samples", (unsigned)*period_size);
+    se_log_info("suggested_latency: {:u} us", latency_us);
+    se_log_info("suggested_buffer_size: {:u} samples", suggested_buffer_size);
+    se_log_info("selected_buffer_time: {:u} us", buffer_time);
+    se_log_info("selected_buffer_size: {:u} samples", *buffer_size);
+    se_log_info("selected_period_time: {:u} us", period_time);
+    se_log_info("selected_period_size: {:u} samples", *period_size);
 
     // send hw_params to ALSA
     if ((err = snd_pcm_hw_params(pcm, hw_params)) < 0) {
-        se_log_error("can't set hw params: snd_pcm_hw_params(): %s", snd_strerror(err));
+        se_log_error("can't set hw params: snd_pcm_hw_params(): {}", snd_strerror(err));
         return false;
     }
 
@@ -143,7 +143,7 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
     // initialize sw_params
     if ((err = snd_pcm_sw_params_current(pcm, sw_params)) < 0) {
         se_log_error(
-            "can't set sw params: snd_pcm_sw_params_current(): %s", snd_strerror(err));
+            "can't set sw params: snd_pcm_sw_params_current(): {}", snd_strerror(err));
         return false;
     }
 
@@ -152,21 +152,21 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
         if ((err = snd_pcm_sw_params_set_start_threshold(pcm, sw_params, buffer_size))
             < 0) {
             se_log_error(
-                "can't set sw params: snd_pcm_sw_params_set_start_threshold(): %s",
+                "can't set sw params: snd_pcm_sw_params_set_start_threshold(): {}",
                 snd_strerror(err));
             return false;
         }
 
         // set minimum threshold, below which ALSA wont allow to perform write
         if ((err = snd_pcm_sw_params_set_avail_min(pcm, sw_params, period_size)) < 0) {
-            se_log_error("can't set sw params: snd_pcm_sw_params_set_avail_min(): %s",
+            se_log_error("can't set sw params: snd_pcm_sw_params_set_avail_min(): {}",
                 snd_strerror(err));
             return false;
         }
     } else {
         // set minimum threshold, below which ALSA wont allow to perform read
         if ((err = snd_pcm_sw_params_set_avail_min(pcm, sw_params, period_size)) < 0) {
-            se_log_error("can't set sw params: snd_pcm_sw_params_set_avail_min(): %s",
+            se_log_error("can't set sw params: snd_pcm_sw_params_set_avail_min(): {}",
                 snd_strerror(err));
             return false;
         }
@@ -174,7 +174,7 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
 
     // send sw_params to ALSA
     if ((err = snd_pcm_sw_params(pcm, sw_params)) < 0) {
-        se_log_error("can't set sw params: snd_pcm_sw_params(): %s", snd_strerror(err));
+        se_log_error("can't set sw params: snd_pcm_sw_params(): {}", snd_strerror(err));
         return false;
     }
 
@@ -188,7 +188,7 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
 
     int err = 0;
     if ((err = snd_pcm_open(&pcm, device, mode, 0)) < 0) {
-        se_log_error("can't open alsa device: snd_pcm_open(): %s", snd_strerror(err));
+        se_log_error("can't open alsa device: snd_pcm_open(): {}", snd_strerror(err));
         return nullptr;
     }
 
@@ -210,7 +210,7 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
 
 error:
     if ((err = snd_pcm_close(pcm)) < 0) {
-        se_log_error("can't close alsa device: snd_pcm_close(): %s", snd_strerror(err));
+        se_log_error("can't close alsa device: snd_pcm_close(): {}", snd_strerror(err));
     }
 
     return nullptr;
@@ -224,7 +224,7 @@ void alsa_close(snd_pcm_t* pcm) {
     int err = 0;
 
     if ((err = snd_pcm_close(pcm)) < 0) {
-        se_log_error("can't close alsa device: snd_pcm_close(): %s", snd_strerror(err));
+        se_log_error("can't close alsa device: snd_pcm_close(): {}", snd_strerror(err));
     }
 }
 
