@@ -117,11 +117,15 @@ int main(int argc, char** argv) {
     std::string format = "text";
     std::string output_dev, input_dev;
     std::string output_dump, input_dump;
+    int verbosity = 0;
 
     CLI::App app { "Measure characteristics of a looped back signal",
         "signal-estimator" };
 
     app.formatter(std::make_shared<Formatter>());
+
+    app.add_flag("-v,--verbose", verbosity,
+        "increase verbosity level (may be used multiple times)");
 
     auto control_opts = app.add_option_group("Control options");
 
@@ -243,7 +247,7 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    se_log_init();
+    init_log(verbosity);
 
     AlsaWriter output_writer;
 

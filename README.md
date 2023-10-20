@@ -195,6 +195,7 @@ Usage: signal-estimator [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
+  -v,--verbose [0]            increase verbosity level (may be used multiple times)
 
 Control options:
   -m,--mode TEXT [latency_corr]
@@ -264,7 +265,7 @@ The correlation mode is known to provide improved precision and stability even u
 
 
 ```
-$ sudo signal-estimator -m latency_corr -o hw:0 -i hw:0 -d 5
+$ sudo signal-estimator -vv -m latency_corr -o hw:0 -i hw:0 -d 5
 opening alsa writer for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
@@ -313,7 +314,7 @@ Measuring losses
 In the loss estimation mode, the tool generates continuous beep and counts for glitches and gaps in the received signal.
 
 ```
-$ sudo signal-estimator -m losses -o hw:0 -i hw:0 -d 5
+$ sudo signal-estimator -vv -m losses -o hw:0 -i hw:0 -d 5
 opening alsa writer for device hw:0
 suggested_latency: 8000 us
 suggested_buffer_size: 384 samples
@@ -395,7 +396,7 @@ To reduce the file size, the tool can dump only one (average) value per frame of
 The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to hardware or read from hardware.
 
 ```
-$ sudo signal-estimator -m latency_step -o hw:0 -i hw:0 -d 5 \
+$ sudo signal-estimator -vv -m latency_step -o hw:0 -i hw:0 -d 5 \
     --volume 1.0 --dump-out output.csv --dump-in input.csv
 ...
 ```

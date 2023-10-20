@@ -17,7 +17,7 @@
 using namespace signal_estimator;
 
 int main(int argc, char* argv[]) {
-    se_log_init();
+    init_log(2);
 
     QApplication a(argc, argv);
 
