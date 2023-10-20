@@ -94,7 +94,7 @@ Dependencies
 
 External:
 
-* C++17 compiler
+* C++17 compiler (GCC or Clang)
 * CMake >= 3.5
 * libasound (ALSA devel)
 * libpng (for GUI)
@@ -102,11 +102,11 @@ External:
 
 Vendored (git submodules):
 
+* [KISS FFT](https://github.com/mborgerding/kissfft)
 * [concurrentqueue](https://github.com/cameron314/concurrentqueue)
-* [spdlog](https://github.com/gabime/spdlog)
 * [intrusive_shared_ptr](https://github.com/gershnik/intrusive_shared_ptr)
-* [cxxopts](https://github.com/jarro2783/cxxopts)
-* [kissfft](https://github.com/mborgerding/kissfft)
+* [spdlog](https://github.com/gabime/spdlog)
+* [CLI11](https://github.com/CLIUtils/CLI11)
 
 Installation
 ------------
@@ -191,68 +191,61 @@ Command-line options
 ```
 $ signal-estimator --help
 Measure characteristics of a looped back signal
-Usage:
-  signal-estimator [OPTION...]
+Usage: signal-estimator [OPTIONS]
 
- General options:
-  -h, --help          Print help message and exit
-  -m, --mode arg      Mode: noop|latency_corr|latency_step|losses (default:
-                      latency_corr)
-  -o, --output arg    Output device name, required
-  -i, --input arg     Input device name, required
-  -d, --duration arg  Measurement duration, seconds (default: 10.000000)
-  -w, --warmup arg    Warmup duration, seconds (default: 0.000000)
+Options:
+  -h,--help                   Print this help message and exit
 
- I/O options:
-  -r, --rate arg     Sample rate (default: 48000)
-  -c, --chans arg    Number of channels (default: 2)
-  -v, --volume arg   Signal volume, from 0 to 1 (default: 0.500000)
-  -l, --latency arg  Ring buffer size, microseconds (default: 8000)
-  -p, --periods arg  Number of periods in io ring buffer (default: 2)
+Control options:
+  -m,--mode TEXT [latency_corr]
+                              Operation mode: latency_corr|latency_step|losses
+  -o,--output TEXT [required] Output device name
+  -i,--input TEXT [required]  Input device name
+  -d,--duration FLOAT [10]    Measurement duration, seconds
+  -w,--warmup FLOAT [0]       Warmup duration, seconds
 
- Reporting options:
-  -f, --report-format arg  Output Format: text|json (default: text)
-      --report-sma arg     Simple moving average window for latency reports
-                           (default: 5)
+I/O options:
+  -r,--rate UINT [48000]      Sample rate, Hz
+  -c,--chans UINT [2]         Number of channels
+  -v,--volume FLOAT [0.5]     Signal volume, from 0 to 1
+  -l,--latency UINT [8000]    Ring buffer size, microseconds
+  -p,--periods UINT [2]       Number of periods in ring buffer
 
- Dumping options:
-      --dump-out arg          File to dump output stream (`-' for stdout)
-      --dump-in arg           File to dump input stream (`-' for stdout)
-      --dump-compression arg  Compress dumped samples by given ratio using
-                              SMA (default: 64)
+Report options:
+  -f,--report-format TEXT [text]
+                              Report format: text|json
+  --report-sma UINT [5]       Simple moving average window for latency reports
 
- Correlation-based latency estimation options:
-      --impulse-period arg      Impulse period, seconds (default: 1.000000)
-      --impulse-peak-noise-ratio arg
-                                The peak-to-noise minimum ratio threshold
-                                (default: 4.000000)
-      --impulse-peak-window arg
-                                Peak detection window length, in samples
-                                (default: 128)
+Dump options:
+  --dump-out TEXT             File to dump output stream (`-' for stdout)
+  --dump-in TEXT              File to dump input stream (`-' for stdout)
+  --dump-compression UINT [64]
+                              Compress dumped samples by given ratio using SMA
 
- Step-based latency estimation options:
-      --step-period arg         Step period, seconds (default: 1.000000)
-      --step-length arg         Step length, seconds (default: 0.100000)
-      --step-detection-window arg
-                                Step detection running maximum window, in
-                                samples (default: 96)
-      --step-detection-threshold arg
-                                Step detection threshold, from 0 to 1
-                                (default: 0.400000)
+Correlation-based latency estimation options:
+  --impulse-period FLOAT [1]  Impulse period, seconds
+  --impulse-peak-noise-ratio FLOAT [4]
+                              The peak-to-noise minimum ratio threshold
+  --impulse-peak-window UINT [128]
+                              Peak detection window length, samples
 
- Loss ratio estimation options:
-      --signal-detection-window arg
-                                Signal detection running maximum window, in
-                                samples (default: 48)
-      --signal-detection-threshold arg
-                                Signal detection threshold, from 0 to 1
-                                (default: 0.150000)
-      --glitch-detection-window arg
-                                Glitch detection running maximum window, in
-                                samples (default: 32)
-      --glitch-detection-threshold arg
-                                Glitch detection threshold, from 0 to 1
-                                (default: 0.050000)
+Step-based latency estimation options:
+  --step-period FLOAT [1]     Step period, seconds
+  --step-length FLOAT [0.1]   Step length, seconds
+  --step-detection-window UINT [96]
+                              Step detection running maximum window, samples
+  --step-detection-threshold FLOAT [0.4]
+                              Step detection threshold, from 0 to 1
+
+Loss ratio estimation options:
+  --signal-detection-window UINT [48]
+                              Signal detection running maximum window, samples
+  --signal-detection-threshold FLOAT [0.15]
+                              Signal detection threshold, from 0 to 1
+  --glitch-detection-window UINT [32]
+                              Glitch detection running maximum window, samples
+  --glitch-detection-threshold FLOAT [0.05]
+                              Glitch detection threshold, from 0 to 1
 ```
 
 Measuring latency
@@ -395,14 +388,14 @@ Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including 
 Dumping streams
 ---------------
 
-In any mode, including `noop` mode, you can specify `--dump-out` and `--dump-in` options to dump output and input samples and their timestamps to file or stdout (use `-`), in CSV format.
+In any mode, you can specify `--dump-out` and `--dump-in` options to dump output and input samples and their timestamps to file or stdout (use `-`), in CSV format.
 
 To reduce the file size, the tool can dump only one (average) value per frame of the size specified by `--dump-compression` option. This is enabled by default and can be disabled by setting this parameter to zero.
 
 The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to hardware or read from hardware.
 
 ```
-$ sudo signal-estimator -m noop -o hw:0 -i hw:0 -d 5 \
+$ sudo signal-estimator -m latency_step -o hw:0 -i hw:0 -d 5 \
     --volume 1.0 --dump-out output.csv --dump-in input.csv
 ...
 ```

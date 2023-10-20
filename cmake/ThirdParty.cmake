@@ -113,20 +113,12 @@ include_directories(SYSTEM
   ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/concurrentqueue
 )
 
-# isptr
+# intrusive_shared_ptr
 checkout_submodule(
   ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/intrusive_shared_ptr
 )
 include_directories(SYSTEM
   ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/intrusive_shared_ptr/inc
-)
-
-# cxxopts
-checkout_submodule(
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts
-)
-include_directories(SYSTEM
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cxxopts/include
 )
 
 # spdlog
@@ -159,11 +151,39 @@ link_libraries(
   ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-prefix/lib/${LIBPREFIX}spdlog${LIBSUFFIX}
 )
 
+# cli11
+checkout_submodule(
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cli11
+)
+ExternalProject_Add(cli11_lib
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cli11
+  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-build
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-prefix
+  CMAKE_ARGS
+    -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DCMAKE_C_COMPILER_TARGET=${CMAKE_C_COMPILER_TARGET}
+    -DCMAKE_CXX_COMPILER_TARGET=${CMAKE_CXX_COMPILER_TARGET}
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+    -DCMAKE_AR=${CMAKE_AR}
+    -DCMAKE_RANLIB=${CMAKE_RANLIB}
+    -DCMAKE_STRIP=${CMAKE_STRIP}
+  LOG_DOWNLOAD YES
+  LOG_CONFIGURE YES
+  LOG_BUILD YES
+  LOG_INSTALL YES
+)
+include_directories(SYSTEM
+  ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-prefix/include
+)
+
 # serialize dependencies
 set(ALL_DEPENDENCIES
   alsa_lib
   kissfft_lib
   spdlog_lib
+  cli11_lib
   )
 
 list(REVERSE ALL_DEPENDENCIES)

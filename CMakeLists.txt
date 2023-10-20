@@ -112,6 +112,7 @@ target_include_directories(base_objects
   )
 
 add_executable(signal-estimator
+  src/cli/Formatter.cpp
   src/cli/Main.cpp
   )
 

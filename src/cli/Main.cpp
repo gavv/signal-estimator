@@ -1,6 +1,8 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
+#include "Formatter.hpp"
+
 #include "core/FramePool.hpp"
 #include "core/Log.hpp"
 #include "core/Realtime.hpp"
@@ -22,11 +24,12 @@
 #include "reports/JsonReporter.hpp"
 #include "reports/TextReporter.hpp"
 
-#include <cxxopts.hpp>
+#include <CLI/CLI.hpp>
 
 #include <iostream>
+#include <map>
 #include <memory>
-#include <memory>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -76,7 +79,7 @@ void output_loop(const Config* config, FramePool* frame_pool, IGenerator* genera
     }
 }
 
-void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estimator,
+void input_loop(const Config* config, FramePool* frame_pool, IEstimator* estimator,
     IDeviceReader* reader, IDumper* dumper) {
     make_realtime();
 
@@ -109,171 +112,138 @@ void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estima
 } // namespace
 
 int main(int argc, char** argv) {
-    se_log_init();
-
     Config config;
+    std::string mode = "latency_corr";
+    std::string format = "text";
+    std::string output_dev, input_dev;
+    std::string output_dump, input_dump;
 
-    cxxopts::Options opts(
-        "signal-estimator", "Measure characteristics of a looped back signal");
+    CLI::App app { "Measure characteristics of a looped back signal",
+        "signal-estimator" };
 
-    opts.add_options("General")
-        ("h,help", "Print help message and exit")
-        ("m,mode", "Mode: noop|latency_corr|latency_step|losses",
-         cxxopts::value<std::string>()->default_value("latency_corr"))
-        ("o,output", "Output device name, required",
-         cxxopts::value<std::string>())
-        ("i,input", "Input device name, required",
-         cxxopts::value<std::string>())
-        ("d,duration", "Measurement duration, seconds",
-         cxxopts::value<float>()->default_value(std::to_string(config.measurement_duration)))
-        ("w,warmup", "Warmup duration, seconds",
-         cxxopts::value<float>()->default_value(std::to_string(config.warmup_duration)))
-        ;
+    app.formatter(std::make_shared<Formatter>());
 
-    opts.add_options("I/O")
-        ("r,rate", "Sample rate",
-         cxxopts::value<unsigned int>()->default_value(std::to_string(config.sample_rate)))
-        ("c,chans", "Number of channels",
-         cxxopts::value<unsigned int>()->default_value(std::to_string(config.n_channels)))
-        ("v,volume", "Signal volume, from 0 to 1",
-         cxxopts::value<float>()->default_value(std::to_string(config.volume)))
-        ("l,latency", "Ring buffer size, microseconds",
-         cxxopts::value<unsigned int>()->default_value(std::to_string(config.io_latency_us)))
-        ("p,periods", "Number of periods in io ring buffer",
-         cxxopts::value<unsigned int>()->default_value(std::to_string(config.io_num_periods)))
-        ;
+    auto control_opts = app.add_option_group("Control options");
 
-    opts.add_options("Reporting")
-        ("f,report-format", "Output Format: text|json",
-         cxxopts::value<std::string>()->default_value("text"))
-        ("report-sma", "Simple moving average window for latency reports",
-         cxxopts::value<size_t>()->default_value(std::to_string(config.report_sma_window)))
-        ;
+    control_opts
+        ->add_option(
+            "-m,--mode", mode, "Operation mode: latency_corr|latency_step|losses")
+        ->default_str(mode);
+    control_opts->add_option("-o,--output", output_dev, "Output device name")->required();
+    control_opts->add_option("-i,--input", input_dev, "Input device name")->required();
+    control_opts
+        ->add_option(
+            "-d,--duration", config.measurement_duration, "Measurement duration, seconds")
+        ->default_val(config.measurement_duration);
+    control_opts
+        ->add_option("-w,--warmup", config.warmup_duration, "Warmup duration, seconds")
+        ->default_val(config.warmup_duration);
 
-    opts.add_options("Dumping")
-        ("dump-out", "File to dump output stream (`-' for stdout)",
-         cxxopts::value<std::string>())
-        ("dump-in", "File to dump input stream (`-' for stdout)",
-         cxxopts::value<std::string>())
-        ("dump-compression", "Compress dumped samples by given ratio using SMA",
-         cxxopts::value<size_t>()->default_value(std::to_string(config.dump_compression)))
-        ;
+    auto io_opts = app.add_option_group("I/O options");
 
-    opts.add_options("Correlation-based latency estimation")
-        ("impulse-period", "Impulse period, seconds",
-         cxxopts::value<float>()->default_value(std::to_string(config.impulse_period)))
-        ("impulse-peak-noise-ratio", "The peak-to-noise minimum ratio threshold",
-         cxxopts::value<float>()->default_value(
-             std::to_string(config.impulse_avg_2_peak_ration_threshold)))
-        ("impulse-peak-window", "Peak detection window length, in samples",
-         cxxopts::value<size_t>()->default_value(
-             std::to_string(config.impulse_peak_detection_width)))
-        ;
+    io_opts->add_option("-r,--rate", config.sample_rate, "Sample rate, Hz")
+        ->default_val(config.sample_rate);
+    io_opts->add_option("-c,--chans", config.n_channels, "Number of channels")
+        ->default_val(config.n_channels);
+    io_opts->add_option("-v,--volume", config.volume, "Signal volume, from 0 to 1")
+        ->default_val(config.volume);
+    io_opts
+        ->add_option(
+            "-l,--latency", config.io_latency_us, "Ring buffer size, microseconds")
+        ->default_val(config.io_latency_us);
+    io_opts
+        ->add_option(
+            "-p,--periods", config.io_num_periods, "Number of periods in ring buffer")
+        ->default_val(config.io_num_periods);
 
-    opts.add_options("Step-based latency estimation")
-        ("step-period", "Step period, seconds",
-         cxxopts::value<float>()->default_value(std::to_string(config.step_period)))
-        ("step-length", "Step length, seconds",
-         cxxopts::value<float>()->default_value(std::to_string(config.step_length)))
-        ("step-detection-window", "Step detection running maximum window, in samples",
-         cxxopts::value<size_t>()->default_value(std::to_string(config.step_detection_window)))
-        ("step-detection-threshold", "Step detection threshold, from 0 to 1",
-         cxxopts::value<float>()->default_value(std::to_string(config.step_detection_threshold)))
-        ;
+    auto report_opts = app.add_option_group("Report options");
 
-    opts.add_options("Loss ratio estimation")
-        ("signal-detection-window", "Signal detection running maximum window, in samples",
-         cxxopts::value<size_t>()->default_value(std::to_string(config.signal_detection_window)))
-        ("signal-detection-threshold", "Signal detection threshold, from 0 to 1",
-         cxxopts::value<float>()->default_value(std::to_string(config.signal_detection_threshold)))
-        ("glitch-detection-window", "Glitch detection running maximum window, in samples",
-         cxxopts::value<size_t>()->default_value(std::to_string(config.glitch_detection_window)))
-        ("glitch-detection-threshold", "Glitch detection threshold, from 0 to 1",
-         cxxopts::value<float>()->default_value(std::to_string(config.glitch_detection_threshold)))
-        ;
+    report_opts->add_option("-f,--report-format", format, "Report format: text|json")
+        ->default_str(format);
+    report_opts
+        ->add_option("--report-sma", config.report_sma_window,
+            "Simple moving average window for latency reports")
+        ->default_val(config.report_sma_window);
 
-    std::string mode, format, input_dev, output_dev, input_dump, output_dump;
+    auto dump_opts = app.add_option_group("Dump options");
+
+    dump_opts->add_option(
+        "--dump-out", output_dump, "File to dump output stream (`-' for stdout)");
+    dump_opts->add_option(
+        "--dump-in", input_dump, "File to dump input stream (`-' for stdout)");
+    dump_opts
+        ->add_option("--dump-compression", config.dump_compression,
+            "Compress dumped samples by given ratio using SMA")
+        ->default_val(config.dump_compression);
+
+    auto corr_opts = app.add_option_group("Correlation-based latency estimation options");
+
+    corr_opts
+        ->add_option("--impulse-period", config.impulse_period, "Impulse period, seconds")
+        ->default_val(config.impulse_period);
+    corr_opts
+        ->add_option("--impulse-peak-noise-ratio",
+            config.impulse_avg_2_peak_ration_threshold,
+            "The peak-to-noise minimum ratio threshold")
+        ->default_val(config.impulse_avg_2_peak_ration_threshold);
+    corr_opts
+        ->add_option("--impulse-peak-window", config.impulse_peak_detection_width,
+            "Peak detection window length, samples")
+        ->default_val(config.impulse_peak_detection_width);
+
+    auto step_opts = app.add_option_group("Step-based latency estimation options");
+
+    step_opts->add_option("--step-period", config.step_period, "Step period, seconds")
+        ->default_val(config.step_period);
+    step_opts->add_option("--step-length", config.step_length, "Step length, seconds")
+        ->default_val(config.step_length);
+    step_opts
+        ->add_option("--step-detection-window", config.step_detection_window,
+            "Step detection running maximum window, samples")
+        ->default_val(config.step_detection_window);
+    step_opts
+        ->add_option("--step-detection-threshold", config.step_detection_threshold,
+            "Step detection threshold, from 0 to 1")
+        ->default_val(config.step_detection_threshold);
+
+    auto loss_opts = app.add_option_group("Loss ratio estimation options");
+
+    loss_opts
+        ->add_option("--signal-detection-window", config.signal_detection_window,
+            "Signal detection running maximum window, samples")
+        ->default_val(config.signal_detection_window);
+    loss_opts
+        ->add_option("--signal-detection-threshold", config.signal_detection_threshold,
+            "Signal detection threshold, from 0 to 1")
+        ->default_val(config.signal_detection_threshold);
+    loss_opts
+        ->add_option("--glitch-detection-window", config.glitch_detection_window,
+            "Glitch detection running maximum window, samples")
+        ->default_val(config.glitch_detection_window);
+    loss_opts
+        ->add_option("--glitch-detection-threshold", config.glitch_detection_threshold,
+            "Glitch detection threshold, from 0 to 1")
+        ->default_val(config.glitch_detection_threshold);
 
     try {
-        auto res = opts.parse(argc, argv);
+        app.parse(argc, argv);
+    } catch (const CLI::ParseError& e) {
+        return app.exit(e);
+    }
 
-        if (res.count("help")) {
-            std::cout << opts.help({
-                "General",
-                "I/O",
-                "Reporting",
-                "Dumping",
-                "Correlation-based latency estimation",
-                "Step-based latency estimation",
-                "Loss ratio estimation",
-            }) << std::endl;
-            exit(0);
-        }
-
-        format = res["report-format"].as<std::string>();
-
-        if (format != "text" && format != "json") {
-            se_log_error("unknown --report-format value");
-            exit(1);
-        }
-
-        mode = res["mode"].as<std::string>();
-
-        if (mode != "noop" && mode != "latency_corr" &&  mode != "latency_step"
-              && mode != "losses") {
-            se_log_error("unknown --mode value");
-            exit(1);
-        }
-
-        if (!res.count("output")) {
-            se_log_error("missing --output device");
-            exit(1);
-        }
-
-        if (!res.count("input")) {
-            se_log_error("missing --input device");
-            exit(1);
-        }
-
-        output_dev = res["output"].as<std::string>();
-        input_dev = res["input"].as<std::string>();
-
-        config.measurement_duration = res["duration"].as<float>();
-        config.warmup_duration = res["warmup"].as<float>();
-
-        config.sample_rate = res["rate"].as<unsigned int>();
-        config.n_channels = res["chans"].as<unsigned int>();
-        config.volume = res["volume"].as<float>();
-        config.io_num_periods = res["periods"].as<unsigned int>();
-        config.io_latency_us = res["latency"].as<unsigned int>();
-
-        config.report_sma_window = res["report-sma"].as<size_t>();
-
-        if (res.count("dump-out")) {
-            output_dump = res["dump-out"].as<std::string>();
-        }
-        if (res.count("dump-in")) {
-            input_dump = res["dump-in"].as<std::string>();
-        }
-        config.dump_compression = res["dump-compression"].as<size_t>();
-
-        config.impulse_peak_detection_width = res["impulse-peak-window"].as<size_t>();
-        config.impulse_avg_2_peak_ration_threshold = res["impulse-peak-noise-ratio"].as<float>();
-        config.impulse_period = res["impulse-period"].as<float>();
-
-        config.step_period = res["step-period"].as<float>();
-        config.step_length = res["step-length"].as<float>();
-        config.step_detection_window = res["step-detection-window"].as<size_t>();
-        config.step_detection_threshold = res["step-detection-threshold"].as<float>();
-
-        config.signal_detection_window = res["signal-detection-window"].as<size_t>();
-        config.signal_detection_threshold = res["signal-detection-threshold"].as<float>();
-        config.glitch_detection_window = res["glitch-detection-window"].as<size_t>();
-        config.glitch_detection_threshold = res["glitch-detection-threshold"].as<float>();
-    } catch (std::exception& exc) {
-        se_log_error("{}", exc.what());
+    if (mode != "latency_corr" && mode != "latency_step" && mode != "losses") {
+        std::cerr << "invalid --mode\n";
+        std::cerr << "Run with --help for more information.\n";
         exit(1);
     }
+
+    if (format != "text" && format != "json") {
+        std::cerr << "invalid --report-format\n";
+        std::cerr << "Run with --help for more information.\n";
+        exit(1);
+    }
+
+    se_log_init();
 
     AlsaWriter output_writer;
 
@@ -291,11 +261,11 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<IGenerator> generator;
 
-    if (mode == "noop" || mode == "latency_step") {
+    if (mode == "latency_step") {
         generator = std::make_unique<StepsGenerator>(config);
-    } else if(mode == "latency_corr") {
+    } else if (mode == "latency_corr") {
         generator = std::make_unique<ImpulseGenerator>(config, impulse);
-    } else {
+    } else if (mode == "losses") {
         generator = std::make_unique<ContinuousGenerator>(config);
     }
 
@@ -345,10 +315,10 @@ int main(int argc, char** argv) {
         input_dumper = std::make_unique<AsyncDumper>(std::move(input_dumper));
     }
 
-    std::thread input_thread(input_loop, &config, &frame_pool,
-            estimator.get(), &input_reader, input_dumper.get());
+    std::thread input_thread(input_loop, &config, &frame_pool, estimator.get(),
+        &input_reader, input_dumper.get());
 
-    output_loop(&config, &frame_pool, generator.get(), estimator.get(),  &output_writer,
+    output_loop(&config, &frame_pool, generator.get(), estimator.get(), &output_writer,
         output_dumper.get());
 
     input_thread.join();
