@@ -34,7 +34,7 @@ void CorrelationLatencyEstimator::add_input(FramePtr frame) {
 }
 
 void CorrelationLatencyEstimator::run_() {
-    set_realtime();
+    make_realtime();
 
     Timestamp in_peak, out_peak;
     double in_peak_ts = 0, out_peak_ts = 0;

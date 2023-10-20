@@ -36,7 +36,7 @@ namespace {
 
 void output_loop(const Config* config, FramePool* frame_pool, IGenerator* generator,
     IEstimator* estimator, IDeviceWriter* writer, IDumper* dumper) {
-    set_realtime();
+    make_realtime();
 
     size_t n = 0;
 
@@ -78,7 +78,7 @@ void output_loop(const Config* config, FramePool* frame_pool, IGenerator* genera
 
 void input_loop( const Config* config, FramePool* frame_pool, IEstimator* estimator,
     IDeviceReader* reader, IDumper* dumper) {
-    set_realtime();
+    make_realtime();
 
     for (size_t n = 0; n < config->total_periods(); n++) {
         auto frame = frame_pool->allocate();

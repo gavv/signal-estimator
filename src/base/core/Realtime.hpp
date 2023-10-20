@@ -6,6 +6,6 @@
 namespace signal_estimator {
 
 // enable real-time scheduling policy for current thread
-void set_realtime();
+void make_realtime();
 
 } // namespace signal_estimator

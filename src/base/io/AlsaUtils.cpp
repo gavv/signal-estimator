@@ -78,12 +78,12 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     }
 
     // calculate nearest buffer size that is multiple of # of periods
-    unsigned int suggested_buffer_size
+    unsigned int requested_buffer_size
         = alsa_nearest_buffer_size(sample_rate, n_channels, latency_us, n_periods);
 
     // set period size in samples
     // ALSA reads 'period_size' samples from circular buffer every period
-    *period_size = suggested_buffer_size / n_periods;
+    *period_size = requested_buffer_size / n_periods;
     if ((err = snd_pcm_hw_params_set_period_size_near(
              pcm, hw_params, period_size, nullptr))
         < 0) {
@@ -117,8 +117,8 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
         return false;
     }
 
-    se_log_debug("suggested_latency: {} us", latency_us);
-    se_log_debug("suggested_buffer_size: {} samples", suggested_buffer_size);
+    se_log_debug("requested_latency: {} us", latency_us);
+    se_log_debug("requested_buffer_size: {} samples", requested_buffer_size);
     se_log_debug("selected_buffer_time: {} us", buffer_time);
     se_log_debug("selected_buffer_size: {} samples", *buffer_size);
     se_log_debug("selected_period_time: {} us", period_time);
