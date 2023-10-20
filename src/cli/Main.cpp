@@ -3,120 +3,17 @@
 
 #include "Formatter.hpp"
 
-#include "core/FramePool.hpp"
 #include "core/Log.hpp"
-#include "core/Realtime.hpp"
-#include "dumps/AsyncDumper.hpp"
-#include "dumps/CsvDumper.hpp"
-#include "dumps/IDumper.hpp"
-#include "io/AlsaReader.hpp"
-#include "io/AlsaWriter.hpp"
-#include "io/IDeviceReader.hpp"
-#include "io/IDeviceWriter.hpp"
-#include "processing/ContinuousGenerator.hpp"
-#include "processing/CorrelationLatencyEstimator.hpp"
-#include "processing/Impulse.hpp"
-#include "processing/ImpulseGenerator.hpp"
-#include "processing/LossEstimator.hpp"
-#include "processing/StepsGenerator.hpp"
-#include "processing/StepsLatencyEstimator.hpp"
-#include "reports/IReporter.hpp"
-#include "reports/JsonReporter.hpp"
-#include "reports/TextReporter.hpp"
+#include "run/Runner.hpp"
 
 #include <CLI/CLI.hpp>
 
 #include <iostream>
-#include <map>
-#include <memory>
-#include <string>
-#include <thread>
-#include <vector>
 
 using namespace signal_estimator;
 
-namespace {
-
-void output_loop(const Config* config, FramePool* frame_pool, IGenerator* generator,
-    IEstimator* estimator, IDeviceWriter* writer, IDumper* dumper) {
-    make_realtime();
-
-    size_t n = 0;
-
-    for (; config->io_num_periods > n; n++) {
-        auto frame = frame_pool->allocate();
-
-        if (!writer->write(*frame)) {
-            exit(1);
-        }
-    }
-
-    for (; n < config->total_periods(); n++) {
-        auto frame = frame_pool->allocate();
-
-        generator->generate(*frame);
-
-        if (!writer->write(*frame)) {
-            exit(1);
-        }
-
-        if (n < config->warmup_periods()) {
-            continue;
-        }
-
-        if (estimator) {
-            estimator->add_output(frame);
-        }
-
-        if (dumper) {
-            dumper->write(frame);
-        }
-    }
-
-    // Kill the estimator's thread.
-    if (estimator) {
-        estimator->add_output(nullptr);
-    }
-}
-
-void input_loop(const Config* config, FramePool* frame_pool, IEstimator* estimator,
-    IDeviceReader* reader, IDumper* dumper) {
-    make_realtime();
-
-    for (size_t n = 0; n < config->total_periods(); n++) {
-        auto frame = frame_pool->allocate();
-
-        if (!reader->read(*frame)) {
-            exit(1);
-        }
-
-        if (n < config->warmup_periods()) {
-            continue;
-        }
-
-        if (estimator) {
-            estimator->add_input(frame);
-        }
-
-        if (dumper) {
-            dumper->write(frame);
-        }
-    }
-
-    // Kill the estimator's thread.
-    if (estimator) {
-        estimator->add_input(nullptr);
-    }
-}
-
-} // namespace
-
 int main(int argc, char** argv) {
     Config config;
-    std::string mode = "latency_corr";
-    std::string format = "text";
-    std::string output_dev, input_dev;
-    std::string output_dump, input_dump;
     int verbosity = 0;
 
     CLI::App app { "Measure characteristics of a looped back signal",
@@ -131,10 +28,12 @@ int main(int argc, char** argv) {
 
     control_opts
         ->add_option(
-            "-m,--mode", mode, "Operation mode: latency_corr|latency_step|losses")
-        ->default_str(mode);
-    control_opts->add_option("-o,--output", output_dev, "Output device name")->required();
-    control_opts->add_option("-i,--input", input_dev, "Input device name")->required();
+            "-m,--mode", config.mode, "Operation mode: latency_corr|latency_step|losses")
+        ->default_str(config.mode);
+    control_opts->add_option("-o,--output", config.output_dev, "Output device name")
+        ->required();
+    control_opts->add_option("-i,--input", config.input_dev, "Input device name")
+        ->required();
     control_opts
         ->add_option(
             "-d,--duration", config.measurement_duration, "Measurement duration, seconds")
@@ -162,8 +61,10 @@ int main(int argc, char** argv) {
 
     auto report_opts = app.add_option_group("Report options");
 
-    report_opts->add_option("-f,--report-format", format, "Report format: text|json")
-        ->default_str(format);
+    report_opts
+        ->add_option(
+            "-f,--report-format", config.report_format, "Report format: text|json")
+        ->default_str(config.report_format);
     report_opts
         ->add_option("--report-sma", config.report_sma_window,
             "Simple moving average window for latency reports")
@@ -172,9 +73,9 @@ int main(int argc, char** argv) {
     auto dump_opts = app.add_option_group("Dump options");
 
     dump_opts->add_option(
-        "--dump-out", output_dump, "File to dump output stream (`-' for stdout)");
+        "--dump-out", config.output_dump, "File to dump output stream (`-' for stdout)");
     dump_opts->add_option(
-        "--dump-in", input_dump, "File to dump input stream (`-' for stdout)");
+        "--dump-in", config.input_dump, "File to dump input stream (`-' for stdout)");
     dump_opts
         ->add_option("--dump-compression", config.dump_compression,
             "Compress dumped samples by given ratio using SMA")
@@ -235,13 +136,14 @@ int main(int argc, char** argv) {
         return app.exit(e);
     }
 
-    if (mode != "latency_corr" && mode != "latency_step" && mode != "losses") {
+    if (config.mode != "latency_corr" && config.mode != "latency_step"
+        && config.mode != "losses") {
         std::cerr << "invalid --mode\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
     }
 
-    if (format != "text" && format != "json") {
+    if (config.report_format != "text" && config.report_format != "json") {
         std::cerr << "invalid --report-format\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
@@ -249,83 +151,25 @@ int main(int argc, char** argv) {
 
     init_log(verbosity);
 
-    AlsaWriter output_writer;
+    const int code = [&]() {
+        Runner runner(config);
 
-    if (!output_writer.open(config, output_dev.c_str())) {
-        exit(1);
-    }
-
-    AlsaReader input_reader;
-
-    if (!input_reader.open(config, input_dev.c_str())) {
-        exit(1);
-    }
-
-    FramePool frame_pool(config);
-
-    std::unique_ptr<IGenerator> generator;
-
-    if (mode == "latency_step") {
-        generator = std::make_unique<StepsGenerator>(config);
-    } else if (mode == "latency_corr") {
-        generator = std::make_unique<ImpulseGenerator>(config, impulse);
-    } else if (mode == "losses") {
-        generator = std::make_unique<ContinuousGenerator>(config);
-    }
-
-    std::unique_ptr<IReporter> reporter;
-
-    if (format == "text") {
-        reporter = std::make_unique<TextReporter>();
-    } else if (format == "json") {
-        reporter = std::make_unique<JsonReporter>();
-    }
-
-    std::unique_ptr<IEstimator> estimator;
-
-    if (mode == "latency_step") {
-        estimator = std::make_unique<StepsLatencyEstimator>(config, *reporter);
-    } else if (mode == "latency_corr") {
-        estimator = std::make_unique<CorrelationLatencyEstimator>(config, *reporter);
-    } else if (mode == "losses") {
-        estimator = std::make_unique<LossEstimator>(config, *reporter);
-    }
-
-    std::unique_ptr<IDumper> output_dumper;
-
-    if (!output_dump.empty()) {
-        auto dumper = std::make_unique<CsvDumper>(config);
-        if (!dumper->open(output_dump.c_str())) {
-            exit(1);
+        if (!runner.start()) {
+            return 1;
         }
-        output_dumper = std::move(dumper);
-    }
 
-    std::unique_ptr<IDumper> input_dumper;
+        runner.wait();
 
-    if (!input_dump.empty()) {
-        auto dumper = std::make_unique<CsvDumper>(config);
-        if (!dumper->open(input_dump.c_str())) {
-            exit(1);
+        if (runner.failed()) {
+            return 1;
         }
-        input_dumper = std::move(dumper);
+
+        return 0;
+    }();
+
+    if (code != 0) {
+        se_log_debug("exiting with code {}", code);
     }
-
-    if (output_dumper) {
-        output_dumper = std::make_unique<AsyncDumper>(std::move(output_dumper));
-    }
-
-    if (input_dumper) {
-        input_dumper = std::make_unique<AsyncDumper>(std::move(input_dumper));
-    }
-
-    std::thread input_thread(input_loop, &config, &frame_pool, estimator.get(),
-        &input_reader, input_dumper.get());
-
-    output_loop(&config, &frame_pool, generator.get(), estimator.get(), &output_writer,
-        output_dumper.get());
-
-    input_thread.join();
 
     return 0;
 }

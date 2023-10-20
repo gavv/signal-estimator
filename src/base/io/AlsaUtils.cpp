@@ -224,7 +224,7 @@ void alsa_close(snd_pcm_t* pcm) {
     int err = 0;
 
     if ((err = snd_pcm_close(pcm)) < 0) {
-        se_log_error("can't close alsa device: snd_pcm_close(): {}", snd_strerror(err));
+        se_log_warn("can't close alsa device: snd_pcm_close(): {}", snd_strerror(err));
     }
 }
 

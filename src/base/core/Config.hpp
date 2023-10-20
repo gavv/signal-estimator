@@ -6,10 +6,23 @@
 #include "core/Time.hpp"
 
 #include <cstdlib>
+#include <string>
 
 namespace signal_estimator {
 
 struct Config {
+    // operation mode
+    std::string mode { "latency_corr" };
+
+    // report format
+    std::string report_format { "text" };
+
+    // device names
+    std::string output_dev, input_dev;
+
+    // dump files
+    std::string output_dump, input_dump;
+
     // number of pre-allocated frames in frame pool
     size_t frame_pool_size { 128 };
 
