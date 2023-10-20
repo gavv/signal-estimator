@@ -36,8 +36,8 @@ struct Config {
     // stereo (L and R)
     unsigned int channel_count { 2 };
 
-    // test signal volume
-    float volume { 0.5f };
+    // probe signal gain
+    float gain { 0.8f };
 
     // desired output latency in microseconds
     unsigned int output_latency_us { 8000 };

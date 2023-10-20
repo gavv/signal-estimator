@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
         ->default_val(config.sample_rate);
     io_opts->add_option("-c,--chans", config.channel_count, "Number of channels")
         ->default_val(config.channel_count);
-    io_opts->add_option("-v,--volume", config.volume, "Signal volume, from 0 to 1")
-        ->default_val(config.volume);
+    io_opts->add_option("-g,--gain", config.gain, "Signal gain, from 0 to 1")
+        ->default_val(config.gain);
     io_opts
         ->add_option("--in-latency", config.input_latency_us,
             "Input ring buffer size, microseconds")

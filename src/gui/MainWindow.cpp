@@ -206,7 +206,7 @@ QStringList MainWindow::set_up_program_() {
     list.append(t);
 
     t = ui->SignalVolume->cleanText();
-    list.append("--volume");
+    list.append("--gain");
     list.append(t);
 
     t = ui->PRB->cleanText();
