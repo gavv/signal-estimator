@@ -184,41 +184,41 @@ QStringList MainWindow::set_up_program_() {
     QStringList list;
     QString t;
 
-    list.append("-m");
+    list.append("--mode");
     list.append(ui->Modes->currentText());
 
     t = ui->OutputDevices->currentText();
-    list.append("-o");
+    list.append("--output");
     list.append(
         QString::fromStdString(device_manager_.format_device_name(t.toStdString())));
 
     t = ui->InputDevices->currentText();
-    list.append("-i");
+    list.append("--input");
     list.append(
         QString::fromStdString(device_manager_.format_device_name(t.toStdString())));
 
     t = ui->SampleRate->cleanText();
-    list.append("-r");
+    list.append("--rate");
     list.append(t);
 
     t = ui->NumChannels->cleanText();
-    list.append("-c");
+    list.append("--chans");
     list.append(t);
 
     t = ui->SignalVolume->cleanText();
-    list.append("-v");
+    list.append("--volume");
     list.append(t);
 
     t = ui->PRB->cleanText();
-    list.append("-p");
+    list.append("--out-periods");
     list.append(t);
 
     t = ui->RBS->cleanText();
-    list.append("-l");
+    list.append("--out-latency");
     list.append(t);
 
     t = ui->Duration->cleanText();
-    list.append("-d");
+    list.append("--duration");
     list.append(t);
 
     // both of these options have to be stdout because we use a pipe
