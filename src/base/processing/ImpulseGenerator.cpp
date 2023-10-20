@@ -10,7 +10,7 @@
 namespace signal_estimator {
 
 void ImpulseGenerator::generate(Frame& frame) {
-    const auto num_ch = config_.n_channels;
+    const auto num_ch = config_.channel_count;
 
     size_t i_frame = 0;
 

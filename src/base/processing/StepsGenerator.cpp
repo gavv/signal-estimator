@@ -28,7 +28,7 @@ void StepsGenerator::generate(Frame& frame) {
 
     while (frame_size != 0) {
         if (step_countdown_ != 0) {
-            const size_t n_samples = frame_size / config_.n_channels;
+            const size_t n_samples = frame_size / config_.channel_count;
 
             if (step_countdown_ >= n_samples) {
                 step_countdown_ -= n_samples;
@@ -36,8 +36,8 @@ void StepsGenerator::generate(Frame& frame) {
             }
 
             if (step_countdown_ < n_samples) {
-                frame_pos += step_countdown_ * config_.n_channels;
-                frame_size -= step_countdown_ * config_.n_channels;
+                frame_pos += step_countdown_ * config_.channel_count;
+                frame_size -= step_countdown_ * config_.channel_count;
                 step_countdown_ = 0;
             }
         }
@@ -49,7 +49,7 @@ void StepsGenerator::generate(Frame& frame) {
                 break;
             }
 
-            for (size_t cn = 0; cn < config_.n_channels; cn++) {
+            for (size_t cn = 0; cn < config_.channel_count; cn++) {
                 frame[frame_pos] = sample_t(MaxSample * config_.volume
                     * std::sin(2 * M_PI / config_.sample_rate * 880 * step_pos_));
                 frame_pos++;

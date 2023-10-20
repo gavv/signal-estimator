@@ -34,7 +34,7 @@ struct Config {
     unsigned int sample_rate { 48000 };
 
     // stereo (L and R)
-    unsigned int n_channels { 2 };
+    unsigned int channel_count { 2 };
 
     // test signal volume
     float volume { 0.5f };
@@ -111,7 +111,7 @@ struct Config {
 
     // get warmup duration in samples
     size_t warmup_samples() const {
-        return size_t(sample_rate * warmup_duration) * n_channels;
+        return size_t(sample_rate * warmup_duration) * channel_count;
     }
 
     // get warmup duration in periods
@@ -121,7 +121,7 @@ struct Config {
 
     // get test duration in samples
     size_t total_samples() const {
-        return size_t(sample_rate * measurement_duration) * n_channels;
+        return size_t(sample_rate * measurement_duration) * channel_count;
     }
 
     // get test duration in periods
@@ -131,7 +131,7 @@ struct Config {
 
     // convert number of samples (all channels) to number of nanoseconds
     nanoseconds_t samples_to_ns(size_t num_samples) const {
-        return nanoseconds_t(num_samples) / n_channels * 1000000000 / sample_rate;
+        return nanoseconds_t(num_samples) / channel_count * 1000000000 / sample_rate;
     }
 
     // convert number of samples (per channel) to number of nanoseconds

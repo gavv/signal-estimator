@@ -193,7 +193,7 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
 
     snd_pcm_uframes_t period_size = 0, buffer_size = 0;
 
-    unsigned int channel_count = config.n_channels;
+    unsigned int channel_count = config.channel_count;
 
     if (!alsa_set_hw_params(pcm, &period_size, &buffer_size,
             SND_PCM_ACCESS_RW_INTERLEAVED, SND_PCM_FORMAT_S16_LE, config.sample_rate,
@@ -211,10 +211,10 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
 
     if (mode == SND_PCM_STREAM_PLAYBACK) {
         config.output_period_count = buffer_size / period_size;
-        config.output_period_size = period_size * config.n_channels;
+        config.output_period_size = period_size * config.channel_count;
     } else {
         config.input_period_count = buffer_size / period_size;
-        config.input_period_size = period_size * config.n_channels;
+        config.input_period_size = period_size * config.channel_count;
     }
 
     return pcm;

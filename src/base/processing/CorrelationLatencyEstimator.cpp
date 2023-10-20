@@ -97,13 +97,13 @@ CorrelationLatencyEstimator::Processor::Processor(const Config& config)
 CorrelationLatencyEstimator::Timestamp CorrelationLatencyEstimator::Processor::operator()(
     const Frame& frame, const bool plain_simple, double skip_until_ts) {
     // Frames should be smaller than buffer.
-    if (frame.size() / config_.n_channels > buff_len_) {
+    if (frame.size() / config_.channel_count > buff_len_) {
         return {};
     }
 
     // If one more frame won't fit into buff_ -- compute.
     Timestamp result;
-    if (frame.size() / config_.n_channels > buff_len_ - inter_buff_i_) {
+    if (frame.size() / config_.channel_count > buff_len_ - inter_buff_i_) {
         if (plain_simple) {
             result = seek_max_(buff_.data(), buff_.data(), inter_buff_i_, skip_until_ts);
         } else {
@@ -120,7 +120,8 @@ CorrelationLatencyEstimator::Timestamp CorrelationLatencyEstimator::Processor::o
     // Take only left channel.
     size_t samples_in_a_frame = 0;
 
-    for (size_t i = 0; i < frame.size(); i += config_.n_channels, samples_in_a_frame++) {
+    for (size_t i = 0; i < frame.size();
+         i += config_.channel_count, samples_in_a_frame++) {
         buff_[inter_buff_i_ + samples_in_a_frame] = ((float)frame[i] / MaxSample);
     }
 

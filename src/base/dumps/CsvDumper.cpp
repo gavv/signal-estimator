@@ -18,12 +18,12 @@ CsvDumper::CsvDumper(const Config& config)
     : config_(config) {
     win_size_ = std::max(config.dump_compression, size_t(1));
 
-    for (size_t ch = 0; ch < config_.n_channels; ch++) {
+    for (size_t ch = 0; ch < config_.channel_count; ch++) {
         win_avg_.emplace_back(win_size_);
     }
 
     // upper bound
-    buf_.resize(128 + 24 * config_.n_channels);
+    buf_.resize(128 + 24 * config_.channel_count);
 }
 
 CsvDumper::~CsvDumper() {
@@ -71,7 +71,7 @@ void CsvDumper::write(FramePtr frame) {
 
 void CsvDumper::print_(const Frame& frame) {
     for (size_t n = 0; n < frame.size(); n++) {
-        if (n % config_.n_channels == 0) {
+        if (n % config_.channel_count == 0) {
             if (win_pos_ == win_size_) {
                 print_line_(frame.dir(), *win_time_);
 
@@ -80,11 +80,11 @@ void CsvDumper::print_(const Frame& frame) {
             }
             if (!win_time_) {
                 win_time_ = frame.hw_sample_time(n)
-                    + config_.samples_to_ns(win_size_ / 2 * config_.n_channels);
+                    + config_.samples_to_ns(win_size_ / 2 * config_.channel_count);
             }
             win_pos_++;
         }
-        win_avg_[n % config_.n_channels].add(frame[n]);
+        win_avg_[n % config_.channel_count].add(frame[n]);
     }
 }
 
@@ -94,7 +94,7 @@ void CsvDumper::print_line_(Dir dir, nanoseconds_t timestamp) {
     off += (size_t)snprintf(buf_.data() + off, buf_.size() - off, "%s,%lld",
         dir == Dir::Output ? "o" : "i", (long long)timestamp);
 
-    for (size_t ch = 0; ch < config_.n_channels; ch++) {
+    for (size_t ch = 0; ch < config_.channel_count; ch++) {
         off += (size_t)snprintf(
             buf_.data() + off, buf_.size() - off, ",%lld", (long long)win_avg_[ch].get());
     }
