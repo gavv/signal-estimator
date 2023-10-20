@@ -1,0 +1,14 @@
+<<<<<<< HEAD
+
+=======
+>>>>>>> 969546e (Added toolbar button icons (WIP))
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/start.png</file>
+    <file>images/stop.png</file>
+</qresource>
+<<<<<<< HEAD
+</RCC>
+=======
+</RCC>
+>>>>>>> 969546e (Added toolbar button icons (WIP))

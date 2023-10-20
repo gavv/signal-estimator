@@ -6,6 +6,7 @@
 #include "ui_MainWindow.h"
 
 #include <QCheckBox>
+#include <QCloseEvent>
 #include <QList>
 #include <QPen>
 
@@ -24,6 +25,12 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     connect(signal_estimator_, &SignalEstimator::error, this, &MainWindow::show_error);
     connect(signal_estimator_, &SignalEstimator::can_read, this,
         &MainWindow::read_graph_data);
+    connect(signal_estimator_, &SignalEstimator::finished, this, [this]() {
+        ui->actionStart->setEnabled(true);
+        ui->actionStop->setEnabled(false);
+        ui->StatusLabel->setText("");
+        timer_->stop();
+    });
 
     ui->OutputSig->setCanvasBackground(Qt::white);
 
@@ -99,7 +106,14 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::on_StartButton_released() {
+void MainWindow::closeEvent(QCloseEvent* event) {
+    signal_estimator_->stop();
+    event->accept();
+}
+
+void MainWindow::on_start() {
+    ui->actionStart->setEnabled(false);
+    ui->actionStop->setEnabled(true);
     QStringList args = set_up_program_();
 
     set_update_plots_(true); // must be true to update graphs
@@ -119,9 +133,9 @@ void MainWindow::on_StartButton_released() {
     }
 
     if (signal_estimator_->start(args)) {
-        ui->ErrorLabel->setText("");
+        ui->StatusLabel->setText("Running");
     } else {
-        ui->ErrorLabel->setText(QString("Failed to open signal-estimator"));
+        ui->StatusLabel->setText(QString("Failed to open signal-estimator"));
     }
 
     set_update_plots_(true);
@@ -129,10 +143,18 @@ void MainWindow::on_StartButton_released() {
     timer_->start();
 }
 
-void MainWindow::on_StopButton_clicked() {
+void MainWindow::on_stop() {
+    ui->actionStart->setEnabled(true);
+    ui->actionStop->setEnabled(false);
+    ui->StatusLabel->setText("");
     signal_estimator_->stop();
 
     set_update_plots_(false);
+}
+
+void MainWindow::on_DurationCheckBox_stateChanged(int state) {
+    const bool checked = (state == Qt::Checked);
+    ui->Duration->setEnabled(!checked);
 }
 
 void MainWindow::update_graphs() {
@@ -177,7 +199,7 @@ void MainWindow::read_graph_data() {
 }
 
 void MainWindow::show_error(QString error) {
-    ui->ErrorLabel->setText(error);
+    ui->StatusLabel->setText(error);
 }
 
 QStringList MainWindow::set_up_program_() {
@@ -217,7 +239,12 @@ QStringList MainWindow::set_up_program_() {
     list.append("-l");
     list.append(t);
 
-    t = ui->Duration->cleanText();
+    if (ui->Duration->isEnabled()) {
+        t = ui->Duration->cleanText();
+    } else {
+        // one year. TODO find a better solution to have infinite measurement
+        t = "31536000";
+    }
     list.append("-d");
     list.append(t);
 

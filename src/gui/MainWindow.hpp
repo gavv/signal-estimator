@@ -39,9 +39,13 @@ public:
     explicit MainWindow(IDeviceManager& device_manager, QWidget* parent = nullptr);
     ~MainWindow() override;
 
+protected slots:
+    void closeEvent(QCloseEvent*) override;
+
 private slots:
-    void on_StartButton_released();
-    void on_StopButton_clicked();
+    void on_start();
+    void on_stop();
+    void on_DurationCheckBox_stateChanged(int state);
 
     void update_graphs();
     void read_graph_data();

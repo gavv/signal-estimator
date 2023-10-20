@@ -34,10 +34,10 @@ class SignalEstimator : public QObject {
 public:
     static QString find();
 
-    SignalEstimator(QObject* parent = nullptr);
+    explicit SignalEstimator(QObject* parent = nullptr);
     ~SignalEstimator() override;
 
-    bool start(QStringList args);
+    bool start(const QStringList& args);
     void stop();
 
     std::optional<std::tuple<QPointF, PointType>> read();
@@ -47,6 +47,7 @@ public:
 signals:
     void can_read();
     void error(QString);
+    void finished();
 
 private:
     std::optional<std::tuple<QPointF, PointType>> parseIO_(const QString& buffer);

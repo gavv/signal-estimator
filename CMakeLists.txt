@@ -153,6 +153,8 @@ if(BUILD_GUI)
   find_package(Qt5Widgets REQUIRED)
   find_package(Qwt REQUIRED)
 
+  set(CMAKE_AUTORCC ON)
+
   qt5_wrap_cpp(GENERATED_SOURCES
     src/gui/MainWindow.hpp
     src/gui/NotFoundDialog.hpp
@@ -187,6 +189,7 @@ if(BUILD_GUI)
     src/gui/PointsBuffer.cpp
     src/gui/RightClickPickerMachine.cpp
     src/gui/SignalEstimator.cpp
+    src/gui/SignalEstimator.qrc
     )
 
   add_dependencies(signal-estimator-gui
