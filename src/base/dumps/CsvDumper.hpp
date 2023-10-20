@@ -33,10 +33,13 @@ public:
     void write(FramePtr frame) override;
 
 private:
-    void print_(const Frame& frame);
+    void print_header_();
+    void print_frame_(const Frame& frame);
     void print_line_(Dir dir, nanoseconds_t timestamp);
 
     const Config config_;
+
+    bool header_printed_ { false };
 
     std::vector<MovAvg<double>> win_avg_;
     std::optional<nanoseconds_t> win_time_ { 0 };

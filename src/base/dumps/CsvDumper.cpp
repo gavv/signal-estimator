@@ -42,9 +42,6 @@ bool CsvDumper::open(const char* filename) {
         return false;
     }
 
-    fprintf(fp_, "# type,timestamp,ch1,ch2,...\n");
-    fflush(fp_);
-
     return true;
 }
 
@@ -66,10 +63,20 @@ void CsvDumper::write(FramePtr frame) {
         return;
     }
 
-    print_(*frame);
+    if (!header_printed_) {
+        header_printed_ = true;
+        print_header_();
+    }
+
+    print_frame_(*frame);
 }
 
-void CsvDumper::print_(const Frame& frame) {
+void CsvDumper::print_header_() {
+    fprintf(fp_, "# type,timestamp,ch1,ch2,...\n");
+    fflush(fp_);
+}
+
+void CsvDumper::print_frame_(const Frame& frame) {
     for (size_t n = 0; n < frame.size(); n++) {
         if (n % config_.channel_count == 0) {
             if (win_pos_ == win_size_) {
