@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
 
 #include <alsa/asoundlib.h>
 
@@ -28,8 +29,15 @@ public:
     bool write(Frame& frame) override;
 
 private:
+    size_t resize_buf_(const Frame& frame);
+    void write_buf_(const Frame& frame);
+
     Config config_;
     snd_pcm_t* pcm_ {};
+
+    std::vector<sample_t> buf_;
+    size_t buf_chans_ {};
+    size_t frame_chans_ {};
 };
 
 } // namespace signal_estimator

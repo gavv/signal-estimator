@@ -39,6 +39,18 @@ struct Config {
     // test signal volume
     float volume { 0.5f };
 
+    // desired output latency in microseconds
+    unsigned int output_latency_us { 8000 };
+
+    // number of periods per output buffer
+    unsigned int output_period_count { 2 };
+
+    // number of samples per output period
+    unsigned int output_period_size { 0 };
+
+    // number of output channels
+    unsigned int output_channel_count { 0 };
+
     // desired input latency in microseconds
     unsigned int input_latency_us { 8000 };
 
@@ -48,14 +60,8 @@ struct Config {
     // number of samples per input period
     unsigned int input_period_size { 0 };
 
-    // desired output latency in microseconds
-    unsigned int output_latency_us { 8000 };
-
-    // number of periods per output buffer
-    unsigned int output_period_count { 2 };
-
-    // number of samples per input period
-    unsigned int output_period_size { 0 };
+    // number of input channels
+    unsigned int input_channel_count { 0 };
 
     // sma window for latency reports, in seconds
     size_t report_sma_window { 5 };

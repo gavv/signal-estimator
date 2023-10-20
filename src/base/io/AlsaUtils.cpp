@@ -20,7 +20,7 @@ unsigned int alsa_nearest_buffer_size(unsigned int sample_rate, unsigned int n_c
 
 bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     snd_pcm_uframes_t* buffer_size, snd_pcm_access_t access, snd_pcm_format_t format,
-    unsigned int sample_rate, unsigned int n_channels, unsigned int n_periods,
+    unsigned int sample_rate, unsigned int* n_channels, unsigned int n_periods,
     unsigned int latency_us) {
     int err = 0;
 
@@ -42,7 +42,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     }
 
     // set number of channels
-    if ((err = snd_pcm_hw_params_set_channels(pcm, hw_params, n_channels)) < 0) {
+    if ((err = snd_pcm_hw_params_set_channels_near(pcm, hw_params, n_channels)) < 0) {
         se_log_error("can't set hw params: snd_pcm_hw_params_set_channels(): {}",
             snd_strerror(err));
         return false;
@@ -78,7 +78,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
 
     // calculate nearest buffer size that is multiple of # of periods
     unsigned int requested_buffer_size
-        = alsa_nearest_buffer_size(sample_rate, n_channels, latency_us, n_periods);
+        = alsa_nearest_buffer_size(sample_rate, *n_channels, latency_us, n_periods);
 
     // set period size in samples
     // ALSA reads 'period_size' samples from circular buffer every period
@@ -122,6 +122,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     se_log_debug("selected_buffer_size: {} samples", *buffer_size);
     se_log_debug("selected_period_time: {} us", period_time);
     se_log_debug("selected_period_size: {} samples", *period_size);
+    se_log_debug("selected_channel_count: {}", *n_channels);
 
     // send hw_params to ALSA
     if ((err = snd_pcm_hw_params(pcm, hw_params)) < 0) {
@@ -197,7 +198,7 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
 
     if (!alsa_set_hw_params(pcm, &period_size, &buffer_size,
             SND_PCM_ACCESS_RW_INTERLEAVED, SND_PCM_FORMAT_S16_LE, config.sample_rate,
-            channel_count,
+            &channel_count,
             mode == SND_PCM_STREAM_PLAYBACK ? config.output_period_count
                                             : config.input_period_count,
             mode == SND_PCM_STREAM_PLAYBACK ? config.output_latency_us
@@ -212,9 +213,11 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
     if (mode == SND_PCM_STREAM_PLAYBACK) {
         config.output_period_count = buffer_size / period_size;
         config.output_period_size = period_size * config.channel_count;
+        config.output_channel_count = channel_count;
     } else {
         config.input_period_count = buffer_size / period_size;
         config.input_period_size = period_size * config.channel_count;
+        config.input_channel_count = channel_count;
     }
 
     return pcm;
