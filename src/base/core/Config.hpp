@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "core/Dir.hpp"
 #include "core/Time.hpp"
 
 #include <cstdlib>
@@ -23,11 +24,8 @@ struct Config {
     // dump files
     std::string output_dump, input_dump;
 
-    // number of pre-allocated frames in frame pool
-    size_t frame_pool_size { 128 };
-
     // total measurement duration
-    float measurement_duration { 10 };
+    float measurement_duration { 0 };
 
     // how long do not process signals in seconds
     float warmup_duration { 0 };
@@ -41,14 +39,23 @@ struct Config {
     // test signal volume
     float volume { 0.5f };
 
-    // desired io latency in microseconds
-    unsigned int io_latency_us { 8000 };
+    // desired input latency in microseconds
+    unsigned int input_latency_us { 8000 };
 
-    // periods (bursts) per io buffer
-    unsigned int io_num_periods { 2 };
+    // number of periods per input buffer
+    unsigned int input_period_count { 2 };
 
-    // number of samples per io period
-    size_t io_period_size { 0 };
+    // number of samples per input period
+    unsigned int input_period_size { 0 };
+
+    // desired output latency in microseconds
+    unsigned int output_latency_us { 8000 };
+
+    // number of periods per output buffer
+    unsigned int output_period_count { 2 };
+
+    // number of samples per input period
+    unsigned int output_period_size { 0 };
 
     // sma window for latency reports, in seconds
     size_t report_sma_window { 5 };
@@ -89,14 +96,27 @@ struct Config {
     // glitch detection threshold
     float glitch_detection_threshold { 0.05f };
 
+    // number of pre-allocated frames in frame pool
+    size_t frame_pool_size { 128 };
+
+    // get period size
+    size_t period_size(Dir dir) const {
+        return dir == Dir::Output ? output_period_size : input_period_size;
+    }
+
+    // get period count
+    size_t period_count(Dir dir) const {
+        return dir == Dir::Output ? output_period_count : input_period_count;
+    }
+
     // get warmup duration in samples
     size_t warmup_samples() const {
         return size_t(sample_rate * warmup_duration) * n_channels;
     }
 
     // get warmup duration in periods
-    size_t warmup_periods() const {
-        return warmup_samples() / io_period_size;
+    size_t warmup_periods(Dir dir) const {
+        return warmup_samples() / period_size(dir);
     }
 
     // get test duration in samples
@@ -105,8 +125,8 @@ struct Config {
     }
 
     // get test duration in periods
-    size_t total_periods() const {
-        return total_samples() / io_period_size;
+    size_t total_periods(Dir dir) const {
+        return total_samples() / period_size(dir);
     }
 
     // convert number of samples (all channels) to number of nanoseconds

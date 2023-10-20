@@ -129,28 +129,14 @@ void Runner::wait() {
 void Runner::output_loop_() {
     make_realtime();
 
-    size_t n = 0;
+    const size_t total_periods = config_.total_periods(Dir::Output);
 
-    for (; config_.io_num_periods > n; n++) {
+    for (size_t n = 0; n < total_periods || total_periods == 0; n++) {
         if (stop_ || fail_) {
             break;
         }
 
-        auto frame = frame_pool_->allocate();
-
-        if (!output_writer_->write(*frame)) {
-            se_log_error("got error from output device, exiting");
-            fail_ = true;
-            break;
-        }
-    }
-
-    for (; n < config_.total_periods(); n++) {
-        if (stop_ || fail_) {
-            break;
-        }
-
-        auto frame = frame_pool_->allocate();
+        auto frame = frame_pool_->allocate(Dir::Output);
 
         generator_->generate(*frame);
 
@@ -160,7 +146,7 @@ void Runner::output_loop_() {
             break;
         }
 
-        if (n < config_.warmup_periods()) {
+        if (n < config_.warmup_periods(Dir::Output)) {
             continue;
         }
 
@@ -181,12 +167,14 @@ void Runner::output_loop_() {
 void Runner::input_loop_() {
     make_realtime();
 
-    for (size_t n = 0; n < config_.total_periods(); n++) {
+    const size_t total_periods = config_.total_periods(Dir::Input);
+
+    for (size_t n = 0; n < total_periods || total_periods == 0; n++) {
         if (stop_ || fail_) {
             break;
         }
 
-        auto frame = frame_pool_->allocate();
+        auto frame = frame_pool_->allocate(Dir::Input);
 
         if (!input_reader_->read(*frame)) {
             se_log_error("got error from input device, exiting");
@@ -194,7 +182,7 @@ void Runner::input_loop_() {
             break;
         }
 
-        if (n < config_.warmup_periods()) {
+        if (n < config_.warmup_periods(Dir::Input)) {
             continue;
         }
 

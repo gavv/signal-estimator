@@ -10,9 +10,8 @@ namespace signal_estimator {
 
 Frame::Frame(const Config& config, FramePool& pool)
     : config_(config)
-    , pool_(pool)
-    , data_(config_.io_period_size) {
-    clear();
+    , pool_(pool) {
+    data_.reserve(std::max(config_.output_period_size, config_.input_period_size));
 }
 
 int Frame::get_ref() const {
@@ -36,11 +35,18 @@ void Frame::sub_ref() {
     }
 }
 
-void Frame::clear() {
+void Frame::reset(Dir dir) {
+    data_.resize(
+        dir == Dir::Output ? config_.output_period_size : config_.input_period_size);
+
     std::fill(data_.begin(), data_.end(), sample_t(0));
 
-    io_type_ = FrameType::Output;
+    io_dir_ = dir;
     io_time_ = 0;
+}
+
+Dir Frame::dir() const {
+    return io_dir_;
 }
 
 size_t Frame::size() const {
@@ -57,14 +63,6 @@ sample_t* Frame::data() {
     return &data_[0];
 }
 
-FrameType Frame::type() const {
-    return io_type_;
-}
-
-void Frame::set_type(FrameType type) {
-    io_type_ = type;
-}
-
 void Frame::set_time() {
     io_time_ = monotonic_timestamp_ns();
 }
@@ -74,28 +72,29 @@ nanoseconds_t Frame::sw_frame_time() const {
 }
 
 nanoseconds_t Frame::hw_frame_time() const {
-    switch (io_type_) {
-    case FrameType::Output:
+    switch (io_dir_) {
+    case Dir::Output:
         return io_time_
             + config_.samples_to_ns(
-                (config_.io_num_periods - 1) * config_.io_period_size);
+                (config_.output_period_count - 1) * config_.output_period_size);
 
-    case FrameType::Input:
-        return io_time_ - config_.samples_to_ns(config_.io_period_size);
+    case Dir::Input:
+        return io_time_ - config_.samples_to_ns(config_.input_period_size);
     }
 
     return 0;
 }
 
 nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
-    switch (io_type_) {
-    case FrameType::Output:
+    switch (io_dir_) {
+    case Dir::Output:
         return io_time_
             + config_.samples_to_ns(
-                (config_.io_num_periods - 1) * config_.io_period_size + sample_index);
+                (config_.output_period_count - 1) * config_.output_period_size
+                + sample_index);
 
-    case FrameType::Input:
-        return io_time_ - config_.samples_to_ns(config_.io_period_size - sample_index);
+    case Dir::Input:
+        return io_time_ - config_.samples_to_ns(config_.input_period_size - sample_index);
     }
 
     return 0;

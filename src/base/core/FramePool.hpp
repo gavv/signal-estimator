@@ -20,7 +20,7 @@ public:
     FramePool(const FramePool&) = delete;
     FramePool& operator=(const FramePool&) = delete;
 
-    FramePtr allocate();
+    FramePtr allocate(Dir dir);
 
 private:
     friend class Frame;

@@ -202,15 +202,17 @@ Control options:
                               Operation mode: latency_corr|latency_step|losses
   -o,--output TEXT [required] Output device name
   -i,--input TEXT [required]  Input device name
-  -d,--duration FLOAT [10]    Measurement duration, seconds
+  -d,--duration FLOAT [0]     Limit measurement duration, seconds (zero for no limit)
   -w,--warmup FLOAT [0]       Warmup duration, seconds
 
 I/O options:
   -r,--rate UINT [48000]      Sample rate, Hz
   -c,--chans UINT [2]         Number of channels
   -v,--volume FLOAT [0.5]     Signal volume, from 0 to 1
-  -l,--latency UINT [8000]    Ring buffer size, microseconds
-  -p,--periods UINT [2]       Number of periods in ring buffer
+  --in-latency UINT [8000]    Input ring buffer size, microseconds
+  --in-periods UINT [2]       Number of periods in input ring buffer
+  --out-latency UINT [8000]   Output ring buffer size, microseconds
+  --out-periods UINT [2]      Number of periods in output ring buffer
 
 Report options:
   -f,--report-format TEXT [text]
@@ -218,8 +220,8 @@ Report options:
   --report-sma UINT [5]       Simple moving average window for latency reports
 
 Dump options:
-  --dump-out TEXT             File to dump output stream (`-' for stdout)
-  --dump-in TEXT              File to dump input stream (`-' for stdout)
+  --dump-out TEXT             File to dump output stream ("-" for stdout)
+  --dump-in TEXT              File to dump input stream ("-" for stdout)
   --dump-compression UINT [64]
                               Compress dumped samples by given ratio using SMA
 

@@ -32,7 +32,6 @@ bool AlsaWriter::write(Frame& frame) {
         = snd_pcm_writei(pcm_, frame.data(), frame.size() / config_.n_channels);
 
     frame.set_time();
-    frame.set_type(FrameType::Output);
 
     if (err < 0) {
         if ((err = snd_pcm_recover(pcm_, (int)err, 1)) == 0) {

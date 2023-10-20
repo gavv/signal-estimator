@@ -35,8 +35,8 @@ int main(int argc, char** argv) {
     control_opts->add_option("-i,--input", config.input_dev, "Input device name")
         ->required();
     control_opts
-        ->add_option(
-            "-d,--duration", config.measurement_duration, "Measurement duration, seconds")
+        ->add_option("-d,--duration", config.measurement_duration,
+            "Limit measurement duration, seconds (zero for no limit)")
         ->default_val(config.measurement_duration);
     control_opts
         ->add_option("-w,--warmup", config.warmup_duration, "Warmup duration, seconds")
@@ -51,13 +51,21 @@ int main(int argc, char** argv) {
     io_opts->add_option("-v,--volume", config.volume, "Signal volume, from 0 to 1")
         ->default_val(config.volume);
     io_opts
-        ->add_option(
-            "-l,--latency", config.io_latency_us, "Ring buffer size, microseconds")
-        ->default_val(config.io_latency_us);
+        ->add_option("--in-latency", config.input_latency_us,
+            "Input ring buffer size, microseconds")
+        ->default_val(config.input_latency_us);
     io_opts
-        ->add_option(
-            "-p,--periods", config.io_num_periods, "Number of periods in ring buffer")
-        ->default_val(config.io_num_periods);
+        ->add_option("--in-periods", config.input_period_count,
+            "Number of periods in input ring buffer")
+        ->default_val(config.input_period_count);
+    io_opts
+        ->add_option("--out-latency", config.output_latency_us,
+            "Output ring buffer size, microseconds")
+        ->default_val(config.output_latency_us);
+    io_opts
+        ->add_option("--out-periods", config.output_period_count,
+            "Number of periods in output ring buffer")
+        ->default_val(config.output_period_count);
 
     auto report_opts = app.add_option_group("Report options");
 
@@ -72,10 +80,10 @@ int main(int argc, char** argv) {
 
     auto dump_opts = app.add_option_group("Dump options");
 
+    dump_opts->add_option("--dump-out", config.output_dump,
+        "File to dump output stream (\"-\" for stdout)");
     dump_opts->add_option(
-        "--dump-out", config.output_dump, "File to dump output stream (`-' for stdout)");
-    dump_opts->add_option(
-        "--dump-in", config.input_dump, "File to dump input stream (`-' for stdout)");
+        "--dump-in", config.input_dump, "File to dump input stream (\"-\" for stdout)");
     dump_opts
         ->add_option("--dump-compression", config.dump_compression,
             "Compress dumped samples by given ratio using SMA")

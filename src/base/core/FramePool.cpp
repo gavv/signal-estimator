@@ -20,14 +20,14 @@ FramePool::~FramePool() {
     }
 }
 
-FramePtr FramePool::allocate() {
+FramePtr FramePool::allocate(Dir dir) {
     Frame* frame = nullptr;
 
-    if (free_list_.try_dequeue(frame)) {
-        frame->clear();
-    } else {
+    if (!free_list_.try_dequeue(frame)) {
         frame = create_frame_();
     }
+
+    frame->reset(dir);
 
     assert(frame->get_ref() == 0);
 

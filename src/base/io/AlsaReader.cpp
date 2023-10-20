@@ -32,7 +32,6 @@ bool AlsaReader::read(Frame& frame) {
         = snd_pcm_readi(pcm_, frame.data(), frame.size() / config_.n_channels);
 
     frame.set_time();
-    frame.set_type(FrameType::Input);
 
     if (err < 0) {
         if ((err = snd_pcm_recover(pcm_, (int)err, 1)) == 0) {

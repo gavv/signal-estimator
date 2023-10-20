@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core/Config.hpp"
+#include "core/Dir.hpp"
 #include "core/Sample.hpp"
 #include "core/Time.hpp"
 
@@ -19,12 +20,6 @@ namespace signal_estimator {
 class FramePool;
 class FrameTraits;
 
-// Frame type
-enum class FrameType {
-    Output,
-    Input,
-};
-
 // Audio frame
 class Frame {
 public:
@@ -34,16 +29,15 @@ public:
     Frame& operator=(const Frame&) = delete;
 
     // reset frame to initial state
-    void clear();
+    void reset(Dir dir);
 
-    // frame data and size
+    // frame direction (input or output)
+    Dir dir() const;
+
+    // frame size and data
     size_t size() const;
     const sample_t* data() const;
     sample_t* data();
-
-    // frame type (input or output)
-    FrameType type() const;
-    void set_type(FrameType);
 
     // record current time as the time when frame was passed to or retrieved from OS
     void set_time();
@@ -80,11 +74,11 @@ private:
     const Config& config_;
     FramePool& pool_;
 
-    FrameType io_type_;
-    nanoseconds_t io_time_;
+    Dir io_dir_ {};
+    nanoseconds_t io_time_ {};
 
     std::vector<sample_t> data_;
-    std::atomic<int> refcount_ { 0 };
+    std::atomic<int> refcount_ {};
 };
 
 // For FramePtr

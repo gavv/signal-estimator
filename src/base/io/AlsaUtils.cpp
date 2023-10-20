@@ -8,11 +8,11 @@ namespace signal_estimator {
 
 namespace {
 
-unsigned int alsa_nearest_buffer_size(
-    unsigned int sample_rate, int n_channels, unsigned int latency_us, size_t periods) {
+unsigned int alsa_nearest_buffer_size(unsigned int sample_rate, unsigned int n_channels,
+    unsigned int latency_us, size_t periods) {
     unsigned int latency_samples
         = (unsigned int)((double)latency_us * sample_rate / 1000000);
-    while ((latency_samples * (unsigned int)n_channels) % periods != 0) {
+    while ((latency_samples * n_channels) % periods != 0) {
         latency_samples++;
     }
     return latency_samples;
@@ -20,7 +20,7 @@ unsigned int alsa_nearest_buffer_size(
 
 bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     snd_pcm_uframes_t* buffer_size, snd_pcm_access_t access, snd_pcm_format_t format,
-    unsigned int sample_rate, int n_channels, unsigned int n_periods,
+    unsigned int sample_rate, unsigned int n_channels, unsigned int n_periods,
     unsigned int latency_us) {
     int err = 0;
 
@@ -42,8 +42,7 @@ bool alsa_set_hw_params(snd_pcm_t* pcm, snd_pcm_uframes_t* period_size,
     }
 
     // set number of channels
-    if ((err = snd_pcm_hw_params_set_channels(pcm, hw_params, (unsigned int)n_channels))
-        < 0) {
+    if ((err = snd_pcm_hw_params_set_channels(pcm, hw_params, n_channels)) < 0) {
         se_log_error("can't set hw params: snd_pcm_hw_params_set_channels(): {}",
             snd_strerror(err));
         return false;
@@ -157,14 +156,14 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
             return false;
         }
 
-        // set minimum threshold, below which ALSA wont allow to perform write
+        // set minimum threshold, below which ALSA won't allow to perform write
         if ((err = snd_pcm_sw_params_set_avail_min(pcm, sw_params, period_size)) < 0) {
             se_log_error("can't set sw params: snd_pcm_sw_params_set_avail_min(): {}",
                 snd_strerror(err));
             return false;
         }
     } else {
-        // set minimum threshold, below which ALSA wont allow to perform read
+        // set minimum threshold, below which ALSA won't allow to perform read
         if ((err = snd_pcm_sw_params_set_avail_min(pcm, sw_params, period_size)) < 0) {
             se_log_error("can't set sw params: snd_pcm_sw_params_set_avail_min(): {}",
                 snd_strerror(err));
@@ -194,9 +193,15 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
 
     snd_pcm_uframes_t period_size = 0, buffer_size = 0;
 
+    unsigned int channel_count = config.n_channels;
+
     if (!alsa_set_hw_params(pcm, &period_size, &buffer_size,
             SND_PCM_ACCESS_RW_INTERLEAVED, SND_PCM_FORMAT_S16_LE, config.sample_rate,
-            (int)config.n_channels, config.io_num_periods, config.io_latency_us)) {
+            channel_count,
+            mode == SND_PCM_STREAM_PLAYBACK ? config.output_period_count
+                                            : config.input_period_count,
+            mode == SND_PCM_STREAM_PLAYBACK ? config.output_latency_us
+                                            : config.input_latency_us)) {
         goto error;
     }
 
@@ -204,7 +209,13 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config) 
         goto error;
     }
 
-    config.io_period_size = size_t(period_size * config.n_channels);
+    if (mode == SND_PCM_STREAM_PLAYBACK) {
+        config.output_period_count = buffer_size / period_size;
+        config.output_period_size = period_size * config.n_channels;
+    } else {
+        config.input_period_count = buffer_size / period_size;
+        config.input_period_size = period_size * config.n_channels;
+    }
 
     return pcm;
 

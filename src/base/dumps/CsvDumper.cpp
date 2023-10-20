@@ -73,7 +73,7 @@ void CsvDumper::print_(const Frame& frame) {
     for (size_t n = 0; n < frame.size(); n++) {
         if (n % config_.n_channels == 0) {
             if (win_pos_ == win_size_) {
-                print_line_(frame.type(), *win_time_);
+                print_line_(frame.dir(), *win_time_);
 
                 win_time_ = {};
                 win_pos_ = 0;
@@ -88,11 +88,11 @@ void CsvDumper::print_(const Frame& frame) {
     }
 }
 
-void CsvDumper::print_line_(FrameType type, nanoseconds_t timestamp) {
+void CsvDumper::print_line_(Dir dir, nanoseconds_t timestamp) {
     size_t off = 0;
 
     off += (size_t)snprintf(buf_.data() + off, buf_.size() - off, "%s,%lld",
-        type == FrameType::Output ? "o" : "i", (long long)timestamp);
+        dir == Dir::Output ? "o" : "i", (long long)timestamp);
 
     for (size_t ch = 0; ch < config_.n_channels; ch++) {
         off += (size_t)snprintf(

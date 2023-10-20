@@ -34,7 +34,7 @@ public:
 
 private:
     void print_(const Frame& frame);
-    void print_line_(FrameType type, nanoseconds_t timestamp);
+    void print_line_(Dir dir, nanoseconds_t timestamp);
 
     const Config config_;
 
