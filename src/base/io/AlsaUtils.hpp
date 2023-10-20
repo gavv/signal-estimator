@@ -10,7 +10,7 @@
 namespace signal_estimator {
 
 // open and setup ALSA PCM device
-snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t mode, Config& config);
+snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t stream, Config& config);
 
 // close ALSA PCM device
 void alsa_close(snd_pcm_t* pcm);

@@ -33,16 +33,10 @@ void AlsaReader::close() {
 }
 
 bool AlsaReader::read(Frame& frame) {
-    const size_t buf_samples = resize_buf_(frame);
-
-    snd_pcm_sframes_t err = snd_pcm_readi(pcm_, buf_.data(), buf_samples / buf_chans_);
-
-    frame.set_time();
-
-    read_buf_(frame);
+    int err = read_(frame);
 
     if (err < 0) {
-        if ((err = snd_pcm_recover(pcm_, (int)err, 1)) == 0) {
+        if ((err = snd_pcm_recover(pcm_, err, 1)) == 0) {
             se_log_info("alsa reader: recovered after xrun");
         }
     }
@@ -53,6 +47,35 @@ bool AlsaReader::read(Frame& frame) {
     }
 
     return true;
+}
+
+int AlsaReader::read_(Frame& frame) {
+    // ensure that buffer size is fine
+    const size_t buf_samples = resize_buf_(frame);
+
+    // read from device to buffer
+    if (snd_pcm_sframes_t err
+        = snd_pcm_readi(pcm_, buf_.data(), buf_samples / buf_chans_);
+        err < 0) {
+        return (int)err;
+    }
+
+    // ask when next sample that we will read was heard
+    snd_pcm_sframes_t delay = 0;
+    if (int err = snd_pcm_delay(pcm_, &delay); err < 0) {
+        return err;
+    }
+
+    const nanoseconds_t sw_time = monotonic_timestamp_ns();
+    const nanoseconds_t hw_time = sw_time - config_.frames_to_ns(delay)
+        + config_.frames_to_ns(buf_samples / buf_chans_);
+
+    frame.set_times(sw_time, hw_time);
+
+    // read from buffer to frame
+    read_buf_(frame);
+
+    return 0;
 }
 
 size_t AlsaReader::resize_buf_(const Frame& frame) {

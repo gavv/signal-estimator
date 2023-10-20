@@ -39,8 +39,8 @@ public:
     const sample_t* data() const;
     sample_t* data();
 
-    // record current time as the time when frame was passed to or retrieved from OS
-    void set_time();
+    // record hw and sw times
+    void set_times(nanoseconds_t sw_time, nanoseconds_t hw_time);
 
     // get time when the frame was passed to or received from the OS
     nanoseconds_t sw_frame_time() const;
@@ -74,8 +74,9 @@ private:
     const Config& config_;
     FramePool& pool_;
 
-    Dir io_dir_ {};
-    nanoseconds_t io_time_ {};
+    Dir dir_ {};
+    nanoseconds_t sw_time_ {};
+    nanoseconds_t hw_time_ {};
 
     std::vector<sample_t> data_;
     std::atomic<int> refcount_ {};

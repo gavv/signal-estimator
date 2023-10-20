@@ -29,6 +29,8 @@ public:
     bool write(Frame& frame) override;
 
 private:
+    int write_(Frame& frame);
+
     size_t resize_buf_(const Frame& frame);
     void write_buf_(const Frame& frame);
 

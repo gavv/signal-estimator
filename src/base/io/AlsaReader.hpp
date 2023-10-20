@@ -29,6 +29,8 @@ public:
     bool read(Frame& frame) override;
 
 private:
+    int read_(Frame& frame);
+
     size_t resize_buf_(const Frame& frame);
     void read_buf_(Frame& frame);
 
