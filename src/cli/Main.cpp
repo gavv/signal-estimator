@@ -9,11 +9,14 @@
 #include <CLI/CLI.hpp>
 
 #include <iostream>
+#include <map>
 
 using namespace signal_estimator;
 
 int main(int argc, char** argv) {
     Config config;
+    std::string mode = "latency_corr";
+    std::string report_format = "text";
     int verbosity = 0;
 
     CLI::App app { "Measure characteristics of a looped back signal",
@@ -27,9 +30,9 @@ int main(int argc, char** argv) {
     auto control_opts = app.add_option_group("Control options");
 
     control_opts
-        ->add_option("-m,--mode", config.mode,
+        ->add_option("-m,--mode", mode,
             "Operation mode: latency_corr|latency_step|losses|io_jitter")
-        ->default_str(config.mode);
+        ->default_str(mode);
     control_opts->add_option("-o,--output", config.output_dev, "Output device name");
     control_opts->add_option("-i,--input", config.input_dev, "Input device name");
     control_opts
@@ -68,9 +71,8 @@ int main(int argc, char** argv) {
     auto report_opts = app.add_option_group("Report options");
 
     report_opts
-        ->add_option(
-            "-f,--report-format", config.report_format, "Report format: text|json")
-        ->default_str(config.report_format);
+        ->add_option("-f,--report-format", report_format, "Report format: text|json")
+        ->default_str(report_format);
     report_opts
         ->add_option("--report-sma", config.report_sma_window,
             "Simple moving average window for latency reports")
@@ -153,28 +155,43 @@ int main(int argc, char** argv) {
         return app.exit(e);
     }
 
-    if (config.mode != "latency_corr" && config.mode != "latency_step"
-        && config.mode != "losses" && config.mode != "io_jitter") {
+    const std::map<std::string, Mode> mode_map {
+        { "latency_corr", Mode::LatencyCorr },
+        { "latency_step", Mode::LatencyStep },
+        { "losses", Mode::Losses },
+        { "io_jitter", Mode::IOJitter },
+    };
+
+    if (!mode_map.count(mode)) {
         std::cerr << "invalid --mode\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
     }
 
-    if (config.report_format != "text" && config.report_format != "json") {
+    config.mode = mode_map.at(mode);
+
+    const std::map<std::string, Format> format_map {
+        { "text", Format::Text },
+        { "json", Format::Json },
+    };
+
+    if (!format_map.count(report_format)) {
         std::cerr << "invalid --report-format\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
     }
 
-    if (config.mode != "io_jitter") {
+    config.report_format = format_map.at(report_format);
+
+    if (config.mode != Mode::IOJitter) {
         if (config.input_dev.empty() || config.output_dev.empty()) {
-            std::cerr << config.mode << " mode requires --input and --output devices\n";
+            std::cerr << mode << " mode requires --input and --output devices\n";
             exit(1);
         }
     } else {
         if ((config.input_dev.empty() && config.output_dev.empty())
             || (!config.input_dev.empty() && !config.output_dev.empty())) {
-            std::cerr << config.mode
+            std::cerr << mode
                       << " mode requires exactly one --input or --output device\n";
             exit(1);
         }

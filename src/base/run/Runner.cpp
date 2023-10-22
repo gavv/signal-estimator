@@ -85,39 +85,59 @@ bool Runner::start() {
 
     frame_pool_ = std::make_unique<FramePool>(config_);
 
-    if (config_.report_format == "text") {
+    switch (config_.report_format) {
+    case Format::Text:
         reporter_ = std::make_unique<TextReporter>();
-    } else if (config_.report_format == "json") {
+        break;
+
+    case Format::Json:
         reporter_ = std::make_unique<JsonReporter>();
+        break;
     }
 
     if (output_writer_) {
-        if (config_.mode == "latency_step") {
-            generator_ = std::make_unique<StepsGenerator>(config_);
-        } else if (config_.mode == "latency_corr") {
+        switch (config_.mode) {
+        case Mode::LatencyCorr:
             generator_ = std::make_unique<ImpulseGenerator>(config_, impulse);
-        } else if (config_.mode == "losses") {
+            break;
+
+        case Mode::LatencyStep:
+            generator_ = std::make_unique<StepsGenerator>(config_);
+            break;
+
+        case Mode::Losses:
             generator_ = std::make_unique<ContinuousGenerator>(config_);
-        } else if (config_.mode == "io_jitter") {
+            break;
+
+        case Mode::IOJitter:
             generator_ = std::make_unique<ContinuousGenerator>(config_);
             if (!input_reader_) {
                 estimator_ = std::make_unique<IOJitterEstimator>(
                     config_, Dir::Output, *reporter_);
             }
+            break;
         }
     }
 
     if (input_reader_) {
-        if (config_.mode == "latency_step") {
-            estimator_ = std::make_unique<StepsLatencyEstimator>(config_, *reporter_);
-        } else if (config_.mode == "latency_corr") {
+        switch (config_.mode) {
+        case Mode::LatencyCorr:
             estimator_
                 = std::make_unique<CorrelationLatencyEstimator>(config_, *reporter_);
-        } else if (config_.mode == "losses") {
+            break;
+
+        case Mode::LatencyStep:
+            estimator_ = std::make_unique<StepsLatencyEstimator>(config_, *reporter_);
+            break;
+
+        case Mode::Losses:
             estimator_ = std::make_unique<LossEstimator>(config_, *reporter_);
-        } else if (config_.mode == "io_jitter") {
+            break;
+
+        case Mode::IOJitter:
             estimator_
                 = std::make_unique<IOJitterEstimator>(config_, Dir::Input, *reporter_);
+            break;
         }
     }
 

@@ -11,12 +11,24 @@
 
 namespace signal_estimator {
 
+enum class Mode {
+    LatencyCorr,
+    LatencyStep,
+    Losses,
+    IOJitter,
+};
+
+enum class Format {
+    Text,
+    Json,
+};
+
 struct Config {
     // operation mode
-    std::string mode { "latency_corr" };
+    Mode mode { Mode::LatencyCorr };
 
     // report format
-    std::string report_format { "text" };
+    Format report_format { Format::Text };
 
     // device names
     std::string output_dev, input_dev;
