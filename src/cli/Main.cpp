@@ -27,13 +27,11 @@ int main(int argc, char** argv) {
     auto control_opts = app.add_option_group("Control options");
 
     control_opts
-        ->add_option(
-            "-m,--mode", config.mode, "Operation mode: latency_corr|latency_step|losses")
+        ->add_option("-m,--mode", config.mode,
+            "Operation mode: latency_corr|latency_step|losses|io_jitter")
         ->default_str(config.mode);
-    control_opts->add_option("-o,--output", config.output_dev, "Output device name")
-        ->required();
-    control_opts->add_option("-i,--input", config.input_dev, "Input device name")
-        ->required();
+    control_opts->add_option("-o,--output", config.output_dev, "Output device name");
+    control_opts->add_option("-i,--input", config.input_dev, "Input device name");
     control_opts
         ->add_option("-d,--duration", config.measurement_duration,
             "Limit measurement duration, seconds (zero for no limit)")
@@ -138,6 +136,17 @@ int main(int argc, char** argv) {
             "Glitch detection threshold, from 0 to 1")
         ->default_val(config.glitch_detection_threshold);
 
+    auto iojitter_opts = app.add_option_group("I/O jitter estimation options");
+
+    iojitter_opts
+        ->add_option("--io-jitter-window", config.io_jitter_window,
+            "I/O jitter detection window, number of periods")
+        ->default_val(config.io_jitter_window);
+    iojitter_opts
+        ->add_option("--io-jitter-percentile", config.io_jitter_percentile,
+            "I/O jitter percentile, from 1 to 100")
+        ->default_val(config.io_jitter_percentile);
+
     try {
         app.parse(argc, argv);
     } catch (const CLI::ParseError& e) {
@@ -145,7 +154,7 @@ int main(int argc, char** argv) {
     }
 
     if (config.mode != "latency_corr" && config.mode != "latency_step"
-        && config.mode != "losses") {
+        && config.mode != "losses" && config.mode != "io_jitter") {
         std::cerr << "invalid --mode\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
@@ -155,6 +164,20 @@ int main(int argc, char** argv) {
         std::cerr << "invalid --report-format\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
+    }
+
+    if (config.mode != "io_jitter") {
+        if (config.input_dev.empty() || config.output_dev.empty()) {
+            std::cerr << config.mode << " mode requires --input and --output devices\n";
+            exit(1);
+        }
+    } else {
+        if ((config.input_dev.empty() && config.output_dev.empty())
+            || (!config.input_dev.empty() && !config.output_dev.empty())) {
+            std::cerr << config.mode
+                      << " mode requires exactly one --input or --output device\n";
+            exit(1);
+        }
     }
 
     init_log(verbosity);

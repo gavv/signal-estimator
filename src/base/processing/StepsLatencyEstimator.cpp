@@ -106,7 +106,7 @@ bool StepsLatencyEstimator::check_step_(LatencyReport& report) {
 
 void StepsLatencyEstimator::print_report_(const LatencyReport& report) {
     reporter_.report_latency(
-        report.sw_hw, report.hw, (int)config_.report_sma_window, report.hw_avg);
+        report.sw_hw, report.hw, report.hw_avg, (int)config_.report_sma_window);
 }
 
 } // namespace signal_estimator

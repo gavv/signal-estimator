@@ -8,7 +8,7 @@
 
 namespace signal_estimator {
 
-// moving average
+// moving average (SMA)
 template <typename T = double> class MovAvg {
 public:
     explicit MovAvg(const size_t window_sz)
@@ -38,6 +38,10 @@ public:
 
     T get() const {
         return accum_ / T(init_counter_);
+    }
+
+    bool is_full() const {
+        return init_counter_ == window_sz_;
     }
 
 private:

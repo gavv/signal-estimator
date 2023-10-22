@@ -10,6 +10,7 @@
 #include "io/AlsaWriter.hpp"
 #include "processing/ContinuousGenerator.hpp"
 #include "processing/CorrelationLatencyEstimator.hpp"
+#include "processing/IOJitterEstimator.hpp"
 #include "processing/Impulse.hpp"
 #include "processing/ImpulseGenerator.hpp"
 #include "processing/LossEstimator.hpp"
@@ -34,7 +35,7 @@ bool Runner::failed() const {
 }
 
 bool Runner::start() {
-    {
+    if (!config_.output_dev.empty()) {
         auto alsa_writer = std::make_unique<AlsaWriter>();
         // may update config
         if (!alsa_writer->open(config_, config_.output_dev.c_str())) {
@@ -44,7 +45,7 @@ bool Runner::start() {
         output_writer_ = std::move(alsa_writer);
     }
 
-    {
+    if (!config_.input_dev.empty()) {
         auto alsa_reader = std::make_unique<AlsaReader>();
         // may update config
         if (!alsa_reader->open(config_, config_.input_dev.c_str())) {
@@ -90,24 +91,43 @@ bool Runner::start() {
         reporter_ = std::make_unique<JsonReporter>();
     }
 
-    if (config_.mode == "latency_step") {
-        generator_ = std::make_unique<StepsGenerator>(config_);
-    } else if (config_.mode == "latency_corr") {
-        generator_ = std::make_unique<ImpulseGenerator>(config_, impulse);
-    } else if (config_.mode == "losses") {
-        generator_ = std::make_unique<ContinuousGenerator>(config_);
+    if (output_writer_) {
+        if (config_.mode == "latency_step") {
+            generator_ = std::make_unique<StepsGenerator>(config_);
+        } else if (config_.mode == "latency_corr") {
+            generator_ = std::make_unique<ImpulseGenerator>(config_, impulse);
+        } else if (config_.mode == "losses") {
+            generator_ = std::make_unique<ContinuousGenerator>(config_);
+        } else if (config_.mode == "io_jitter") {
+            generator_ = std::make_unique<ContinuousGenerator>(config_);
+            if (!input_reader_) {
+                estimator_ = std::make_unique<IOJitterEstimator>(
+                    config_, Dir::Output, *reporter_);
+            }
+        }
     }
 
-    if (config_.mode == "latency_step") {
-        estimator_ = std::make_unique<StepsLatencyEstimator>(config_, *reporter_);
-    } else if (config_.mode == "latency_corr") {
-        estimator_ = std::make_unique<CorrelationLatencyEstimator>(config_, *reporter_);
-    } else if (config_.mode == "losses") {
-        estimator_ = std::make_unique<LossEstimator>(config_, *reporter_);
+    if (input_reader_) {
+        if (config_.mode == "latency_step") {
+            estimator_ = std::make_unique<StepsLatencyEstimator>(config_, *reporter_);
+        } else if (config_.mode == "latency_corr") {
+            estimator_
+                = std::make_unique<CorrelationLatencyEstimator>(config_, *reporter_);
+        } else if (config_.mode == "losses") {
+            estimator_ = std::make_unique<LossEstimator>(config_, *reporter_);
+        } else if (config_.mode == "io_jitter") {
+            estimator_
+                = std::make_unique<IOJitterEstimator>(config_, Dir::Input, *reporter_);
+        }
     }
 
-    output_thread_ = std::thread(&Runner::output_loop_, this);
-    input_thread_ = std::thread(&Runner::input_loop_, this);
+    if (output_writer_) {
+        output_thread_ = std::thread(&Runner::output_loop_, this);
+    }
+
+    if (input_reader_) {
+        input_thread_ = std::thread(&Runner::input_loop_, this);
+    }
 
     return true;
 }
@@ -138,7 +158,9 @@ void Runner::output_loop_() {
 
         auto frame = frame_pool_->allocate(Dir::Output);
 
-        generator_->generate(*frame);
+        if (generator_) {
+            generator_->generate(*frame);
+        }
 
         if (!output_writer_->write(*frame)) {
             se_log_error("got error from output device, exiting");

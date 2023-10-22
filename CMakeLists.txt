@@ -129,6 +129,7 @@ add_library(base_objects OBJECT
   src/base/io/AlsaWriter.cpp
   src/base/processing/ContinuousGenerator.cpp
   src/base/processing/CorrelationLatencyEstimator.cpp
+  src/base/processing/IOJitterEstimator.cpp
   src/base/processing/Impulse.cpp
   src/base/processing/ImpulseGenerator.cpp
   src/base/processing/LossEstimator.cpp

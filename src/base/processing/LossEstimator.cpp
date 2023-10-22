@@ -70,7 +70,7 @@ void LossEstimator::report_losses_() {
         const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
         reporter_.report_losses(
-            loss_rate, (int)config_.report_sma_window, avg_loss_rate, loss_ratio);
+            loss_rate, avg_loss_rate, loss_ratio, (int)config_.report_sma_window);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;

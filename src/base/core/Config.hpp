@@ -102,8 +102,20 @@ struct Config {
     // glitch detection threshold
     float glitch_detection_threshold { 0.05f };
 
+    // running window for jitter calculation, number of periods
+    size_t io_jitter_window { 250 };
+
+    // percentile for jitter reports, from 0 to 100
+    size_t io_jitter_percentile { 95 };
+
     // number of pre-allocated frames in frame pool
     size_t frame_pool_size { 128 };
+
+    // get buffer size
+    size_t buffer_size(Dir dir) const {
+        return dir == Dir::Output ? output_period_count * output_period_size
+                                  : input_period_count * input_period_size;
+    }
 
     // get period size
     size_t period_size(Dir dir) const {

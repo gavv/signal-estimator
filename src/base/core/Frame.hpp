@@ -40,7 +40,7 @@ public:
     sample_t* data();
 
     // record hw and sw times
-    void set_times(nanoseconds_t sw_time, nanoseconds_t hw_time);
+    void set_times(nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t hw_buf);
 
     // get time when the frame was passed to or received from the OS
     nanoseconds_t sw_frame_time() const;
@@ -52,6 +52,9 @@ public:
     // get time when the sample inside frame was passed to or received from hardware
     // this method takes into account OS buffer size and position of sample in frame
     nanoseconds_t hw_sample_time(size_t sample_index) const;
+
+    // get hardware buffer length at the time when frame was captured or played
+    nanoseconds_t hw_buf_len() const;
 
     // index access
     const sample_t& operator[](const size_t index) const {
@@ -77,6 +80,7 @@ private:
     Dir dir_ {};
     nanoseconds_t sw_time_ {};
     nanoseconds_t hw_time_ {};
+    nanoseconds_t hw_buf_ {};
 
     std::vector<sample_t> data_;
     std::atomic<int> refcount_ {};

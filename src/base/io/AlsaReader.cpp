@@ -60,17 +60,21 @@ int AlsaReader::read_(Frame& frame) {
         return (int)err;
     }
 
-    // ask when next sample that we will read was heard
+    // number of samples in ring buffer available for read
+    snd_pcm_sframes_t avail = 0;
+    // when next sample read from ring buffer was heard
+    // depending on driver, this may or may not take into account ADC delay
     snd_pcm_sframes_t delay = 0;
-    if (int err = snd_pcm_delay(pcm_, &delay); err < 0) {
+    if (int err = snd_pcm_avail_delay(pcm_, &avail, &delay); err < 0) {
         return err;
     }
 
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
     const nanoseconds_t hw_time = sw_time - config_.frames_to_ns((size_t)delay)
         + config_.frames_to_ns(buf_samples / buf_chans_);
+    const nanoseconds_t hw_buf = config_.frames_to_ns((size_t)avail);
 
-    frame.set_times(sw_time, hw_time);
+    frame.set_times(sw_time, hw_time, hw_buf);
 
     // read from buffer to frame
     read_buf_(frame);

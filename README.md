@@ -15,6 +15,7 @@ Signal Estimator
 - [Command-line options](#command-line-options)
 - [Measuring latency](#measuring-latency)
 - [Measuring losses](#measuring-losses)
+- [Measuring I/O jitter](#measuring-io-jitter)
 - [JSON output](#json-output)
 - [Dumping streams](#dumping-streams)
 - [ALSA parameters](#alsa-parameters)
@@ -199,16 +200,16 @@ Options:
 
 Control options:
   -m,--mode TEXT [latency_corr]
-                              Operation mode: latency_corr|latency_step|losses
-  -o,--output TEXT [required] Output device name
-  -i,--input TEXT [required]  Input device name
+                              Operation mode: latency_corr|latency_step|losses|io_jitter
+  -o,--output TEXT            Output device name
+  -i,--input TEXT             Input device name
   -d,--duration FLOAT [0]     Limit measurement duration, seconds (zero for no limit)
   -w,--warmup FLOAT [0]       Warmup duration, seconds
 
 I/O options:
   -r,--rate UINT [48000]      Sample rate, Hz
   -c,--chans UINT [2]         Number of channels
-  -v,--volume FLOAT [0.5]     Signal volume, from 0 to 1
+  -g,--gain FLOAT [0.8]       Signal gain, from 0 to 1
   --in-latency UINT [8000]    Input ring buffer size, microseconds
   --in-periods UINT [2]       Number of periods in input ring buffer
   --out-latency UINT [8000]   Output ring buffer size, microseconds
@@ -249,6 +250,12 @@ Loss ratio estimation options:
                               Glitch detection running maximum window, samples
   --glitch-detection-threshold FLOAT [0.05]
                               Glitch detection threshold, from 0 to 1
+
+I/O jitter estimation options:
+  --io-jitter-window UINT [250]
+                              I/O jitter detection window, number of periods
+  --io-jitter-percentile UINT [95]
+                              I/O jitter percentile, from 1 to 100
 ```
 
 Measuring latency
@@ -265,26 +272,27 @@ In correlation mode, the tool generates M-sequence faded in and out with a Hammi
 
 The correlation mode is known to provide improved precision and stability even under worse signal-to-noise ratio. The step mode, on the other hand, is much simpler and easier to verify, and so can be used as a baseline.
 
-
 ```
-$ sudo signal-estimator -vv -m latency_corr -o hw:0 -i hw:0 -d 5
-opening alsa writer for device hw:0
-suggested_latency: 8000 us
-suggested_buffer_size: 384 samples
-selected_buffer_time: 8000 us
-selected_buffer_size: 384 samples
-selected_period_time: 4000 us
-selected_period_size: 192 samples
-opening alsa reader for device hw:0
-suggested_latency: 8000 us
-suggested_buffer_size: 384 samples
-selected_buffer_time: 8000 us
-selected_buffer_size: 384 samples
-selected_period_time: 4000 us
-selected_period_size: 192 samples
-successfully enabled real-time scheduling policy
-successfully enabled real-time scheduling policy
-successfully enabled real-time scheduling policy
+$ sudo signal-estimator -vv -m latency_corr -o hw:0 -i hw:0
+[II] opening alsa writer for device hw:0
+[DD] requested_latency: 8000 us
+[DD] requested_buffer_size: 384 samples
+[DD] selected_buffer_time: 8000 us
+[DD] selected_buffer_size: 384 samples
+[DD] selected_period_time: 4000 us
+[DD] selected_period_size: 192 samples
+[DD] selected_channel_count: 2
+[II] opening alsa reader for device hw:0
+[DD] requested_latency: 8000 us
+[DD] requested_buffer_size: 384 samples
+[DD] selected_buffer_time: 8000 us
+[DD] selected_buffer_size: 384 samples
+[DD] selected_period_time: 4000 us
+[DD] selected_period_size: 192 samples
+[DD] selected_channel_count: 2
+[II] starting measurement
+[DD] successfully enabled real-time scheduling policy
+[DD] successfully enabled real-time scheduling policy
 latency:  sw+hw  10.688ms  hw   2.688ms  hw_avg5   2.688ms
 latency:  sw+hw  10.237ms  hw   2.237ms  hw_avg5   2.462ms
 latency:  sw+hw  11.231ms  hw   3.231ms  hw_avg5   2.719ms
@@ -298,41 +306,46 @@ Notation:
 
   computed as the time interval beginning when the first audio *frame* of the impulse was sent to the output ring buffer, and ending when the first frame of the impulse was received from the input ring buffer
 
-* `hw` - an estimation of hardware latency, excluding ALSA ring buffer
+* `hw` - an estimation of hardware latency, excluding ALSA ring buffer and ADC/DAC
 
-  computed as the time interval beginning when the first audio *sample* of the impulse was sent from ring buffer to the hardware, and ending when the first sample of the strike was received from the hardware and placed to ring buffer
+  computed as the time interval beginning when the first audio *sample* of the impulse was sent from ring buffer to the hardware, and ending when the first sample of the impulse was received from the hardware and placed to ring buffer
 
 * `hw_avg5` - moving average of last 5 `hw` values
 
-`sw+hw` latency is affected by the `--latency` and `--periods` parameters, which defines the layout of ALSA ring buffer. You may need to select a higher latency if you're experiencing underruns or overruns.
+`sw+hw` latency is affected by ring buffer settings like `--out-latency` and `--out-periods`.
 
-`hw` latency, on the other hand, should not be affected by it and should depend only on your hardware and the way how the signal is looped back from output to input (e.g. if it's going by air, the distance will make a difference).
+`hw` latency, on the other hand, should not be affected by ring buffer and should depend only on your hardware and the way how the signal is looped back from output to input (e.g. if it's going by air, the distance will make a difference).
 
-If you're having troubles, you may also need to configure signal volume, or impulse and step generation and detection parameters.
+`hw` latency always excludes (variable) ring buffer delay, but whether it excludes (constant) ADC/DAC delay depends on the sound card driver. For drivers capable of reporting ADC/DAC delay, it is excluded.
+
+If you observe underruns or overruns, you may need to increase ALSA period size or count, depending on your hardware. Depending on environment, you may also need to configure signal gain, and impulse interval and threshold.
 
 Measuring losses
 ----------------
 
-In the loss estimation mode, the tool generates continuous beep and counts for glitches and gaps in the received signal.
+In the loss estimation mode, the tool generates continuous harmonic and counts for glitches and gaps in the received signal.
 
 ```
-$ sudo signal-estimator -vv -m losses -o hw:0 -i hw:0 -d 5
-opening alsa writer for device hw:0
-suggested_latency: 8000 us
-suggested_buffer_size: 384 samples
-selected_buffer_time: 8000 us
-selected_buffer_size: 384 samples
-selected_period_time: 4000 us
-selected_period_size: 192 samples
-opening alsa reader for device hw:0
-suggested_latency: 8000 us
-suggested_buffer_size: 384 samples
-selected_buffer_time: 8000 us
-selected_buffer_size: 384 samples
-selected_period_time: 4000 us
-selected_period_size: 192 samples
-successfully enabled real-time scheduling policy
-successfully enabled real-time scheduling policy
+$ sudo signal-estimator -vv -m losses -o hw:0 -i hw:0
+[II] opening alsa writer for device hw:0
+[DD] requested_latency: 8000 us
+[DD] requested_buffer_size: 384 samples
+[DD] selected_buffer_time: 8000 us
+[DD] selected_buffer_size: 384 samples
+[DD] selected_period_time: 4000 us
+[DD] selected_period_size: 192 samples
+[DD] selected_channel_count: 2
+[II] opening alsa reader for device hw:0
+[DD] requested_latency: 8000 us
+[DD] requested_buffer_size: 384 samples
+[DD] selected_buffer_time: 8000 us
+[DD] selected_buffer_size: 384 samples
+[DD] selected_period_time: 4000 us
+[DD] selected_period_size: 192 samples
+[DD] selected_channel_count: 2
+[II] starting measurement
+[DD] successfully enabled real-time scheduling policy
+[DD] successfully enabled real-time scheduling policy
 losses:  rate   0.0/sec  rate_avg5   0.0/sec  ratio   0.00%
 losses:  rate   6.0/sec  rate_avg5   3.0/sec  ratio   0.26%
 losses:  rate   3.0/sec  rate_avg5   3.0/sec  ratio   0.20%
@@ -352,9 +365,65 @@ Notation:
 
   a loss is defined as a frame of the received signal, with all samples having small amplitude (volume); we rely on the fact that the original signal is a loud continuous sine wave
 
-These numbers may be rough enough.
+These numbers may be rather imprecise.
 
-If you're having troubles, you may need to configure signal volume, and signal and glitch detection parameters.
+If you're having troubles, you may need to configure signal gain and signal and glitch detection parameters.
+
+Measuring I/O jitter
+--------------------
+
+In I/O hitter estimation mode, the tool does not look at the signal itself, but instead measures jitter of I/O operations. This jitter defines how precisely ALSA and OS schedule I/O.
+
+```
+$ sudo signal-estimator -vv -o hw:0 -m io_jitter
+[II] opening alsa writer for device hw:0
+[DD] requested_latency: 8000 us
+[DD] requested_buffer_size: 384 samples
+[DD] selected_buffer_time: 8000 us
+[DD] selected_buffer_size: 384 samples
+[DD] selected_period_time: 4000 us
+[DD] selected_period_size: 192 samples
+[DD] selected_channel_count: 2
+[II] starting measurement
+[DD] successfully enabled real-time scheduling policy
+jitter:  sw avg  0.054ms p95  0.193ms  hw avg  0.007ms p95  0.016ms  buf avg  7.014ms p95  7.167ms
+jitter:  sw avg  0.024ms p95  0.090ms  hw avg  0.006ms p95  0.016ms  buf avg  7.007ms p95  7.000ms
+jitter:  sw avg  0.021ms p95  0.077ms  hw avg  0.006ms p95  0.016ms  buf avg  7.008ms p95  7.000ms
+jitter:  sw avg  0.020ms p95  0.074ms  hw avg  0.006ms p95  0.016ms  buf avg  7.007ms p95  7.000ms
+jitter:  sw avg  0.020ms p95  0.072ms  hw avg  0.006ms p95  0.015ms  buf avg  7.007ms p95  7.000ms
+```
+
+Notation:
+
+* `sw` - software timestamp jitter
+
+    deviation from period size of delta between software timestamps of subsequent frames; where sofware timestamp is the wallclock time when the frame was written to ALSA or read from it
+
+    * `avg` - average deviation
+    * `p95` - 95-percentile of deviation
+
+* `hw` - hardware timestamp jitter
+
+    deviation from period size of delta between hardware timestamps of subsequent frames; where hardware timestamp is the wallclock time when the frame reaches ADC or DAC
+
+    * `avg` - average deviation
+    * `p95` - 95-percentile of deviation
+
+* `buf` - ring buffer length
+
+    length of ALSA ring buffer at the time when we wrote or read frame from it
+
+    * `avg` - average buffer length
+    * `p95` - 95-percentile of buffer length
+
+`sw` jitter is usually higher. It is affected by system load, OS scheduler, use of `SCHED_RR` policy, etc. It defines precision of `sw+hw` latency calculation.
+
+`hw` jitter is usually quite low. It is mostly affected only by hardware and driver. It defines precision of `hw` latency calculation.
+
+`buf` length shows how the jitter affects ALSA ring buffer:
+
+* For output devices, we try to keep the buffer full and ask ALSA to wake up us whenever the buffer has space for one frame, so the ideal buffer length is the same as configured buffer size.
+* For input devices, we try to keep the buffer empty and ask to wake up us whenever one frame is available in the buffer, so the ideal buffer length is zero.
 
 JSON output
 -----------
@@ -365,14 +434,14 @@ Sample JSON output format for measuring latency is shown below.
 
 ```
 [
-  {"sw_hw": 3.406247, "hw": 9.783531, "hw_avg5": 3.406247},
-  {"sw_hw": 3.768061, "hw": 10.177324, "hw_avg5": 3.768061},
-  {"sw_hw": 3.598191, "hw": 10.033534, "hw_avg5": 3.598191},
-  {"sw_hw": 3.762508, "hw": 10.256863, "hw_avg5": 3.762508},
-  {"sw_hw": 3.842750, "hw": 10.150537, "hw_avg5": 3.842750},
-  {"sw_hw": 3.588736, "hw": 9.647981, "hw_avg5": 3.588736},
-  {"sw_hw": 3.617144, "hw": 10.005338, "hw_avg5": 3.617144},
-  {"sw_hw": 3.769689, "hw": 10.169054, "hw_avg5": 3.769689}
+  {"sw_hw": 3.406247, "hw": 9.783531, "hw_avg": 3.406247},
+  {"sw_hw": 3.768061, "hw": 10.177324, "hw_avg": 3.768061},
+  {"sw_hw": 3.598191, "hw": 10.033534, "hw_avg": 3.598191},
+  {"sw_hw": 3.762508, "hw": 10.256863, "hw_avg": 3.762508},
+  {"sw_hw": 3.842750, "hw": 10.150537, "hw_avg": 3.842750},
+  {"sw_hw": 3.588736, "hw": 9.647981, "hw_avg": 3.588736},
+  {"sw_hw": 3.617144, "hw": 10.005338, "hw_avg": 3.617144},
+  {"sw_hw": 3.769689, "hw": 10.169054, "hw_avg": 3.769689}
 ]
 ```
 
@@ -380,9 +449,9 @@ Sample JSON output format for measuring losses is shown below.
 
 ```
 [
-  {"rate": 0.000000, "rate_avg5": 0.000000, "ratio": 0.000000},
-  {"rate": 0.000000, "rate_avg5": 0.000000, "ratio": 3.501563},
-  {"rate": 0.000000, "rate_avg5": 0.000000, "ratio": 2.626626}
+  {"rate": 0.000000, "rate_avg": 0.000000, "ratio": 0.000000},
+  {"rate": 0.000000, "rate_avg": 0.000000, "ratio": 3.501563},
+  {"rate": 0.000000, "rate_avg": 0.000000, "ratio": 2.626626}
 ]
 ```
 
@@ -426,7 +495,7 @@ ALSA parameters
 
 ALSA output and input device names are the same as passed to `aplay` and `arecord` tools.
 
-You may need to configure sample rate and the number of channels. The selected values should be supported by both output and input devices.
+You may need to configure sample rate and the number of channels. Selected rate should be supported by both output and input devices.
 
 You may also need to configure ALSA ring buffer size and the number of periods (I/O frames) in the ring buffer. These parameters affect software latency and output / input robustness.
 
