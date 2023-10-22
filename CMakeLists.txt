@@ -120,6 +120,7 @@ add_library(base_objects OBJECT
   src/base/core/Log.cpp
   src/base/core/RateLimiter.cpp
   src/base/core/Realtime.cpp
+  src/base/core/Sample.cpp
   src/base/core/Time.cpp
   src/base/dumps/AsyncDumper.cpp
   src/base/dumps/CsvDumper.cpp

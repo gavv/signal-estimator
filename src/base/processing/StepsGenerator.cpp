@@ -50,7 +50,7 @@ void StepsGenerator::generate(Frame& frame) {
             }
 
             for (size_t cn = 0; cn < config_.channel_count; cn++) {
-                frame[frame_pos] = sample_t(MaxSample * config_.gain
+                frame[frame_pos] = saturated_cast(MaxSample * config_.gain
                     * std::sin(2 * (float)M_PI / config_.sample_rate * 880 * step_pos_));
                 frame_pos++;
                 frame_size--;
