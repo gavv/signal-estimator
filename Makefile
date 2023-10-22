@@ -1,10 +1,12 @@
 NUM_CPU ?= $(shell nproc --all)
 VARIANT ?= Release
+WERROR ?= OFF
 SANITIZERS ?= OFF
 
 MACHINE := $(shell uname -m)-linux-gnu
 
-CMAKE_CMD := cmake -DCMAKE_BUILD_TYPE=$(VARIANT) -DENABLE_SANITIZERS=$(SANITIZERS)
+CMAKE_CMD := cmake -DCMAKE_BUILD_TYPE=$(VARIANT) \
+	-DENABLE_WERROR=$(WERROR) -DENABLE_SANITIZERS=$(SANITIZERS)
 MAKE_CMD := make -j$(NUM_CPU) --no-print-directory
 
 DOCKER_CMD := docker run -t --rm \

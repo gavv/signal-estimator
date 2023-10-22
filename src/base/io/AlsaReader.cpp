@@ -67,7 +67,7 @@ int AlsaReader::read_(Frame& frame) {
     }
 
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
-    const nanoseconds_t hw_time = sw_time - config_.frames_to_ns(delay)
+    const nanoseconds_t hw_time = sw_time - config_.frames_to_ns((size_t)delay)
         + config_.frames_to_ns(buf_samples / buf_chans_);
 
     frame.set_times(sw_time, hw_time);

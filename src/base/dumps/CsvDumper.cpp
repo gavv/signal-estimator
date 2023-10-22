@@ -106,7 +106,7 @@ void CsvDumper::print_line_(Dir dir, nanoseconds_t timestamp) {
             buf_.data() + off, buf_.size() - off, ",%lld", (long long)win_avg_[ch].get());
     }
 
-    off += snprintf(buf_.data() + off, buf_.size() - off, "\n");
+    off += (size_t)snprintf(buf_.data() + off, buf_.size() - off, "\n");
 
     fprintf(fp_, "%s", buf_.data());
     fflush(fp_);

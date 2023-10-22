@@ -9,6 +9,7 @@ project(SignalEstimator)
 option(BUILD_GUI "build Qt GUI" ON)
 
 option(ENABLE_SANITIZERS "enable sanitizers" OFF)
+option(ENABLE_WERROR "enable -Werror" OFF)
 
 set(TOOLCHAIN_PREFIX "" CACHE STRING "target host triplet, e.g. aarch64-linux-gnu")
 include("cmake/SetupToolchain.cmake")
@@ -26,48 +27,90 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 list(APPEND COMPILER_FLAGS
-  "-pthread"
+  -pthread
   )
 list(APPEND LINKER_FLAGS
-  "-pthread"
+  -pthread
   )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  list(APPEND COMPILER_FLAGS
-    "-Wall"
-    "-Wextra"
-    "-Wno-cast-align"
-    "-Wno-system-headers"
-    "-Wno-unused-private-field"
-    )
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_compile_options(
+    -fno-omit-frame-pointer
+    -funwind-tables
+    -ggdb
+  )
 endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
   list(APPEND COMPILER_FLAGS
-    "-Wall"
-    "-Wextra"
-    "-Wno-old-style-cast"
-    "-Wno-psabi"
-    "-Wno-switch-enum"
-    "-Wno-system-headers"
+    -Wall
+    -Wextra
+    # enable
+    -Wcast-qual
+    -Wctor-dtor-privacy
+    -Wdouble-promotion
+    -Wfloat-conversion
+    -Wformat-security
+    -Wformat=2
+    -Wlogical-op
+    -Wmissing-declarations
+    -Woverlength-strings
+    -Wpointer-arith
+    -Wsign-conversion
+    -Wstrict-null-sentinel
+    -Wuninitialized
+    # disable
+    -Wno-old-style-cast
+    -Wno-psabi
+    -Wno-system-headers
     )
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     list(APPEND COMPILER_FLAGS
-      "-D_GLIBCXX_ASSERTIONS"
-      "-D_GLIBCXX_DEBUG"
-      "-D_GLIBCXX_SANITIZE_VECTOR"
+      -D_GLIBCXX_ASSERTIONS
+      -D_GLIBCXX_DEBUG
+      -D_GLIBCXX_SANITIZE_VECTOR
       )
   endif()
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  list(APPEND COMPILER_FLAGS
+    -Wall
+    -Wextra
+    # enable
+    -Wcast-qual
+    -Wdouble-promotion
+    -Wfloat-conversion
+    -Wformat-security
+    -Wformat=2
+    -Wnull-dereference
+    -Woverlength-strings
+    -Woverloaded-virtual
+    -Wpointer-arith
+    -Wsign-conversion
+    -Wuninitialized
+    -Wunused
+    # disable
+    -Wno-cast-align
+    -Wno-system-headers
+    -Wno-unused-private-field
+    )
+endif()
+
+if(ENABLE_WERROR)
+  list(APPEND COMPILER_FLAGS
+    -Werror
+    )
+endif()
+
 if(ENABLE_SANITIZERS)
   list(APPEND COMPILER_FLAGS
-    "-fsanitize=address"
-    "-fsanitize=undefined"
+    -fsanitize=address
+    -fsanitize=undefined
     )
   list(APPEND LINKER_FLAGS
-    "-fsanitize=address"
-    "-fsanitize=undefined"
+    -fsanitize=address
+    -fsanitize=undefined
     )
 endif()
 
