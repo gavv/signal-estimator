@@ -29,57 +29,62 @@ void StepsLatencyEstimator::StepTrigger::add_frame(const Frame& frame) {
 
 StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IReporter& reporter)
     : config_(config)
+    , thread_(&StepsLatencyEstimator::run_, this)
     , output_trigger_(config_)
     , input_trigger_(config_)
     , sma_(config.report_sma_window)
     , reporter_(reporter) {
 }
 
-void StepsLatencyEstimator::add_output(FramePtr frame) {
-    if (!frame) {
-        return;
-    }
-    output_trigger_.add_frame(*frame);
-
-    LatencyReport report;
-
-    if (check_output_(report)) {
-        print_report_(report);
+StepsLatencyEstimator::~StepsLatencyEstimator() {
+    if (thread_.joinable()) {
+        thread_.join();
     }
 }
 
+void StepsLatencyEstimator::add_output(FramePtr frame) {
+    queue_.push(frame);
+}
+
 void StepsLatencyEstimator::add_input(FramePtr frame) {
-    if (!frame) {
-        return;
-    }
-    input_trigger_.add_frame(*frame);
+    queue_.push(frame);
+}
 
-    LatencyReport report;
+void StepsLatencyEstimator::run_() {
+    while (auto frame = queue_.wait_pop()) {
+        if (frame->dir() == Dir::Output) {
+            output_trigger_.add_frame(*frame);
 
-    if (check_input_(report)) {
-        print_report_(report);
+            LatencyReport report;
+
+            if (check_output_(report)) {
+                print_report_(report);
+            }
+        } else {
+            input_trigger_.add_frame(*frame);
+
+            LatencyReport report;
+
+            if (check_input_(report)) {
+                print_report_(report);
+            }
+        }
     }
 }
 
 bool StepsLatencyEstimator::check_output_(LatencyReport& report) {
-    std::unique_lock lock(mutex_);
-
     if (!output_ts_.is_equal(output_trigger_.last_trigger_ts())) {
         output_ts_ = output_trigger_.last_trigger_ts();
         return check_step_(report);
     }
-
     return false;
 }
 
 bool StepsLatencyEstimator::check_input_(LatencyReport& report) {
-    std::unique_lock lock(mutex_);
-
     if (!input_ts_.is_equal(input_trigger_.last_trigger_ts())) {
         input_ts_ = input_trigger_.last_trigger_ts();
         return check_step_(report);
     }
-
     return false;
 }
 
