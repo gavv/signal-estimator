@@ -15,14 +15,14 @@ StepsLatencyEstimator::StepTrigger::StepTrigger(const Config& config)
 
 void StepsLatencyEstimator::StepTrigger::add_frame(const Frame& frame) {
     for (size_t n = 0; n < frame.size(); n++) {
-        auto s = double(frame[n]);
+        auto s = (float)frame[n];
 
         s = std::abs(s);
         s = runmax_(s);
 
         if (schmitt_(s)) {
-            last_trigger_ts_.sw_hw = (double)frame.sw_frame_time() / 1000000.0;
-            last_trigger_ts_.hw = (double)frame.hw_sample_time(n) / 1000000.0;
+            last_trigger_ts_.sw_hw = (double)frame.sw_frame_time() / Millisecond;
+            last_trigger_ts_.hw = (double)frame.hw_sample_time(n) / Millisecond;
         }
     }
 }
@@ -46,7 +46,6 @@ void StepsLatencyEstimator::add_output(FramePtr frame) {
     if (check_output_(report)) {
         print_report_(report);
     }
-    frame.reset();
 }
 
 void StepsLatencyEstimator::add_input(FramePtr frame) {
