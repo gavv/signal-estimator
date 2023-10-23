@@ -43,6 +43,8 @@ private slots:
     void on_StartButton_released();
     void on_StopButton_clicked();
 
+    void setCurveVisibility(QScopedPointer<QwtPlotCurve>& curve, int state);
+
     void update_graphs();
     void read_graph_data();
     void show_error(QString error);
@@ -62,6 +64,9 @@ private:
 
     PointsBuffer out_data_;
     PointsBuffer in_data_;
+    PointsBuffer data1_;
+    PointsBuffer data2_;
+    PointsBuffer data3_;
 
     QScopedPointer<QwtPlotGrid> grid_ { new QwtPlotGrid() };
 
@@ -69,6 +74,12 @@ private:
         "Input signal (captured)") };
     QScopedPointer<QwtPlotCurve> outputCurve_ { new QwtPlotCurve(
         "Output signal (emitted)") };
+    QScopedPointer<QwtPlotCurve> data1Curve_ { new QwtPlotCurve(
+        "Hardware + Software Latency") };
+    QScopedPointer<QwtPlotCurve> data2Curve_ { new QwtPlotCurve(
+        "Hardware Latency") };
+    QScopedPointer<QwtPlotCurve> data3Curve_ { new QwtPlotCurve(
+        "Average Hardware Latency") };
 
     QTimer* timer_ = nullptr;
 

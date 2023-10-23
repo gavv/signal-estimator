@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>879</width>
-    <height>894</height>
+    <width>871</width>
+    <height>924</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -36,7 +36,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>700</height>
+            <height>750</height>
            </size>
           </property>
           <property name="frameShape">
@@ -50,8 +50,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>845</width>
-             <height>757</height>
+             <width>825</width>
+             <height>773</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -277,35 +277,101 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QCheckBox" name="GridCheckBox">
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="GridCheckBoxLabel">
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;show grid&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
+             <widget class="QFrame" name="gridFrame">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="lineWidth">
+               <number>2</number>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <property name="horizontalSpacing">
+                <number>20</number>
+               </property>
+               <item row="1" column="2">
+                <widget class="QCheckBox" name="CheckBoxData2">
+                 <property name="text">
+                  <string>Hardware Latency</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="GridCheckBox">
+                 <property name="text">
+                  <string>grid</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="CheckBoxIn">
+                 <property name="text">
+                  <string>input signal</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QCheckBox" name="CheckBoxData1">
+                 <property name="text">
+                  <string>Hardware + Software Latency</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QCheckBox" name="CheckBoxData3">
+                 <property name="text">
+                  <string>Average Hardware Latency</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="CheckBoxOut">
+                 <property name="text">
+                  <string>output signal</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <property name="tristate">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
             </item>
             <item>
              <widget class="QFrame" name="frame_3">
@@ -337,7 +403,7 @@
                 <height>300</height>
                </size>
               </property>
-              <property name="autoReplot">
+              <property name="autoReplot" stdset="0">
                <bool>false</bool>
               </property>
              </widget>
@@ -401,6 +467,13 @@
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="CursorPositionLabelRight">
+                <property name="text">
+                 <string>(0,0)</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -783,8 +856,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>879</width>
-     <height>26</height>
+     <width>871</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
