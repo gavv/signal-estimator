@@ -27,7 +27,7 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
     ui->OutputSig->setCanvasBackground(Qt::white);
 
-    ui->OutputSig->setAxisVisible(QwtPlot::yRight, true);
+    ui->OutputSig->enableAxis(QwtPlot::yRight, true);
 
     outputCurve_->setPen(QColor(0x1f77b4));
     outputCurve_->attach(ui->OutputSig);
@@ -36,15 +36,15 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     inputCurve_->attach(ui->OutputSig);
 
     data1Curve_->setPen(Qt::darkRed);
-    data1Curve_->setYAxis(QwtAxis::YRight);
+    data1Curve_->setYAxis(QwtPlot::yRight);
     data1Curve_->attach(ui->OutputSig);
 
     data2Curve_->setPen(Qt::darkGreen);
-    data2Curve_->setYAxis(QwtAxis::YRight);
+    data2Curve_->setYAxis(QwtPlot::yRight);
     data2Curve_->attach(ui->OutputSig);
 
     data3Curve_->setPen(Qt::black);
-    data3Curve_->setYAxis(QwtAxis::YRight);
+    data3Curve_->setYAxis(QwtPlot::yRight);
     data3Curve_->attach(ui->OutputSig);
 
     ui->OutputSig->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
@@ -112,9 +112,8 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
                                              .arg(QString::number(pos.y())));
     });
 
-    QwtPlotPicker* trackPickerRight = new QwtPlotPicker(ui->OutputSig->canvas());
+    QwtPlotPicker* trackPickerRight = new QwtPlotPicker(QwtPlot::Axis::xBottom, QwtPlot::yRight, ui->OutputSig->canvas());
     trackPickerRight->setStateMachine(new QwtPickerTrackerMachine());
-    trackPickerRight->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
     connect(trackPickerRight, &QwtPlotPicker::moved, [this](const QPointF& pos) {
         ui->CursorPositionLabelRight->setText(QString("(%1, %2)")
                                              .arg(QString::number(pos.x()))
