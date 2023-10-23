@@ -114,7 +114,7 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
     QwtPlotPicker* trackPickerRight = new QwtPlotPicker(ui->OutputSig->canvas());
     trackPickerRight->setStateMachine(new QwtPickerTrackerMachine());
-    trackPickerRight->setAxes(QwtAxis::XBottom, QwtAxis::YRight);
+    trackPickerRight->setAxes(QwtPlot::xBottom, QwtPlot::yRight);
     connect(trackPickerRight, &QwtPlotPicker::moved, [this](const QPointF& pos) {
         ui->CursorPositionLabelRight->setText(QString("(%1, %2)")
                                              .arg(QString::number(pos.x()))
