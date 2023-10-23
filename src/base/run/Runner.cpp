@@ -10,6 +10,7 @@
 #include "io/AlsaWriter.hpp"
 #include "processing/ContinuousGenerator.hpp"
 #include "processing/CorrelationLatencyEstimator.hpp"
+#include "processing/IOJitterEstimator.hpp"
 #include "processing/Impulse.hpp"
 #include "processing/ImpulseGenerator.hpp"
 #include "processing/LossEstimator.hpp"
@@ -34,7 +35,7 @@ bool Runner::failed() const {
 }
 
 bool Runner::start() {
-    {
+    if (!config_.output_dev.empty()) {
         auto alsa_writer = std::make_unique<AlsaWriter>();
         // may update config
         if (!alsa_writer->open(config_, config_.output_dev.c_str())) {
@@ -44,7 +45,7 @@ bool Runner::start() {
         output_writer_ = std::move(alsa_writer);
     }
 
-    {
+    if (!config_.input_dev.empty()) {
         auto alsa_reader = std::make_unique<AlsaReader>();
         // may update config
         if (!alsa_reader->open(config_, config_.input_dev.c_str())) {
@@ -84,30 +85,69 @@ bool Runner::start() {
 
     frame_pool_ = std::make_unique<FramePool>(config_);
 
-    if (config_.report_format == "text") {
+    switch (config_.report_format) {
+    case Format::Text:
         reporter_ = std::make_unique<TextReporter>();
-    } else if (config_.report_format == "json") {
+        break;
+
+    case Format::Json:
         reporter_ = std::make_unique<JsonReporter>();
+        break;
     }
 
-    if (config_.mode == "latency_step") {
-        generator_ = std::make_unique<StepsGenerator>(config_);
-    } else if (config_.mode == "latency_corr") {
-        generator_ = std::make_unique<ImpulseGenerator>(config_, impulse);
-    } else if (config_.mode == "losses") {
-        generator_ = std::make_unique<ContinuousGenerator>(config_);
+    if (output_writer_) {
+        switch (config_.mode) {
+        case Mode::LatencyCorr:
+            generator_ = std::make_unique<ImpulseGenerator>(config_, impulse);
+            break;
+
+        case Mode::LatencyStep:
+            generator_ = std::make_unique<StepsGenerator>(config_);
+            break;
+
+        case Mode::Losses:
+            generator_ = std::make_unique<ContinuousGenerator>(config_);
+            break;
+
+        case Mode::IOJitter:
+            generator_ = std::make_unique<ContinuousGenerator>(config_);
+            if (!input_reader_) {
+                estimator_ = std::make_unique<IOJitterEstimator>(
+                    config_, Dir::Output, *reporter_);
+            }
+            break;
+        }
     }
 
-    if (config_.mode == "latency_step") {
-        estimator_ = std::make_unique<StepsLatencyEstimator>(config_, *reporter_);
-    } else if (config_.mode == "latency_corr") {
-        estimator_ = std::make_unique<CorrelationLatencyEstimator>(config_, *reporter_);
-    } else if (config_.mode == "losses") {
-        estimator_ = std::make_unique<LossEstimator>(config_, *reporter_);
+    if (input_reader_) {
+        switch (config_.mode) {
+        case Mode::LatencyCorr:
+            estimator_
+                = std::make_unique<CorrelationLatencyEstimator>(config_, *reporter_);
+            break;
+
+        case Mode::LatencyStep:
+            estimator_ = std::make_unique<StepsLatencyEstimator>(config_, *reporter_);
+            break;
+
+        case Mode::Losses:
+            estimator_ = std::make_unique<LossEstimator>(config_, *reporter_);
+            break;
+
+        case Mode::IOJitter:
+            estimator_
+                = std::make_unique<IOJitterEstimator>(config_, Dir::Input, *reporter_);
+            break;
+        }
     }
 
-    output_thread_ = std::thread(&Runner::output_loop_, this);
-    input_thread_ = std::thread(&Runner::input_loop_, this);
+    if (output_writer_) {
+        output_thread_ = std::thread(&Runner::output_loop_, this);
+    }
+
+    if (input_reader_) {
+        input_thread_ = std::thread(&Runner::input_loop_, this);
+    }
 
     return true;
 }
@@ -138,7 +178,9 @@ void Runner::output_loop_() {
 
         auto frame = frame_pool_->allocate(Dir::Output);
 
-        generator_->generate(*frame);
+        if (generator_) {
+            generator_->generate(*frame);
+        }
 
         if (!output_writer_->write(*frame)) {
             se_log_error("got error from output device, exiting");

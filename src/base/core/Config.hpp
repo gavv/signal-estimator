@@ -11,12 +11,24 @@
 
 namespace signal_estimator {
 
+enum class Mode {
+    LatencyCorr,
+    LatencyStep,
+    Losses,
+    IOJitter,
+};
+
+enum class Format {
+    Text,
+    Json,
+};
+
 struct Config {
     // operation mode
-    std::string mode { "latency_corr" };
+    Mode mode { Mode::LatencyCorr };
 
     // report format
-    std::string report_format { "text" };
+    Format report_format { Format::Text };
 
     // device names
     std::string output_dev, input_dev;
@@ -102,8 +114,20 @@ struct Config {
     // glitch detection threshold
     float glitch_detection_threshold { 0.05f };
 
+    // running window for jitter calculation, number of periods
+    size_t io_jitter_window { 250 };
+
+    // percentile for jitter reports, from 0 to 100
+    size_t io_jitter_percentile { 95 };
+
     // number of pre-allocated frames in frame pool
     size_t frame_pool_size { 128 };
+
+    // get buffer size
+    size_t buffer_size(Dir dir) const {
+        return dir == Dir::Output ? output_period_count * output_period_size
+                                  : input_period_count * input_period_size;
+    }
 
     // get period size
     size_t period_size(Dir dir) const {
@@ -137,12 +161,12 @@ struct Config {
 
     // convert number of samples (all channels) to number of nanoseconds
     nanoseconds_t samples_to_ns(size_t num_samples) const {
-        return nanoseconds_t(num_samples) / channel_count * 1000000000 / sample_rate;
+        return nanoseconds_t(num_samples) / channel_count * Second / sample_rate;
     }
 
     // convert number of samples (per channel) to number of nanoseconds
     nanoseconds_t frames_to_ns(size_t num_samples) const {
-        return nanoseconds_t(num_samples) * 1000000000 / sample_rate;
+        return nanoseconds_t(num_samples) * Second / sample_rate;
     }
 };
 

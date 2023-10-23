@@ -34,8 +34,6 @@ void CorrelationLatencyEstimator::add_input(FramePtr frame) {
 }
 
 void CorrelationLatencyEstimator::run_() {
-    make_realtime();
-
     Timestamp in_peak, out_peak;
     double in_peak_ts = 0, out_peak_ts = 0;
 
@@ -80,7 +78,7 @@ void CorrelationLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak)
         = (in_peak.sw_hw - out_peak.sw_hw - impulse_duration) / Millisecond;
 
     reporter_.report_latency(
-        swhw_ts, hw_ts, (int)config_.report_sma_window, hw_avg_(hw_ts));
+        swhw_ts, hw_ts, hw_avg_(hw_ts), (int)config_.report_sma_window);
 }
 
 CorrelationLatencyEstimator::Processor::Processor(const Config& config)
@@ -90,8 +88,8 @@ CorrelationLatencyEstimator::Processor::Processor(const Config& config)
     std::fill(buff_.begin(), buff_.end(), 0.f);
 
     hw_search_start_ = 0;
-    hw_search_len_
-        = (config_.impulse_period * Second) - config_.frames_to_ns(impulse.size() * 2);
+    hw_search_len_ = double(config_.impulse_period * Second)
+        - config_.frames_to_ns(impulse.size() * 2);
 }
 
 CorrelationLatencyEstimator::Timestamp CorrelationLatencyEstimator::Processor::operator()(
@@ -178,7 +176,7 @@ CorrelationLatencyEstimator::Timestamp CorrelationLatencyEstimator::Processor::s
 
     for (size_t i = 0; i < sz; ++i) {
         if (!max_timeout_activated_) {
-            if (fabs(from[i]) > 1e-5
+            if (std::abs(from[i]) > 1e-5f
                 && skip_until_ts < (buff_begin_ts_.hw + config_.frames_to_ns(i))) {
                 const double idx_2_ns = config_.frames_to_ns(i);
 

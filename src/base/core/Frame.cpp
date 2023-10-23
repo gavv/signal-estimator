@@ -65,9 +65,11 @@ sample_t* Frame::data() {
     return &data_[0];
 }
 
-void Frame::set_times(nanoseconds_t sw_time, nanoseconds_t hw_time) {
+void Frame::set_times(
+    nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t hw_buf) {
     sw_time_ = sw_time;
     hw_time_ = hw_time;
+    hw_buf_ = hw_buf;
 }
 
 nanoseconds_t Frame::sw_frame_time() const {
@@ -76,6 +78,10 @@ nanoseconds_t Frame::sw_frame_time() const {
 
 nanoseconds_t Frame::hw_frame_time() const {
     return hw_time_;
+}
+
+nanoseconds_t Frame::hw_buf_len() const {
+    return hw_buf_;
 }
 
 nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {

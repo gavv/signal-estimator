@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core/Config.hpp"
+#include "core/Queue.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
 #include "processing/MovMax.hpp"
@@ -11,7 +12,7 @@
 #include "reports/IReporter.hpp"
 
 #include <memory>
-#include <mutex>
+#include <thread>
 
 namespace signal_estimator {
 
@@ -21,7 +22,7 @@ namespace signal_estimator {
 class StepsLatencyEstimator : public IEstimator {
 public:
     StepsLatencyEstimator(const Config& config, IReporter& reporter);
-    ~StepsLatencyEstimator() override = default;
+    ~StepsLatencyEstimator() override;
 
     StepsLatencyEstimator(const StepsLatencyEstimator&) = delete;
     StepsLatencyEstimator& operator=(const StepsLatencyEstimator&) = delete;
@@ -61,10 +62,12 @@ private:
 
     private:
         const Config& config_;
-        MovMax<double> runmax_;
-        SchmittTrigger<double> schmitt_;
+        MovMax<float> runmax_;
+        SchmittTrigger<float> schmitt_;
         Timestamp last_trigger_ts_ {};
     };
+
+    void run_();
 
     bool check_output_(LatencyReport&);
     bool check_input_(LatencyReport&);
@@ -74,14 +77,12 @@ private:
 
     const Config config_;
 
-    // accessed only by output thread
-    StepTrigger output_trigger_;
+    Queue<FramePtr> queue_;
+    std::thread thread_;
 
-    // accessed only by input thread
+    StepTrigger output_trigger_;
     StepTrigger input_trigger_;
 
-    // accessed by both threads and protected by mutex
-    std::mutex mutex_;
     Timestamp output_ts_ {};
     Timestamp input_ts_ {};
     MovAvg<double> sma_;

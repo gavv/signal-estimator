@@ -41,7 +41,7 @@ private:
 
     bool header_printed_ { false };
 
-    std::vector<MovAvg<double>> win_avg_;
+    std::vector<MovAvg<float>> win_avg_;
     std::optional<nanoseconds_t> win_time_ { 0 };
     size_t win_size_ { 0 };
     size_t win_pos_ { 0 };

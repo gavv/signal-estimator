@@ -9,11 +9,14 @@
 #include <CLI/CLI.hpp>
 
 #include <iostream>
+#include <map>
 
 using namespace signal_estimator;
 
 int main(int argc, char** argv) {
     Config config;
+    std::string mode = "latency_corr";
+    std::string report_format = "text";
     int verbosity = 0;
 
     CLI::App app { "Measure characteristics of a looped back signal",
@@ -27,13 +30,11 @@ int main(int argc, char** argv) {
     auto control_opts = app.add_option_group("Control options");
 
     control_opts
-        ->add_option(
-            "-m,--mode", config.mode, "Operation mode: latency_corr|latency_step|losses")
-        ->default_str(config.mode);
-    control_opts->add_option("-o,--output", config.output_dev, "Output device name")
-        ->required();
-    control_opts->add_option("-i,--input", config.input_dev, "Input device name")
-        ->required();
+        ->add_option("-m,--mode", mode,
+            "Operation mode: latency_corr|latency_step|losses|io_jitter")
+        ->default_str(mode);
+    control_opts->add_option("-o,--output", config.output_dev, "Output device name");
+    control_opts->add_option("-i,--input", config.input_dev, "Input device name");
     control_opts
         ->add_option("-d,--duration", config.measurement_duration,
             "Limit measurement duration, seconds (zero for no limit)")
@@ -70,9 +71,8 @@ int main(int argc, char** argv) {
     auto report_opts = app.add_option_group("Report options");
 
     report_opts
-        ->add_option(
-            "-f,--report-format", config.report_format, "Report format: text|json")
-        ->default_str(config.report_format);
+        ->add_option("-f,--report-format", report_format, "Report format: text|json")
+        ->default_str(report_format);
     report_opts
         ->add_option("--report-sma", config.report_sma_window,
             "Simple moving average window for latency reports")
@@ -138,23 +138,63 @@ int main(int argc, char** argv) {
             "Glitch detection threshold, from 0 to 1")
         ->default_val(config.glitch_detection_threshold);
 
+    auto iojitter_opts = app.add_option_group("I/O jitter estimation options");
+
+    iojitter_opts
+        ->add_option("--io-jitter-window", config.io_jitter_window,
+            "I/O jitter detection window, number of periods")
+        ->default_val(config.io_jitter_window);
+    iojitter_opts
+        ->add_option("--io-jitter-percentile", config.io_jitter_percentile,
+            "I/O jitter percentile, from 1 to 100")
+        ->default_val(config.io_jitter_percentile);
+
     try {
         app.parse(argc, argv);
     } catch (const CLI::ParseError& e) {
         return app.exit(e);
     }
 
-    if (config.mode != "latency_corr" && config.mode != "latency_step"
-        && config.mode != "losses") {
+    const std::map<std::string, Mode> mode_map {
+        { "latency_corr", Mode::LatencyCorr },
+        { "latency_step", Mode::LatencyStep },
+        { "losses", Mode::Losses },
+        { "io_jitter", Mode::IOJitter },
+    };
+
+    if (!mode_map.count(mode)) {
         std::cerr << "invalid --mode\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
     }
 
-    if (config.report_format != "text" && config.report_format != "json") {
+    config.mode = mode_map.at(mode);
+
+    const std::map<std::string, Format> format_map {
+        { "text", Format::Text },
+        { "json", Format::Json },
+    };
+
+    if (!format_map.count(report_format)) {
         std::cerr << "invalid --report-format\n";
         std::cerr << "Run with --help for more information.\n";
         exit(1);
+    }
+
+    config.report_format = format_map.at(report_format);
+
+    if (config.mode != Mode::IOJitter) {
+        if (config.input_dev.empty() || config.output_dev.empty()) {
+            std::cerr << mode << " mode requires --input and --output devices\n";
+            exit(1);
+        }
+    } else {
+        if ((config.input_dev.empty() && config.output_dev.empty())
+            || (!config.input_dev.empty() && !config.output_dev.empty())) {
+            std::cerr << mode
+                      << " mode requires exactly one --input or --output device\n";
+            exit(1);
+        }
     }
 
     init_log(verbosity);

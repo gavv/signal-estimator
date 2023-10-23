@@ -38,7 +38,7 @@ void LossEstimator::add_input(FramePtr frame) {
 
 void LossEstimator::process_frame_(const Frame& frame) {
     for (size_t n = 0; n < frame.size(); n++) {
-        auto s = double(frame[n]);
+        auto s = (float)frame[n];
 
         if (signal_runmax_(std::abs(s))
             >= MaxSample * config_.signal_detection_threshold) {
@@ -64,13 +64,13 @@ void LossEstimator::report_losses_() {
     const auto elapsed = limiter_.allow();
 
     if (elapsed > 0) {
-        const double loss_rate = losses_ / elapsed;
+        const double loss_rate = (double)losses_ / elapsed;
         const double avg_loss_rate = sma_(loss_rate);
 
         const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
         reporter_.report_losses(
-            loss_rate, (int)config_.report_sma_window, avg_loss_rate, loss_ratio);
+            loss_rate, avg_loss_rate, loss_ratio, (int)config_.report_sma_window);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;

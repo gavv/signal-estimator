@@ -37,11 +37,11 @@ private:
 
     const Config config_;
 
-    MovMax<double> signal_runmax_;
+    MovMax<float> signal_runmax_;
 
-    MovGradient<double> gradient_;
-    MovMax<double> gradient_runmax_;
-    SchmittTrigger<double> gradient_schmitt_;
+    MovGradient<float> gradient_;
+    MovMax<float> gradient_runmax_;
+    SchmittTrigger<float> gradient_schmitt_;
 
     bool leading_zeros_ { true };
     uint64_t signal_ {};

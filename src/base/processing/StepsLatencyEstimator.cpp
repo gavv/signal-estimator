@@ -15,72 +15,76 @@ StepsLatencyEstimator::StepTrigger::StepTrigger(const Config& config)
 
 void StepsLatencyEstimator::StepTrigger::add_frame(const Frame& frame) {
     for (size_t n = 0; n < frame.size(); n++) {
-        auto s = double(frame[n]);
+        auto s = (float)frame[n];
 
         s = std::abs(s);
         s = runmax_(s);
 
         if (schmitt_(s)) {
-            last_trigger_ts_.sw_hw = (double)frame.sw_frame_time() / 1000000.0;
-            last_trigger_ts_.hw = (double)frame.hw_sample_time(n) / 1000000.0;
+            last_trigger_ts_.sw_hw = (double)frame.sw_frame_time() / Millisecond;
+            last_trigger_ts_.hw = (double)frame.hw_sample_time(n) / Millisecond;
         }
     }
 }
 
 StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IReporter& reporter)
     : config_(config)
+    , thread_(&StepsLatencyEstimator::run_, this)
     , output_trigger_(config_)
     , input_trigger_(config_)
     , sma_(config.report_sma_window)
     , reporter_(reporter) {
 }
 
+StepsLatencyEstimator::~StepsLatencyEstimator() {
+    if (thread_.joinable()) {
+        thread_.join();
+    }
+}
+
 void StepsLatencyEstimator::add_output(FramePtr frame) {
-    if (!frame) {
-        return;
-    }
-    output_trigger_.add_frame(*frame);
-
-    LatencyReport report;
-
-    if (check_output_(report)) {
-        print_report_(report);
-    }
-    frame.reset();
+    queue_.push(frame);
 }
 
 void StepsLatencyEstimator::add_input(FramePtr frame) {
-    if (!frame) {
-        return;
-    }
-    input_trigger_.add_frame(*frame);
+    queue_.push(frame);
+}
 
-    LatencyReport report;
+void StepsLatencyEstimator::run_() {
+    while (auto frame = queue_.wait_pop()) {
+        if (frame->dir() == Dir::Output) {
+            output_trigger_.add_frame(*frame);
 
-    if (check_input_(report)) {
-        print_report_(report);
+            LatencyReport report;
+
+            if (check_output_(report)) {
+                print_report_(report);
+            }
+        } else {
+            input_trigger_.add_frame(*frame);
+
+            LatencyReport report;
+
+            if (check_input_(report)) {
+                print_report_(report);
+            }
+        }
     }
 }
 
 bool StepsLatencyEstimator::check_output_(LatencyReport& report) {
-    std::unique_lock lock(mutex_);
-
     if (!output_ts_.is_equal(output_trigger_.last_trigger_ts())) {
         output_ts_ = output_trigger_.last_trigger_ts();
         return check_step_(report);
     }
-
     return false;
 }
 
 bool StepsLatencyEstimator::check_input_(LatencyReport& report) {
-    std::unique_lock lock(mutex_);
-
     if (!input_ts_.is_equal(input_trigger_.last_trigger_ts())) {
         input_ts_ = input_trigger_.last_trigger_ts();
         return check_step_(report);
     }
-
     return false;
 }
 
@@ -102,7 +106,7 @@ bool StepsLatencyEstimator::check_step_(LatencyReport& report) {
 
 void StepsLatencyEstimator::print_report_(const LatencyReport& report) {
     reporter_.report_latency(
-        report.sw_hw, report.hw, (int)config_.report_sma_window, report.hw_avg);
+        report.sw_hw, report.hw, report.hw_avg, (int)config_.report_sma_window);
 }
 
 } // namespace signal_estimator

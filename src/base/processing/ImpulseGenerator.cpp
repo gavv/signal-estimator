@@ -24,7 +24,7 @@ void ImpulseGenerator::generate(Frame& frame) {
 
             for (size_t j = 0; j < num_ch; ++j) {
                 frame[i_frame + j]
-                    = sample_t(impulse_data_[counter_] * config_.gain * MaxSample);
+                    = saturated_cast(MaxSample * config_.gain * impulse_data_[counter_]);
             }
         }
 
