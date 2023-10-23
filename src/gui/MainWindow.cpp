@@ -27,7 +27,7 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
     ui->OutputSig->setCanvasBackground(Qt::white);
 
-    ui->OutputSig->setAxisVisible(QwtAxis::YRight, true);
+    ui->OutputSig->setAxisVisible(QwtPlot::yRight, true);
 
     outputCurve_->setPen(QColor(0x1f77b4));
     outputCurve_->attach(ui->OutputSig);
