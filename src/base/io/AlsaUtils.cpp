@@ -12,7 +12,7 @@ unsigned int alsa_nearest_buffer_size(unsigned int sample_rate, unsigned int n_c
     unsigned int latency_us, size_t periods) {
     unsigned int latency_samples
         = (unsigned int)((double)latency_us * sample_rate / 1000000);
-    while ((latency_samples * n_channels) % periods != 0) {
+    while ((latency_samples % (n_channels * periods)) != 0) {
         latency_samples++;
     }
     return latency_samples;
@@ -213,7 +213,7 @@ snd_pcm_t* alsa_open(const std::string& device, snd_pcm_stream_t stream,
 
     dev_info.short_name = device;
     dev_info.period_count = buffer_size / period_size;
-    dev_info.period_size = period_size * channel_count;
+    dev_info.period_size = period_size * config.channel_count;
     dev_info.channel_count = channel_count;
 
     return pcm;
