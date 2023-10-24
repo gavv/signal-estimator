@@ -50,7 +50,7 @@ struct Config {
     float measurement_duration { 0 };
 
     // how long to ignore input after startup, in seconds
-    float warmup_duration { 0 };
+    float warmup_duration { 1 };
 
     // number of samples per second per channel
     unsigned int sample_rate { 48000 };

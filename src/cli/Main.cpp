@@ -43,7 +43,8 @@ int main(int argc, char** argv) {
             "Limit measurement duration, seconds (zero for no limit)")
         ->default_val(config.measurement_duration);
     control_opts
-        ->add_option("-w,--warmup", config.warmup_duration, "Warmup duration, seconds")
+        ->add_option("-w,--warmup", config.warmup_duration,
+            "Warmup duration, seconds (zero for no warmup)")
         ->default_val(config.warmup_duration);
 
     auto io_opts = app.add_option_group("I/O options");
