@@ -88,7 +88,7 @@ CorrelationLatencyEstimator::Processor::Processor(const Config& config)
     std::fill(buff_.begin(), buff_.end(), 0.f);
 
     hw_search_start_ = 0;
-    hw_search_len_ = double(config_.impulse_period * Second)
+    hw_search_len_ = double(config_.impulse_interval * Second)
         - config_.frames_to_ns(impulse.size() * 2);
 }
 

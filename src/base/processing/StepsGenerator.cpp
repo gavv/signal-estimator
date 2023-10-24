@@ -10,7 +10,7 @@ namespace signal_estimator {
 
 StepsGenerator::StepsGenerator(const Config& config)
     : config_(config)
-    , step_period_(size_t(config.sample_rate * config.step_period))
+    , step_period_(size_t(config.sample_rate * config.step_interval))
     , step_length_(size_t(config.sample_rate * config.step_length))
     , warmup_countdown_(config.output_info.period_count) {
 }

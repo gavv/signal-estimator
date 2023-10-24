@@ -16,7 +16,7 @@ void ImpulseGenerator::generate(Frame& frame) {
 
     do {
         for (; i_frame < frame.size() && counter_ < impulse_size_
-             && counter_ < impulse_period_;
+             && counter_ < impulse_interval_;
              ++counter_, i_frame += num_ch) {
 
             assert(i_frame % num_ch == 0);
@@ -28,9 +28,9 @@ void ImpulseGenerator::generate(Frame& frame) {
             }
         }
 
-        if (i_frame < frame.size() && counter_ < impulse_period_) {
+        if (i_frame < frame.size() && counter_ < impulse_interval_) {
             const size_t n_fill = std::min(
-                (frame.size() - i_frame), (impulse_period_ - counter_) * num_ch);
+                (frame.size() - i_frame), (impulse_interval_ - counter_) * num_ch);
 
             assert(n_fill % num_ch == 0);
             assert(i_frame + n_fill <= frame.size());
@@ -39,7 +39,7 @@ void ImpulseGenerator::generate(Frame& frame) {
 
             counter_ += n_fill / num_ch;
             i_frame += n_fill;
-        } else if (counter_ >= impulse_period_) {
+        } else if (counter_ >= impulse_interval_) {
             counter_ = 0;
         }
     } while (i_frame < frame.size());

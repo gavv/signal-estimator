@@ -17,7 +17,7 @@ public:
         : config_(config)
         , impulse_data_(impulse.data())
         , impulse_size_(impulse.size())
-        , impulse_period_(size_t(config.impulse_period * config.sample_rate)) {
+        , impulse_interval_(size_t(config.impulse_interval * config.sample_rate)) {
     }
 
     ImpulseGenerator(const ImpulseGenerator&) = delete;
@@ -30,7 +30,7 @@ private:
 
     const float* impulse_data_;
     size_t impulse_size_;
-    const size_t impulse_period_;
+    const size_t impulse_interval_;
 
     size_t counter_ { 0 };
 };

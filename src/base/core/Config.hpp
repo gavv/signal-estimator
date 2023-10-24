@@ -86,7 +86,7 @@ struct Config {
     size_t dump_compression { 0 };
 
     // interval between strikes in seconds
-    float step_period { 1 };
+    float step_interval { 1 };
 
     // strike length in seconds
     float step_length { 0.1f };
@@ -104,7 +104,7 @@ struct Config {
     float impulse_avg_2_peak_ration_threshold { 4.0 };
 
     // interval between impulses in seconds
-    float impulse_period { 1 };
+    float impulse_interval { 1 };
 
     // running maximum window for signal detection
     size_t signal_detection_window { 48 };

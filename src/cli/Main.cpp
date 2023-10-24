@@ -96,8 +96,9 @@ int main(int argc, char** argv) {
     auto corr_opts = app.add_option_group("Correlation-based latency estimation options");
 
     corr_opts
-        ->add_option("--impulse-period", config.impulse_period, "Impulse period, seconds")
-        ->default_val(config.impulse_period);
+        ->add_option(
+            "--impulse-interval", config.impulse_interval, "Impulse interval, seconds")
+        ->default_val(config.impulse_interval);
     corr_opts
         ->add_option("--impulse-peak-noise-ratio",
             config.impulse_avg_2_peak_ration_threshold,
@@ -110,8 +111,9 @@ int main(int argc, char** argv) {
 
     auto step_opts = app.add_option_group("Step-based latency estimation options");
 
-    step_opts->add_option("--step-period", config.step_period, "Step period, seconds")
-        ->default_val(config.step_period);
+    step_opts
+        ->add_option("--step-interval", config.step_interval, "Step interval, seconds")
+        ->default_val(config.step_interval);
     step_opts->add_option("--step-length", config.step_length, "Step length, seconds")
         ->default_val(config.step_length);
     step_opts
