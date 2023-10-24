@@ -83,7 +83,7 @@ struct Config {
     size_t report_sma_window { 5 };
 
     // dump compression ratio
-    size_t dump_compression { 64 };
+    size_t dump_compression { 0 };
 
     // interval between strikes in seconds
     float step_period { 1 };
