@@ -14,7 +14,7 @@ namespace signal_estimator {
 // wraps another dumper and invokes it in background thread
 class AsyncDumper : public IDumper {
 public:
-    AsyncDumper(std::unique_ptr<IDumper> dumper);
+    AsyncDumper(std::shared_ptr<IDumper> dumper);
     ~AsyncDumper();
 
     AsyncDumper(const AsyncDumper&) = delete;
@@ -25,7 +25,7 @@ public:
 private:
     void run_();
 
-    std::unique_ptr<IDumper> dumper_;
+    std::shared_ptr<IDumper> dumper_;
     Queue<FramePtr> queue_;
     std::thread thread_;
 };

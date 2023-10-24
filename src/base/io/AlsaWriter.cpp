@@ -11,16 +11,15 @@ AlsaWriter::~AlsaWriter() {
     close();
 }
 
-bool AlsaWriter::open(Config& config, const char* device) {
+bool AlsaWriter::open(const Config& config, const std::string& device) {
     se_log_info("opening alsa writer for device {}", device);
 
-    pcm_ = alsa_open(device, SND_PCM_STREAM_PLAYBACK, config);
     config_ = config;
+    pcm_ = alsa_open(device.c_str(), SND_PCM_STREAM_PLAYBACK, config_, dev_info_);
 
-    frame_chans_ = config.channel_count;
-    buf_chans_ = config.output_channel_count;
-
-    buf_.resize(config.output_period_size / frame_chans_ * buf_chans_);
+    frame_chans_ = config_.channel_count;
+    dev_chans_ = dev_info_.channel_count;
+    dev_buf_.resize(dev_info_.period_size / frame_chans_ * dev_chans_);
 
     return pcm_;
 }
@@ -30,6 +29,10 @@ void AlsaWriter::close() {
         alsa_close(pcm_);
         pcm_ = nullptr;
     }
+}
+
+DevInfo AlsaWriter::info() const {
+    return dev_info_;
 }
 
 bool AlsaWriter::write(Frame& frame) {
@@ -51,14 +54,14 @@ bool AlsaWriter::write(Frame& frame) {
 
 int AlsaWriter::write_(Frame& frame) {
     // ensure that buffer size is fine
-    const size_t buf_samples = resize_buf_(frame);
+    const size_t dev_samples = resize_buf_(frame);
 
     // write from frame to buffer
     write_buf_(frame);
 
     // write from buffer to device
     if (snd_pcm_sframes_t err
-        = snd_pcm_writei(pcm_, buf_.data(), buf_samples / buf_chans_);
+        = snd_pcm_writei(pcm_, dev_buf_.data(), dev_samples / dev_chans_);
         err < 0) {
         return (int)err;
     }
@@ -74,10 +77,9 @@ int AlsaWriter::write_(Frame& frame) {
 
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
     const nanoseconds_t hw_time = sw_time + config_.frames_to_ns((size_t)delay)
-        - config_.frames_to_ns(buf_samples / buf_chans_);
+        - config_.frames_to_ns(dev_samples / dev_chans_);
     const nanoseconds_t hw_buf = config_.frames_to_ns(
-        config_.output_period_count * config_.output_period_size / config_.channel_count
-        - (size_t)avail);
+        dev_info_.period_count * dev_info_.period_size / frame_chans_ - (size_t)avail);
 
     frame.set_times(sw_time, hw_time, hw_buf);
 
@@ -85,31 +87,31 @@ int AlsaWriter::write_(Frame& frame) {
 }
 
 size_t AlsaWriter::resize_buf_(const Frame& frame) {
-    const size_t n_samples = frame.size() / frame_chans_ * buf_chans_;
+    const size_t dev_samples = frame.size() / frame_chans_ * dev_chans_;
 
-    if (buf_.size() < n_samples) {
-        buf_.resize(n_samples);
+    if (dev_buf_.size() < dev_samples) {
+        dev_buf_.resize(dev_samples);
     }
 
-    return n_samples;
+    return dev_samples;
 }
 
 void AlsaWriter::write_buf_(const Frame& frame) {
-    sample_t* buf_ptr = buf_.data();
+    sample_t* buf_ptr = dev_buf_.data();
     const sample_t* frame_ptr = frame.data();
 
     for (size_t ns = 0; ns < frame.size() / frame_chans_; ns++) {
         size_t buf_pos = 0, frame_pos = 0;
 
-        while (buf_pos < buf_chans_ && frame_pos < frame_chans_) {
+        while (buf_pos < dev_chans_ && frame_pos < frame_chans_) {
             buf_ptr[buf_pos++] = frame_ptr[frame_pos++];
         }
 
-        while (buf_pos < buf_chans_) {
+        while (buf_pos < dev_chans_) {
             buf_ptr[buf_pos++] = frame_ptr[frame_chans_ - 1];
         }
 
-        buf_ptr += buf_chans_;
+        buf_ptr += dev_chans_;
         frame_ptr += frame_chans_;
     }
 }

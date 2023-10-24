@@ -8,9 +8,10 @@
 #include "dumps/IDumper.hpp"
 #include "processing/MovAvg.hpp"
 
-#include <cstdint>
 #include <cstdlib>
 #include <optional>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace signal_estimator {
@@ -27,7 +28,7 @@ public:
     CsvDumper(const CsvDumper&) = delete;
     CsvDumper& operator=(const CsvDumper&) = delete;
 
-    bool open(const char* filename);
+    bool open(const std::string& filename);
     void close();
 
     void write(FramePtr frame) override;
@@ -35,7 +36,9 @@ public:
 private:
     void print_header_();
     void print_frame_(const Frame& frame);
-    void print_line_(Dir dir, nanoseconds_t timestamp);
+    void print_line_(Dir dir, const char* dev, nanoseconds_t timestamp);
+
+    const char* quote_dev_(const DevInfo& dev_info);
 
     const Config config_;
 
@@ -48,6 +51,8 @@ private:
 
     FILE* fp_ {};
     std::vector<char> buf_;
+
+    std::unordered_map<std::string, std::string> quoted_devs_;
 };
 
 } // namespace signal_estimator

@@ -34,7 +34,8 @@ int main(int argc, char** argv) {
             "Operation mode: latency_corr|latency_step|losses|io_jitter")
         ->default_str(mode);
     control_opts->add_option("-o,--output", config.output_dev, "Output device name");
-    control_opts->add_option("-i,--input", config.input_dev, "Input device name");
+    control_opts->add_option("-i,--input", config.input_devs, "Input device name")
+        ->expected(0, -1);
     control_opts
         ->add_option("-d,--duration", config.measurement_duration,
             "Limit measurement duration, seconds (zero for no limit)")
@@ -52,21 +53,21 @@ int main(int argc, char** argv) {
     io_opts->add_option("-g,--gain", config.gain, "Signal gain, from 0 to 1")
         ->default_val(config.gain);
     io_opts
-        ->add_option("--in-latency", config.input_latency_us,
+        ->add_option("--in-latency", config.requested_input_latency_us,
             "Input ring buffer size, microseconds")
-        ->default_val(config.input_latency_us);
+        ->default_val(config.requested_input_latency_us);
     io_opts
-        ->add_option("--in-periods", config.input_period_count,
+        ->add_option("--in-periods", config.requested_input_period_count,
             "Number of periods in input ring buffer")
-        ->default_val(config.input_period_count);
+        ->default_val(config.requested_input_period_count);
     io_opts
-        ->add_option("--out-latency", config.output_latency_us,
+        ->add_option("--out-latency", config.requested_output_latency_us,
             "Output ring buffer size, microseconds")
-        ->default_val(config.output_latency_us);
+        ->default_val(config.requested_output_latency_us);
     io_opts
-        ->add_option("--out-periods", config.output_period_count,
+        ->add_option("--out-periods", config.requested_output_period_count,
             "Number of periods in output ring buffer")
-        ->default_val(config.output_period_count);
+        ->default_val(config.requested_output_period_count);
 
     auto report_opts = app.add_option_group("Report options");
 
@@ -155,6 +156,7 @@ int main(int argc, char** argv) {
         return app.exit(e);
     }
 
+    // parse mode
     const std::map<std::string, Mode> mode_map {
         { "latency_corr", Mode::LatencyCorr },
         { "latency_step", Mode::LatencyStep },
@@ -163,61 +165,70 @@ int main(int argc, char** argv) {
     };
 
     if (!mode_map.count(mode)) {
-        std::cerr << "invalid --mode\n";
+        std::cerr << "--mode: Invalid value\n";
         std::cerr << "Run with --help for more information.\n";
-        exit(1);
+        return EXIT_FAILURE;
     }
 
     config.mode = mode_map.at(mode);
 
+    // parse format
     const std::map<std::string, Format> format_map {
         { "text", Format::Text },
         { "json", Format::Json },
     };
 
     if (!format_map.count(report_format)) {
-        std::cerr << "invalid --report-format\n";
+        std::cerr << "--report-format: Invalid value\n";
         std::cerr << "Run with --help for more information.\n";
-        exit(1);
+        return EXIT_FAILURE;
     }
 
     config.report_format = format_map.at(report_format);
 
+    // validate devices
+    const bool have_output = !config.output_dev.empty();
+    const bool have_input = !config.input_devs.empty();
+
     if (config.mode != Mode::IOJitter) {
-        if (config.input_dev.empty() || config.output_dev.empty()) {
-            std::cerr << mode << " mode requires --input and --output devices\n";
-            exit(1);
+        if (!have_output || !have_input) {
+            std::cerr << "--mode " << mode << " requires one --output device AND\n"
+                      << "one or more --input devices\n";
+            std::cerr << "Run with --help for more information.\n";
+            return EXIT_FAILURE;
         }
     } else {
-        if ((config.input_dev.empty() && config.output_dev.empty())
-            || (!config.input_dev.empty() && !config.output_dev.empty())) {
-            std::cerr << mode
-                      << " mode requires exactly one --input or --output device\n";
-            exit(1);
+        if ((have_output && have_input) || (!have_output && !have_input)) {
+            std::cerr << "--mode " << mode
+                      << " requires either one --output device OR\n"
+                         "one or more --input devices\n";
+            std::cerr << "Run with --help for more information.\n";
+            return EXIT_FAILURE;
         }
     }
 
+    // setup and run
     init_log(verbosity);
 
     const int code = [&]() {
         Runner runner(config);
 
         if (!runner.start()) {
-            return 1;
+            return EXIT_FAILURE;
         }
 
         runner.wait();
 
         if (runner.failed()) {
-            return 1;
+            return EXIT_FAILURE;
         }
 
-        return 0;
+        return EXIT_SUCCESS;
     }();
 
     if (code != 0) {
         se_log_debug("exiting with code {}", code);
     }
 
-    return 0;
+    return code;
 }

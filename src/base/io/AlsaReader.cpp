@@ -11,16 +11,15 @@ AlsaReader::~AlsaReader() {
     close();
 }
 
-bool AlsaReader::open(Config& config, const char* device) {
+bool AlsaReader::open(const Config& config, const std::string& device) {
     se_log_info("opening alsa reader for device {}", device);
 
-    pcm_ = alsa_open(device, SND_PCM_STREAM_CAPTURE, config);
     config_ = config;
+    pcm_ = alsa_open(device.c_str(), SND_PCM_STREAM_CAPTURE, config_, dev_info_);
 
     frame_chans_ = config.channel_count;
-    buf_chans_ = config.input_channel_count;
-
-    buf_.resize(config.input_period_size / frame_chans_ * buf_chans_);
+    dev_chans_ = dev_info_.channel_count;
+    dev_buf_.resize(dev_info_.period_size / frame_chans_ * dev_chans_);
 
     return pcm_;
 }
@@ -30,6 +29,10 @@ void AlsaReader::close() {
         alsa_close(pcm_);
         pcm_ = nullptr;
     }
+}
+
+DevInfo AlsaReader::info() const {
+    return dev_info_;
 }
 
 bool AlsaReader::read(Frame& frame) {
@@ -51,11 +54,11 @@ bool AlsaReader::read(Frame& frame) {
 
 int AlsaReader::read_(Frame& frame) {
     // ensure that buffer size is fine
-    const size_t buf_samples = resize_buf_(frame);
+    const size_t dev_samples = resize_buf_(frame);
 
     // read from device to buffer
     if (snd_pcm_sframes_t err
-        = snd_pcm_readi(pcm_, buf_.data(), buf_samples / buf_chans_);
+        = snd_pcm_readi(pcm_, dev_buf_.data(), dev_samples / dev_chans_);
         err < 0) {
         return (int)err;
     }
@@ -71,7 +74,7 @@ int AlsaReader::read_(Frame& frame) {
 
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
     const nanoseconds_t hw_time = sw_time - config_.frames_to_ns((size_t)delay)
-        + config_.frames_to_ns(buf_samples / buf_chans_);
+        + config_.frames_to_ns(dev_samples / dev_chans_);
     const nanoseconds_t hw_buf = config_.frames_to_ns((size_t)avail);
 
     frame.set_times(sw_time, hw_time, hw_buf);
@@ -83,32 +86,32 @@ int AlsaReader::read_(Frame& frame) {
 }
 
 size_t AlsaReader::resize_buf_(const Frame& frame) {
-    const size_t n_samples = frame.size() / frame_chans_ * buf_chans_;
+    const size_t dev_samples = frame.size() / frame_chans_ * dev_chans_;
 
-    if (buf_.size() < n_samples) {
-        buf_.resize(n_samples);
+    if (dev_buf_.size() < dev_samples) {
+        dev_buf_.resize(dev_samples);
     }
 
-    return n_samples;
+    return dev_samples;
 }
 
 void AlsaReader::read_buf_(Frame& frame) {
     sample_t* frame_ptr = frame.data();
-    const sample_t* buf_ptr = buf_.data();
+    const sample_t* buf_ptr = dev_buf_.data();
 
     for (size_t ns = 0; ns < frame.size() / frame_chans_; ns++) {
         size_t frame_pos = 0, buf_pos = 0;
 
-        while (frame_pos < frame_chans_ && buf_pos < buf_chans_) {
+        while (frame_pos < frame_chans_ && buf_pos < dev_chans_) {
             frame_ptr[frame_pos++] = buf_ptr[buf_pos++];
         }
 
         while (frame_pos < frame_chans_) {
-            frame_ptr[frame_pos++] = buf_ptr[buf_chans_ - 1];
+            frame_ptr[frame_pos++] = buf_ptr[dev_chans_ - 1];
         }
 
         frame_ptr += frame_chans_;
-        buf_ptr += buf_chans_;
+        buf_ptr += dev_chans_;
     }
 }
 

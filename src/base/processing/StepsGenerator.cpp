@@ -12,7 +12,7 @@ StepsGenerator::StepsGenerator(const Config& config)
     : config_(config)
     , step_period_(size_t(config.sample_rate * config.step_period))
     , step_length_(size_t(config.sample_rate * config.step_length))
-    , warmup_countdown_(config.output_period_count) {
+    , warmup_countdown_(config.output_info.period_count) {
 }
 
 void StepsGenerator::generate(Frame& frame) {

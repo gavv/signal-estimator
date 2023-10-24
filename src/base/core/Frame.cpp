@@ -11,7 +11,7 @@ namespace signal_estimator {
 Frame::Frame(const Config& config, FramePool& pool)
     : config_(config)
     , pool_(pool) {
-    data_.reserve(std::max(config_.output_period_size, config_.input_period_size));
+    data_.reserve(config_.frame_size);
 }
 
 int Frame::get_ref() const {
@@ -35,16 +35,34 @@ void Frame::sub_ref() {
     }
 }
 
-void Frame::reset(Dir dir) {
-    data_.resize(
-        dir == Dir::Output ? config_.output_period_size : config_.input_period_size);
-
-    std::fill(data_.begin(), data_.end(), sample_t(0));
-
+void Frame::reset(Dir dir, size_t dev_index) {
     dir_ = dir;
+    dev_index_ = dev_index;
+
+    size_ = dev().period_size;
+    assert(size_ > 0);
+    if (data_.size() < size_) {
+        data_.resize(size_);
+    }
+    std::fill_n(data_.data(), size_, 0);
 
     sw_time_ = 0;
     hw_time_ = 0;
+    hw_buf_ = 0;
+}
+
+const DevInfo& Frame::dev() const {
+    switch (dir_) {
+    case Dir::Output:
+        assert(dev_index_ == 0);
+        return config_.output_info;
+
+    case Dir::Input:
+        break;
+    }
+
+    assert(dev_index_ < config_.input_info.size());
+    return config_.input_info[dev_index_];
 }
 
 Dir Frame::dir() const {
@@ -52,16 +70,16 @@ Dir Frame::dir() const {
 }
 
 size_t Frame::size() const {
-    return data_.size();
+    return size_;
 }
 
 const sample_t* Frame::data() const {
-    assert(data_.size() > 0);
+    assert(size_ > 0);
     return &data_[0];
 }
 
 sample_t* Frame::data() {
-    assert(data_.size() > 0);
+    assert(size_ > 0);
     return &data_[0];
 }
 

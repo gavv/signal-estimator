@@ -20,7 +20,8 @@ namespace signal_estimator {
 // calculates jitter of frame timestamps
 class IOJitterEstimator : public IEstimator {
 public:
-    IOJitterEstimator(const Config& config, Dir dir, IReporter& reporter);
+    IOJitterEstimator(
+        const Config& config, const DevInfo& dev_info, Dir dir, IReporter& reporter);
     ~IOJitterEstimator() override;
 
     IOJitterEstimator(const IOJitterEstimator&) = delete;
@@ -42,7 +43,7 @@ private:
         // ideal period
         const double ideal_period;
 
-        JitterStats(const Config& config, Dir dir);
+        JitterStats(const Config& config, const DevInfo& dev_info);
 
         void update(nanoseconds_t next_ts);
     };
@@ -59,6 +60,7 @@ private:
     };
 
     const Config config_;
+    const DevInfo dev_info_;
     const Dir dir_;
 
     Queue<FramePtr> queue_;

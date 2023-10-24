@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include "core/DevInfo.hpp"
 #include "core/Dir.hpp"
 #include "core/Time.hpp"
 
 #include <cstdlib>
 #include <string>
+#include <vector>
 
 namespace signal_estimator {
 
@@ -30,50 +32,49 @@ struct Config {
     // report format
     Format report_format { Format::Text };
 
+    // whether to show device names in reports and dumps
+    bool show_device_names { false };
+
     // device names
-    std::string output_dev, input_dev;
+    std::string output_dev;
+    std::vector<std::string> input_devs;
 
     // dump files
-    std::string output_dump, input_dump;
+    std::string output_dump;
+    std::string input_dump;
 
     // total measurement duration
     float measurement_duration { 0 };
 
-    // how long do not process signals in seconds
+    // how long to ignore input after startup, in seconds
     float warmup_duration { 0 };
 
     // number of samples per second per channel
     unsigned int sample_rate { 48000 };
 
-    // stereo (L and R)
+    // channel count for processing
     unsigned int channel_count { 2 };
 
     // probe signal gain
     float gain { 0.8f };
 
-    // desired output latency in microseconds
-    unsigned int output_latency_us { 8000 };
+    // desired output latency, in microseconds
+    unsigned int requested_output_latency_us { 8000 };
 
-    // number of periods per output buffer
-    unsigned int output_period_count { 2 };
+    // desired number of periods in output ring buffer(s)
+    unsigned int requested_output_period_count { 2 };
 
-    // number of samples per output period
-    unsigned int output_period_size { 0 };
+    // desired input latency, in microseconds
+    unsigned int requested_input_latency_us { 8000 };
 
-    // number of output channels
-    unsigned int output_channel_count { 0 };
+    // desired number of periods in input ring buffer(s)
+    unsigned int requested_input_period_count { 2 };
 
-    // desired input latency in microseconds
-    unsigned int input_latency_us { 8000 };
+    // output device info
+    DevInfo output_info;
 
-    // number of periods per input buffer
-    unsigned int input_period_count { 2 };
-
-    // number of samples per input period
-    unsigned int input_period_size { 0 };
-
-    // number of input channels
-    unsigned int input_channel_count { 0 };
+    // input device(s) info
+    std::vector<DevInfo> input_info;
 
     // sma window for latency reports, in seconds
     size_t report_sma_window { 5 };
@@ -120,43 +121,20 @@ struct Config {
     // percentile for jitter reports, from 0 to 100
     size_t io_jitter_percentile { 95 };
 
+    // default number of samples for each frame
+    size_t frame_size { 0 };
+
     // number of pre-allocated frames in frame pool
     size_t frame_pool_size { 128 };
-
-    // get buffer size
-    size_t buffer_size(Dir dir) const {
-        return dir == Dir::Output ? output_period_count * output_period_size
-                                  : input_period_count * input_period_size;
-    }
-
-    // get period size
-    size_t period_size(Dir dir) const {
-        return dir == Dir::Output ? output_period_size : input_period_size;
-    }
-
-    // get period count
-    size_t period_count(Dir dir) const {
-        return dir == Dir::Output ? output_period_count : input_period_count;
-    }
 
     // get warmup duration in samples
     size_t warmup_samples() const {
         return size_t(sample_rate * warmup_duration) * channel_count;
     }
 
-    // get warmup duration in periods
-    size_t warmup_periods(Dir dir) const {
-        return warmup_samples() / period_size(dir);
-    }
-
     // get test duration in samples
     size_t total_samples() const {
         return size_t(sample_rate * measurement_duration) * channel_count;
-    }
-
-    // get test duration in periods
-    size_t total_periods(Dir dir) const {
-        return total_samples() / period_size(dir);
     }
 
     // convert number of samples (all channels) to number of nanoseconds

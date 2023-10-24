@@ -4,11 +4,13 @@
 #pragma once
 
 #include "core/Config.hpp"
+#include "core/DevInfo.hpp"
 #include "core/Frame.hpp"
 #include "io/IDeviceWriter.hpp"
 
 #include <cstdint>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
 #include <alsa/asoundlib.h>
@@ -23,8 +25,10 @@ public:
     AlsaWriter(const AlsaWriter&) = delete;
     AlsaWriter& operator=(const AlsaWriter&) = delete;
 
-    bool open(Config& config, const char* device);
+    bool open(const Config& config, const std::string& device);
     void close();
+
+    DevInfo info() const;
 
     bool write(Frame& frame) override;
 
@@ -35,10 +39,11 @@ private:
     void write_buf_(const Frame& frame);
 
     Config config_;
+    DevInfo dev_info_;
     snd_pcm_t* pcm_ {};
 
-    std::vector<sample_t> buf_;
-    size_t buf_chans_ {};
+    std::vector<sample_t> dev_buf_;
+    size_t dev_chans_ {};
     size_t frame_chans_ {};
 };
 

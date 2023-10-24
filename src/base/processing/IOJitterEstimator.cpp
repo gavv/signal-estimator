@@ -6,10 +6,10 @@
 
 namespace signal_estimator {
 
-IOJitterEstimator::JitterStats::JitterStats(const Config& config, Dir dir)
+IOJitterEstimator::JitterStats::JitterStats(const Config& config, const DevInfo& dev_info)
     : dev_avg(config.io_jitter_window)
     , dev_per(config.io_jitter_window, config.io_jitter_percentile / 100.)
-    , ideal_period((double)config.samples_to_ns(config.period_size(dir)) / Millisecond) {
+    , ideal_period((double)config.samples_to_ns(dev_info.period_size) / Millisecond) {
 }
 
 void IOJitterEstimator::JitterStats::update(nanoseconds_t next_ts) {
@@ -37,12 +37,14 @@ void IOJitterEstimator::BufStats::update(nanoseconds_t buf_len) {
     len_per.add(len_ms);
 }
 
-IOJitterEstimator::IOJitterEstimator(const Config& config, Dir dir, IReporter& reporter)
+IOJitterEstimator::IOJitterEstimator(
+    const Config& config, const DevInfo& dev_info, Dir dir, IReporter& reporter)
     : config_(config)
+    , dev_info_(dev_info)
     , dir_(dir)
     , thread_(&IOJitterEstimator::run_, this)
-    , sw_stats_(config, dir)
-    , hw_stats_(config, dir)
+    , sw_stats_(config, dev_info)
+    , hw_stats_(config, dev_info)
     , buf_stats_(config)
     , reporter_(reporter) {
 }

@@ -29,7 +29,10 @@ public:
     Frame& operator=(const Frame&) = delete;
 
     // reset frame to initial state
-    void reset(Dir dir);
+    void reset(Dir dir, size_t dev_index);
+
+    // source or destination device
+    const DevInfo& dev() const;
 
     // frame direction (input or output)
     Dir dir() const;
@@ -78,11 +81,15 @@ private:
     FramePool& pool_;
 
     Dir dir_ {};
+    size_t dev_index_ {};
+
+    std::vector<sample_t> data_;
+    size_t size_ {};
+
     nanoseconds_t sw_time_ {};
     nanoseconds_t hw_time_ {};
     nanoseconds_t hw_buf_ {};
 
-    std::vector<sample_t> data_;
     std::atomic<int> refcount_ {};
 };
 

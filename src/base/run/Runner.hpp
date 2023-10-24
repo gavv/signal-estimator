@@ -11,10 +11,12 @@
 #include "processing/IEstimator.hpp"
 #include "processing/IGenerator.hpp"
 #include "reports/IReporter.hpp"
+#include "reports/JsonReporter.hpp"
 
 #include <atomic>
 #include <memory>
 #include <thread>
+#include <vector>
 
 namespace signal_estimator {
 
@@ -34,25 +36,26 @@ public:
 
 private:
     void output_loop_();
-    void input_loop_();
+    void input_loop_(size_t dev_index);
 
     Config config_;
 
     std::unique_ptr<IDeviceWriter> output_writer_;
-    std::unique_ptr<IDeviceReader> input_reader_;
+    std::vector<std::unique_ptr<IDeviceReader>> input_readers_;
 
     std::unique_ptr<FramePool> frame_pool_;
 
-    std::unique_ptr<IReporter> reporter_;
+    std::unique_ptr<JsonPrinter> json_printer_;
+    std::vector<std::unique_ptr<IReporter>> reporters_;
 
     std::unique_ptr<IGenerator> generator_;
-    std::unique_ptr<IEstimator> estimator_;
+    std::vector<std::unique_ptr<IEstimator>> estimators_;
 
-    std::unique_ptr<IDumper> output_dumper_;
-    std::unique_ptr<IDumper> input_dumper_;
+    std::shared_ptr<IDumper> output_dumper_;
+    std::shared_ptr<IDumper> input_dumper_;
 
     std::thread output_thread_;
-    std::thread input_thread_;
+    std::vector<std::thread> input_threads_;
 
     std::atomic_bool stop_ { false };
     std::atomic_bool fail_ { false };

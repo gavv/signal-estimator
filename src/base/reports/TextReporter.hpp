@@ -3,14 +3,16 @@
 
 #pragma once
 
+#include "core/Config.hpp"
 #include "reports/IReporter.hpp"
+
+#include <string>
 
 namespace signal_estimator {
 
 class TextReporter : public IReporter {
 public:
-    TextReporter() = default;
-    ~TextReporter() override = default;
+    TextReporter(const Config& config, const std::string& dev_name);
 
     TextReporter(const TextReporter&) = delete;
     TextReporter& operator=(const TextReporter&) = delete;
@@ -20,6 +22,9 @@ public:
         int sma_window) override;
     void report_jitter(double swdev_avg, double swdev_per, double hwdev_avg,
         double hwdev_per, double hwbuf_avg, double hwbuf_per, int percentile) override;
+
+private:
+    std::string suffix_;
 };
 
 } // namespace signal_estimator

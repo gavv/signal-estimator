@@ -19,6 +19,8 @@
 #include "reports/JsonReporter.hpp"
 #include "reports/TextReporter.hpp"
 
+#include <algorithm>
+
 namespace signal_estimator {
 
 Runner::Runner(const Config& config)
@@ -37,36 +39,43 @@ bool Runner::failed() const {
 bool Runner::start() {
     if (!config_.output_dev.empty()) {
         auto alsa_writer = std::make_unique<AlsaWriter>();
-        // may update config
-        if (!alsa_writer->open(config_, config_.output_dev.c_str())) {
+        if (!alsa_writer->open(config_, config_.output_dev)) {
             fail_ = true;
             return false;
         }
+        config_.output_info = alsa_writer->info();
         output_writer_ = std::move(alsa_writer);
     }
 
-    if (!config_.input_dev.empty()) {
+    for (const auto& input_dev : config_.input_devs) {
         auto alsa_reader = std::make_unique<AlsaReader>();
-        // may update config
-        if (!alsa_reader->open(config_, config_.input_dev.c_str())) {
+        if (!alsa_reader->open(config_, input_dev)) {
             fail_ = true;
             return false;
         }
-        input_reader_ = std::move(alsa_reader);
+        config_.input_info.emplace_back(alsa_reader->info());
+        input_readers_.emplace_back(std::move(alsa_reader));
     }
 
+    config_.frame_size = config_.output_info.period_size;
+    for (const auto& input_info : config_.input_info) {
+        config_.frame_size = std::max(config_.frame_size, (size_t)input_info.period_size);
+    }
+
+    config_.show_device_names = input_readers_.size() > 1;
+
     if (!config_.output_dump.empty()) {
-        auto csv_dumper = std::make_unique<CsvDumper>(config_);
-        if (!csv_dumper->open(config_.output_dump.c_str())) {
+        auto csv_dumper = std::make_shared<CsvDumper>(config_);
+        if (!csv_dumper->open(config_.output_dump)) {
             fail_ = true;
             return false;
         }
         output_dumper_ = std::move(csv_dumper);
     }
 
-    if (!config_.input_dump.empty()) {
-        auto csv_dumper = std::make_unique<CsvDumper>(config_);
-        if (!csv_dumper->open(config_.input_dump.c_str())) {
+    if (!config_.input_dump.empty() && config_.input_dump != config_.output_dump) {
+        auto csv_dumper = std::make_shared<CsvDumper>(config_);
+        if (!csv_dumper->open(config_.input_dump)) {
             fail_ = true;
             return false;
         }
@@ -74,25 +83,72 @@ bool Runner::start() {
     }
 
     if (output_dumper_) {
-        output_dumper_ = std::make_unique<AsyncDumper>(std::move(output_dumper_));
+        output_dumper_ = std::make_shared<AsyncDumper>(std::move(output_dumper_));
     }
 
     if (input_dumper_) {
-        input_dumper_ = std::make_unique<AsyncDumper>(std::move(input_dumper_));
+        input_dumper_ = std::make_shared<AsyncDumper>(std::move(input_dumper_));
+    } else if (config_.input_dump == config_.output_dump) {
+        input_dumper_ = output_dumper_;
     }
 
     se_log_info("starting measurement");
 
     frame_pool_ = std::make_unique<FramePool>(config_);
 
-    switch (config_.report_format) {
-    case Format::Text:
-        reporter_ = std::make_unique<TextReporter>();
-        break;
+    size_t num_reporters = 0;
+    if (config_.mode != Mode::IOJitter) {
+        num_reporters = input_readers_.size();
+    } else {
+        if (input_readers_.size() != 0) {
+            num_reporters = input_readers_.size();
+        } else if (output_writer_) {
+            num_reporters = 1;
+        }
+    }
 
-    case Format::Json:
-        reporter_ = std::make_unique<JsonReporter>();
-        break;
+    for (size_t n = 0; n < num_reporters; n++) {
+        const auto dev_name = input_readers_.size() != 0
+            ? config_.input_info[n].short_name
+            : config_.output_info.short_name;
+
+        switch (config_.report_format) {
+        case Format::Text:
+            reporters_.emplace_back(std::make_unique<TextReporter>(config_, dev_name));
+            break;
+
+        case Format::Json:
+            if (!json_printer_) {
+                json_printer_ = std::make_unique<JsonPrinter>();
+            }
+            reporters_.emplace_back(
+                std::make_unique<JsonReporter>(*json_printer_, dev_name));
+            break;
+        }
+    }
+
+    for (size_t n = 0; n < input_readers_.size(); n++) {
+        switch (config_.mode) {
+        case Mode::LatencyCorr:
+            estimators_.emplace_back(
+                std::make_unique<CorrelationLatencyEstimator>(config_, *reporters_[n]));
+            break;
+
+        case Mode::LatencyStep:
+            estimators_.emplace_back(
+                std::make_unique<StepsLatencyEstimator>(config_, *reporters_[n]));
+            break;
+
+        case Mode::Losses:
+            estimators_.emplace_back(
+                std::make_unique<LossEstimator>(config_, *reporters_[n]));
+            break;
+
+        case Mode::IOJitter:
+            estimators_.emplace_back(std::make_unique<IOJitterEstimator>(
+                config_, config_.input_info[n], Dir::Input, *reporters_[n]));
+            break;
+        }
     }
 
     if (output_writer_) {
@@ -111,32 +167,8 @@ bool Runner::start() {
 
         case Mode::IOJitter:
             generator_ = std::make_unique<ContinuousGenerator>(config_);
-            if (!input_reader_) {
-                estimator_ = std::make_unique<IOJitterEstimator>(
-                    config_, Dir::Output, *reporter_);
-            }
-            break;
-        }
-    }
-
-    if (input_reader_) {
-        switch (config_.mode) {
-        case Mode::LatencyCorr:
-            estimator_
-                = std::make_unique<CorrelationLatencyEstimator>(config_, *reporter_);
-            break;
-
-        case Mode::LatencyStep:
-            estimator_ = std::make_unique<StepsLatencyEstimator>(config_, *reporter_);
-            break;
-
-        case Mode::Losses:
-            estimator_ = std::make_unique<LossEstimator>(config_, *reporter_);
-            break;
-
-        case Mode::IOJitter:
-            estimator_
-                = std::make_unique<IOJitterEstimator>(config_, Dir::Input, *reporter_);
+            estimators_.emplace_back(std::make_unique<IOJitterEstimator>(
+                config_, config_.output_info, Dir::Output, *reporters_[0]));
             break;
         }
     }
@@ -145,8 +177,8 @@ bool Runner::start() {
         output_thread_ = std::thread(&Runner::output_loop_, this);
     }
 
-    if (input_reader_) {
-        input_thread_ = std::thread(&Runner::input_loop_, this);
+    for (size_t n = 0; n < input_readers_.size(); n++) {
+        input_threads_.emplace_back(std::thread(&Runner::input_loop_, this, n));
     }
 
     return true;
@@ -161,22 +193,25 @@ void Runner::wait() {
         output_thread_.join();
     }
 
-    if (input_thread_.joinable()) {
-        input_thread_.join();
+    for (auto& input_thread : input_threads_) {
+        if (input_thread.joinable()) {
+            input_thread.join();
+        }
     }
 }
 
 void Runner::output_loop_() {
     make_realtime();
 
-    const size_t total_periods = config_.total_periods(Dir::Output);
+    uint64_t current_samples = 0, total_samples = config_.total_samples(),
+             warmup_samples = config_.warmup_samples();
 
-    for (size_t n = 0; n < total_periods || total_periods == 0; n++) {
+    while (current_samples < total_samples || total_samples == 0) {
         if (stop_ || fail_) {
             break;
         }
 
-        auto frame = frame_pool_->allocate(Dir::Output);
+        auto frame = frame_pool_->allocate(Dir::Output, 0);
 
         if (generator_) {
             generator_->generate(*frame);
@@ -188,12 +223,16 @@ void Runner::output_loop_() {
             break;
         }
 
-        if (n < config_.warmup_periods(Dir::Output)) {
+        current_samples += frame->size();
+
+        if (current_samples < warmup_samples) {
             continue;
         }
 
-        if (estimator_) {
-            estimator_->add_output(frame);
+        for (auto& estimator : estimators_) {
+            if (estimator) {
+                estimator->add_output(frame);
+            }
         }
 
         if (output_dumper_) {
@@ -201,35 +240,40 @@ void Runner::output_loop_() {
         }
     }
 
-    if (estimator_) {
-        estimator_->add_output(nullptr);
+    for (auto& estimator : estimators_) {
+        if (estimator) {
+            estimator->add_output(nullptr);
+        }
     }
 }
 
-void Runner::input_loop_() {
+void Runner::input_loop_(size_t dev_index) {
     make_realtime();
 
-    const size_t total_periods = config_.total_periods(Dir::Input);
+    uint64_t current_samples = 0, total_samples = config_.total_samples(),
+             warmup_samples = config_.warmup_samples();
 
-    for (size_t n = 0; n < total_periods || total_periods == 0; n++) {
+    while (current_samples < total_samples || total_samples == 0) {
         if (stop_ || fail_) {
             break;
         }
 
-        auto frame = frame_pool_->allocate(Dir::Input);
+        auto frame = frame_pool_->allocate(Dir::Input, dev_index);
 
-        if (!input_reader_->read(*frame)) {
+        if (!input_readers_[dev_index]->read(*frame)) {
             se_log_error("got error from input device, exiting");
             fail_ = true;
             break;
         }
 
-        if (n < config_.warmup_periods(Dir::Input)) {
+        current_samples += frame->size();
+
+        if (current_samples < warmup_samples) {
             continue;
         }
 
-        if (estimator_) {
-            estimator_->add_input(frame);
+        if (estimators_[dev_index]) {
+            estimators_[dev_index]->add_input(frame);
         }
 
         if (input_dumper_) {
@@ -237,8 +281,8 @@ void Runner::input_loop_() {
         }
     }
 
-    if (estimator_) {
-        estimator_->add_input(nullptr);
+    if (estimators_[dev_index]) {
+        estimators_[dev_index]->add_input(nullptr);
     }
 }
 

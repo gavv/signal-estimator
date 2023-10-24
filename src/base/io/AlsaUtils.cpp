@@ -183,11 +183,12 @@ bool alsa_set_sw_params(snd_pcm_t* pcm, snd_pcm_stream_t mode,
 
 } // namespace
 
-snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t stream, Config& config) {
+snd_pcm_t* alsa_open(const std::string& device, snd_pcm_stream_t stream,
+    const Config& config, DevInfo& dev_info) {
     snd_pcm_t* pcm = nullptr;
 
     int err = 0;
-    if ((err = snd_pcm_open(&pcm, device, stream, 0)) < 0) {
+    if ((err = snd_pcm_open(&pcm, device.c_str(), stream, 0)) < 0) {
         se_log_error("can't open alsa device: snd_pcm_open(): {}", snd_strerror(err));
         return nullptr;
     }
@@ -199,10 +200,10 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t stream, Config& config
     if (!alsa_set_hw_params(pcm, &period_size, &buffer_size,
             SND_PCM_ACCESS_RW_INTERLEAVED, SND_PCM_FORMAT_S16_LE, config.sample_rate,
             &channel_count,
-            stream == SND_PCM_STREAM_PLAYBACK ? config.output_period_count
-                                              : config.input_period_count,
-            stream == SND_PCM_STREAM_PLAYBACK ? config.output_latency_us
-                                              : config.input_latency_us)) {
+            stream == SND_PCM_STREAM_PLAYBACK ? config.requested_output_period_count
+                                              : config.requested_input_period_count,
+            stream == SND_PCM_STREAM_PLAYBACK ? config.requested_output_latency_us
+                                              : config.requested_input_latency_us)) {
         goto error;
     }
 
@@ -210,15 +211,10 @@ snd_pcm_t* alsa_open(const char* device, snd_pcm_stream_t stream, Config& config
         goto error;
     }
 
-    if (stream == SND_PCM_STREAM_PLAYBACK) {
-        config.output_period_count = buffer_size / period_size;
-        config.output_period_size = period_size * config.channel_count;
-        config.output_channel_count = channel_count;
-    } else {
-        config.input_period_count = buffer_size / period_size;
-        config.input_period_size = period_size * config.channel_count;
-        config.input_channel_count = channel_count;
-    }
+    dev_info.short_name = device;
+    dev_info.period_count = buffer_size / period_size;
+    dev_info.period_size = period_size * channel_count;
+    dev_info.channel_count = channel_count;
 
     return pcm;
 

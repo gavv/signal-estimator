@@ -5,7 +5,7 @@
 
 namespace signal_estimator {
 
-AsyncDumper::AsyncDumper(std::unique_ptr<IDumper> dumper)
+AsyncDumper::AsyncDumper(std::shared_ptr<IDumper> dumper)
     : dumper_(std::move(dumper))
     , thread_(&AsyncDumper::run_, this) {
 }
