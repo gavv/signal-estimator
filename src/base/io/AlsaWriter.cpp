@@ -67,19 +67,16 @@ int AlsaWriter::write_(Frame& frame) {
     }
 
     // number of samples in ring buffer available for write
-    snd_pcm_sframes_t avail = 0;
-    // when next sample written to ring buffer will be audible
-    // depending on driver, this may or may not take into account DAC delay
-    snd_pcm_sframes_t delay = 0;
-    if (int err = snd_pcm_avail_delay(pcm_, &avail, &delay); err < 0) {
-        return err;
-    }
+    const snd_pcm_sframes_t avail = snd_pcm_avail_update(pcm_);
+
+    // number of samples pending in ring buffer
+    const size_t pending
+        = dev_info_.period_count * dev_info_.period_size / frame_chans_ - (size_t)avail;
 
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
-    const nanoseconds_t hw_time = sw_time + config_.frames_to_ns((size_t)delay)
+    const nanoseconds_t hw_time = sw_time + config_.frames_to_ns(pending)
         - config_.frames_to_ns(dev_samples / dev_chans_);
-    const nanoseconds_t hw_buf = config_.frames_to_ns(
-        dev_info_.period_count * dev_info_.period_size / frame_chans_ - (size_t)avail);
+    const nanoseconds_t hw_buf = config_.frames_to_ns(pending);
 
     frame.set_times(sw_time, hw_time, hw_buf);
 

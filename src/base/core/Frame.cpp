@@ -99,27 +99,11 @@ nanoseconds_t Frame::hw_frame_time() const {
 }
 
 nanoseconds_t Frame::sw_sample_time(size_t sample_index) const {
-    switch (dir_) {
-    case Dir::Output:
-        return sw_time_ + config_.samples_to_ns(sample_index);
-
-    case Dir::Input:
-        return sw_time_ - config_.samples_to_ns(sample_index);
-    }
-
-    return 0;
+    return sw_time_ + config_.samples_to_ns(sample_index);
 }
 
 nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
-    switch (dir_) {
-    case Dir::Output:
-        return hw_time_ + config_.samples_to_ns(sample_index);
-
-    case Dir::Input:
-        return hw_time_ - config_.samples_to_ns(sample_index);
-    }
-
-    return 0;
+    return hw_time_ + config_.samples_to_ns(sample_index);
 }
 
 nanoseconds_t Frame::hw_buf_len() const {

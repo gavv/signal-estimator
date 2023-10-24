@@ -23,7 +23,6 @@ def load(filename, device, stip_device, direction):
                 continue
             arr_x.append(ts / 1000000)
             arr_y.append(amp)
-    arr_x, arr_y = zip(*sorted(zip(arr_x, arr_y)))
     return arr_x, arr_y
 
 parser = argparse.ArgumentParser(description='plot dump(s) in csv format')

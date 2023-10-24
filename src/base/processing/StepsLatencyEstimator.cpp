@@ -97,7 +97,7 @@ bool StepsLatencyEstimator::check_step_(LatencyReport& report) {
         return false;
     }
 
-    if (!(output_ts_.hw < input_ts_.hw)) {
+    if (input_ts_.hw < output_ts_.hw) {
         return false;
     }
 
