@@ -49,8 +49,11 @@ public:
     nanoseconds_t sw_frame_time() const;
 
     // get time when the frame was passed to or received from hardware
-    // this method takes into account OS buffer size
+    // this method takes into account OS buffer size and probably ADC/DAC
     nanoseconds_t hw_frame_time() const;
+
+    // get time when the sample inside frame was passed to or received from the OS
+    nanoseconds_t sw_sample_time(size_t sample_index) const;
 
     // get time when the sample inside frame was passed to or received from hardware
     // this method takes into account OS buffer size and position of sample in frame

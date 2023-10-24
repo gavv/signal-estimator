@@ -21,7 +21,7 @@ void StepsLatencyEstimator::StepTrigger::add_frame(const Frame& frame) {
         s = runmax_(s);
 
         if (schmitt_(s)) {
-            last_trigger_ts_.sw_hw = (double)frame.sw_frame_time() / Millisecond;
+            last_trigger_ts_.sw_hw = (double)frame.sw_sample_time(n) / Millisecond;
             last_trigger_ts_.hw = (double)frame.hw_sample_time(n) / Millisecond;
         }
     }

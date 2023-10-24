@@ -98,8 +98,16 @@ nanoseconds_t Frame::hw_frame_time() const {
     return hw_time_;
 }
 
-nanoseconds_t Frame::hw_buf_len() const {
-    return hw_buf_;
+nanoseconds_t Frame::sw_sample_time(size_t sample_index) const {
+    switch (dir_) {
+    case Dir::Output:
+        return sw_time_ + config_.samples_to_ns(sample_index);
+
+    case Dir::Input:
+        return sw_time_ - config_.samples_to_ns(sample_index);
+    }
+
+    return 0;
 }
 
 nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
@@ -112,6 +120,10 @@ nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
     }
 
     return 0;
+}
+
+nanoseconds_t Frame::hw_buf_len() const {
+    return hw_buf_;
 }
 
 } // namespace signal_estimator

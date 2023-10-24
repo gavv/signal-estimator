@@ -209,7 +209,7 @@ CorrelationLatencyEstimator::Processor::compute_ts_(
 
     Timestamp ts;
     ts.sw_hw = (double)frame.sw_frame_time() - frame_offset_ns;
-    ts.hw = (double)frame.hw_sample_time(0) - frame_offset_ns;
+    ts.hw = (double)frame.hw_frame_time() - frame_offset_ns;
 
     return ts;
 }
