@@ -8,7 +8,9 @@
 namespace signal_estimator {
 
 TextReporter::TextReporter(const Config& config, const std::string& dev_name) {
-    if (!dev_name.empty() && config.show_device_names) {
+    if (config.diff_inputs) {
+        suffix_ = "[diff]";
+    } else if (config.show_device_names && !dev_name.empty()) {
         suffix_ = "[" + dev_name + "]";
     }
 }

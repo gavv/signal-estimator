@@ -43,32 +43,36 @@ StepsLatencyEstimator::~StepsLatencyEstimator() {
 }
 
 void StepsLatencyEstimator::add_output(FramePtr frame) {
-    queue_.push(frame);
+    queue_out_.push(frame);
 }
 
 void StepsLatencyEstimator::add_input(FramePtr frame) {
-    queue_.push(frame);
+    queue_in_.push(frame);
 }
 
 void StepsLatencyEstimator::run_() {
-    while (auto frame = queue_.wait_pop()) {
-        if (frame->dir() == Dir::Output) {
-            output_trigger_.add_frame(*frame);
+    while (true) {
+        while (auto out_frame = queue_out_.try_pop()) {
+            output_trigger_.add_frame(*out_frame);
 
             LatencyReport report;
-
             if (check_output_(report)) {
                 print_report_(report);
             }
-        } else {
-            input_trigger_.add_frame(*frame);
+        }
+
+        do {
+            auto in_frame = queue_in_.wait_pop();
+            if (!in_frame) {
+                return;
+            }
+            input_trigger_.add_frame(*in_frame);
 
             LatencyReport report;
-
             if (check_input_(report)) {
                 print_report_(report);
             }
-        }
+        } while (!queue_in_.empty());
     }
 }
 

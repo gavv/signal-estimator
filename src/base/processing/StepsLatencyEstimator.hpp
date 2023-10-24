@@ -77,7 +77,8 @@ private:
 
     const Config config_;
 
-    Queue<FramePtr> queue_;
+    Queue<FramePtr> queue_in_;
+    Queue<FramePtr> queue_out_;
     std::thread thread_;
 
     StepTrigger output_trigger_;

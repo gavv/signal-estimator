@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "core/Config.hpp"
 #include "reports/IReporter.hpp"
 #include "reports/JsonPrinter.hpp"
 
@@ -12,7 +13,7 @@ namespace signal_estimator {
 
 class JsonReporter : public IReporter {
 public:
-    JsonReporter(JsonPrinter& printer, const std::string& dev_name);
+    JsonReporter(const Config& config, const std::string& dev_name, JsonPrinter& printer);
 
     JsonReporter(const JsonReporter&) = delete;
     JsonReporter& operator=(const JsonReporter&) = delete;

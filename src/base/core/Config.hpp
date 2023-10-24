@@ -35,6 +35,9 @@ struct Config {
     // whether to show device names in reports and dumps
     bool show_device_names { false };
 
+    // instead of output + input, pass two inputs to estimator
+    bool diff_inputs { false };
+
     // device names
     std::string output_dev;
     std::vector<std::string> input_devs;
