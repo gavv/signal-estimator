@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     app.formatter(std::make_shared<Formatter>());
 
     app.add_flag("-v,--verbose", verbosity,
-        "increase verbosity level (may be used multiple times)");
+        "Increase verbosity level (may be used multiple times)");
 
     auto control_opts = app.add_option_group("Control options");
 
@@ -34,10 +34,10 @@ int main(int argc, char** argv) {
             "Operation mode: latency_corr|latency_step|losses|io_jitter")
         ->default_str(mode);
     control_opts->add_option("-o,--output", config.output_dev, "Output device name");
-    control_opts->add_option("-i,--input", config.input_devs, "Input device name")
+    control_opts->add_option("-i,--input", config.input_devs, "Input device name(s)")
         ->expected(0, -1);
     control_opts->add_flag("--diff", config.diff_inputs,
-        "Measure difference between input devices (requires exactly two inputs)");
+        "Measure difference between two input devices (need exactly 2 inputs)");
     control_opts
         ->add_option("-d,--duration", config.measurement_duration,
             "Limit measurement duration, seconds (zero for no limit)")
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
         ->default_val(config.sample_rate);
     io_opts->add_option("-c,--chans", config.channel_count, "Number of channels")
         ->default_val(config.channel_count);
-    io_opts->add_option("-g,--gain", config.gain, "Signal gain, from 0 to 1")
+    io_opts->add_option("-g,--gain", config.gain, "Output signal gain, from 0 to 1")
         ->default_val(config.gain);
     io_opts
         ->add_option("--in-latency", config.requested_input_latency_us,
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         ->default_str(report_format);
     report_opts
         ->add_option("--report-sma", config.report_sma_window,
-            "Simple moving average window for latency reports")
+            "Simple Moving Average window for latency reports")
         ->default_val(config.report_sma_window);
 
     auto dump_opts = app.add_option_group("Dump options");

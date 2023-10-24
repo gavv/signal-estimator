@@ -17,6 +17,7 @@ Signal Estimator
 - [Measuring losses](#measuring-losses)
 - [Measuring I/O jitter](#measuring-io-jitter)
 - [JSON output](#json-output)
+- [Multiple input devices](#multiple-input-devices)
 - [Dumping streams](#dumping-streams)
 - [ALSA parameters](#alsa-parameters)
 - [Disabling PulseAudio](#disabling-pulseaudio)
@@ -196,20 +197,21 @@ Usage: signal-estimator [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
-  -v,--verbose [0]            increase verbosity level (may be used multiple times)
+  -v,--verbose [0]            Increase verbosity level (may be used multiple times)
 
 Control options:
   -m,--mode TEXT [latency_corr]
                               Operation mode: latency_corr|latency_step|losses|io_jitter
   -o,--output TEXT            Output device name
-  -i,--input TEXT             Input device name
+  -i,--input TEXT ...         Input device name(s)
+  --diff                      Measure difference between two input devices (need exactly 2 inputs)
   -d,--duration FLOAT [0]     Limit measurement duration, seconds (zero for no limit)
-  -w,--warmup FLOAT [0]       Warmup duration, seconds
+  -w,--warmup FLOAT [1]       Warmup duration, seconds (zero for no warmup)
 
 I/O options:
   -r,--rate UINT [48000]      Sample rate, Hz
   -c,--chans UINT [2]         Number of channels
-  -g,--gain FLOAT [0.8]       Signal gain, from 0 to 1
+  -g,--gain FLOAT [0.8]       Output signal gain, from 0 to 1
   --in-latency UINT [8000]    Input ring buffer size, microseconds
   --in-periods UINT [2]       Number of periods in input ring buffer
   --out-latency UINT [8000]   Output ring buffer size, microseconds
@@ -218,23 +220,24 @@ I/O options:
 Report options:
   -f,--report-format TEXT [text]
                               Report format: text|json
-  --report-sma UINT [5]       Simple moving average window for latency reports
+  --report-sma UINT [5]       Simple Moving Average window for latency reports
 
 Dump options:
   --dump-out TEXT             File to dump output stream ("-" for stdout)
   --dump-in TEXT              File to dump input stream ("-" for stdout)
-  --dump-compression UINT [64]
+  --dump-compression UINT [0]
                               Compress dumped samples by given ratio using SMA
 
 Correlation-based latency estimation options:
-  --impulse-period FLOAT [1]  Impulse period, seconds
+  --impulse-interval FLOAT [1]
+                              Impulse interval, seconds
   --impulse-peak-noise-ratio FLOAT [4]
                               The peak-to-noise minimum ratio threshold
   --impulse-peak-window UINT [128]
                               Peak detection window length, samples
 
 Step-based latency estimation options:
-  --step-period FLOAT [1]     Step period, seconds
+  --step-interval FLOAT [1]   Step interval, seconds
   --step-length FLOAT [0.1]   Step length, seconds
   --step-detection-window UINT [96]
                               Step detection running maximum window, samples
@@ -298,27 +301,26 @@ latency:  sw+hw  10.237ms  hw   2.237ms  hw_avg5   2.462ms
 latency:  sw+hw  11.231ms  hw   3.231ms  hw_avg5   2.719ms
 latency:  sw+hw  10.776ms  hw   2.776ms  hw_avg5   2.733ms
 latency:  sw+hw  11.299ms  hw   3.299ms  hw_avg5   2.846ms
+...
 ```
 
 Notation:
 
 * `sw+hw` - total software + hardware latency, including ALSA ring buffer
 
-  computed as the time interval beginning when the first audio *frame* of the impulse was sent to the output ring buffer, and ending when the first frame of the impulse was received from the input ring buffer
+  computed as the time interval beginning when the impulse was written to the output ring buffer, and ending when the impulse was read from the input ring buffer
 
-* `hw` - an estimation of hardware latency, excluding ALSA ring buffer and ADC/DAC
+* `hw` - an estimation of hardware latency, i.e. excluding ALSA ring buffer
 
-  computed as the time interval beginning when the first audio *sample* of the impulse was sent from ring buffer to the hardware, and ending when the first sample of the impulse was received from the hardware and placed to ring buffer
+  computed as the time interval beginning when the impulse was sent from ring buffer to the hardware, and ending when the impulse was received from the hardware and placed into ring buffer
 
-* `hw_avg5` - moving average of last 5 `hw` values
+* `hw_avg5` - moving average of last 5 `hw` values (5 is configurable)
 
 `sw+hw` latency is affected by ring buffer settings like `--out-latency` and `--out-periods`.
 
 `hw` latency, on the other hand, should not be affected by ring buffer and should depend only on your hardware and the way how the signal is looped back from output to input (e.g. if it's going by air, the distance will make a difference).
 
-`hw` latency always excludes (variable) ring buffer delay, but whether it excludes (constant) ADC/DAC delay depends on the sound card driver. For drivers capable of reporting ADC/DAC delay, it is excluded.
-
-If you observe underruns or overruns, you may need to increase ALSA period size or count, depending on your hardware. Depending on environment, you may also need to configure signal gain, and impulse interval and threshold.
+If you observe underruns or overruns, you may need to increase ALSA period size or count, depending on your hardware. Depending on environment, you may also need to configure signal gain (`--gain`), and impulse/step interval and threshold (`--impulse-xxx` and `--step-xxx`).
 
 Measuring losses
 ----------------
@@ -351,6 +353,7 @@ losses:  rate   6.0/sec  rate_avg5   3.0/sec  ratio   0.26%
 losses:  rate   3.0/sec  rate_avg5   3.0/sec  ratio   0.20%
 losses:  rate   0.0/sec  rate_avg5   2.3/sec  ratio   0.00%
 losses:  rate   1.0/sec  rate_avg5   2.0/sec  ratio   0.01%
+...
 ```
 
 Notation:
@@ -367,12 +370,12 @@ Notation:
 
 These numbers may be rather imprecise.
 
-If you're having troubles, you may need to configure signal gain and signal and glitch detection parameters.
+If you're having troubles, you may need to configure signal gain (`--gain`) and signal and glitch detection parameters (`--signal-xxx` and `--glitch-xxx`).
 
 Measuring I/O jitter
 --------------------
 
-In I/O hitter estimation mode, the tool does not look at the signal itself, but instead measures jitter of I/O operations. This jitter defines how precisely ALSA and OS schedule I/O.
+In I/O jitter estimation mode, the tool does not look at the signal itself, but instead measures jitter of I/O operations. This jitter defines how precisely ALSA and OS schedule I/O.
 
 ```
 $ sudo signal-estimator -vv -o hw:0 -m io_jitter
@@ -391,39 +394,38 @@ jitter:  sw avg  0.024ms p95  0.090ms  hw avg  0.006ms p95  0.016ms  buf avg  7.
 jitter:  sw avg  0.021ms p95  0.077ms  hw avg  0.006ms p95  0.016ms  buf avg  7.008ms p95  7.000ms
 jitter:  sw avg  0.020ms p95  0.074ms  hw avg  0.006ms p95  0.016ms  buf avg  7.007ms p95  7.000ms
 jitter:  sw avg  0.020ms p95  0.072ms  hw avg  0.006ms p95  0.015ms  buf avg  7.007ms p95  7.000ms
+...
 ```
 
 Notation:
 
 * `sw` - software timestamp jitter
 
-    deviation from period size of delta between software timestamps of subsequent frames; where sofware timestamp is the wallclock time when the frame was written to ALSA or read from it
+    Deviation from period size of delta between software timestamps of subsequent frames. **Sofware timestamp** is the wallclock time when we wrote frame to ALSA ring buffer or read frame from it.
 
     * `avg` - average deviation
     * `p95` - 95-percentile of deviation
 
 * `hw` - hardware timestamp jitter
 
-    deviation from period size of delta between hardware timestamps of subsequent frames; where hardware timestamp is the wallclock time when the frame reaches ADC or DAC
+    Deviation from period size of delta between hardware timestamps of subsequent frames. **Hardware timestamp** is the estimation of wallclock time when the frame was sent from ALSA ring buffer to hardware, or received from hardware and placed into ring buffer.
 
     * `avg` - average deviation
     * `p95` - 95-percentile of deviation
 
 * `buf` - ring buffer length
 
-    length of ALSA ring buffer at the time when we wrote or read frame from it
+    Length of ALSA ring buffer at the time when we wrote or read frame from it.
 
     * `avg` - average buffer length
     * `p95` - 95-percentile of buffer length
 
-`sw` jitter is usually higher. It is affected by system load, OS scheduler, use of `SCHED_RR` policy, etc. It defines precision of `sw+hw` latency calculation.
-
-`hw` jitter is usually quite low. It is mostly affected only by hardware and driver. It defines precision of `hw` latency calculation.
-
 `buf` length shows how the jitter affects ALSA ring buffer:
 
-* For output devices, we try to keep the buffer full and ask ALSA to wake up us whenever the buffer has space for one frame, so the ideal buffer length is the same as configured buffer size.
-* For input devices, we try to keep the buffer empty and ask to wake up us whenever one frame is available in the buffer, so the ideal buffer length is zero.
+* For output devices, we try to keep the ring buffer full. The ideal buffer length would be the same as configured via `--out-latency` or `--in-latency` option.
+* For input devices, we try to keep the ring buffer empty. The ideal buffer length would be zero.
+
+You can configure SMA window and percentile via `--io-jitter-xxx` options.
 
 JSON output
 -----------
@@ -434,41 +436,55 @@ Sample JSON output format for measuring latency is shown below.
 
 ```
 [
-  {"sw_hw": 3.406247, "hw": 9.783531, "hw_avg": 3.406247},
-  {"sw_hw": 3.768061, "hw": 10.177324, "hw_avg": 3.768061},
-  {"sw_hw": 3.598191, "hw": 10.033534, "hw_avg": 3.598191},
-  {"sw_hw": 3.762508, "hw": 10.256863, "hw_avg": 3.762508},
-  {"sw_hw": 3.842750, "hw": 10.150537, "hw_avg": 3.842750},
-  {"sw_hw": 3.588736, "hw": 9.647981, "hw_avg": 3.588736},
-  {"sw_hw": 3.617144, "hw": 10.005338, "hw_avg": 3.617144},
-  {"sw_hw": 3.769689, "hw": 10.169054, "hw_avg": 3.769689}
+  {"dev":"hw:0", "sw_hw": 3.406247, "hw": 9.783531, "hw_avg": 3.406247},
+  {"dev":"hw:0", "sw_hw": 3.768061, "hw": 10.177324, "hw_avg": 3.768061},
+  {"dev":"hw:0", "sw_hw": 3.598191, "hw": 10.033534, "hw_avg": 3.598191},
+  {"dev":"hw:0", "sw_hw": 3.762508, "hw": 10.256863, "hw_avg": 3.762508},
+  {"dev":"hw:0", "sw_hw": 3.842750, "hw": 10.150537, "hw_avg": 3.842750},
+  {"dev":"hw:0", "sw_hw": 3.588736, "hw": 9.647981, "hw_avg": 3.588736},
+  {"dev":"hw:0", "sw_hw": 3.617144, "hw": 10.005338, "hw_avg": 3.617144},
+  {"dev":"hw:0", "sw_hw": 3.769689, "hw": 10.169054, "hw_avg": 3.769689}
 ]
 ```
 
-Sample JSON output format for measuring losses is shown below.
+All the notations are the same as mentioned in the text reports. All time units are in milliseconds.
+
+Multiple input devices
+----------------------
+
+It is possible to specify one output and multiple input devices. The tool assumes that the output reaches all inputs, and performs independent measurement for every input device.
+
+This can be useful to compare how synchronous are the inputs. One example use-case is two microphones recording sound from the same speakers. Another is two speakers in a multiroom setup aimed to produce synchronous streams.
 
 ```
-[
-  {"rate": 0.000000, "rate_avg": 0.000000, "ratio": 0.000000},
-  {"rate": 0.000000, "rate_avg": 0.000000, "ratio": 3.501563},
-  {"rate": 0.000000, "rate_avg": 0.000000, "ratio": 2.626626}
-]
+$ sudo ./bin/x86_64-linux-gnu/signal-estimator -v -o hw:0 -i hw:1 -i hw:2
+[II] opening alsa writer for device hw:0
+[II] opening alsa reader for device hw:1
+[II] opening alsa reader for device hw:2
+[II] starting measurement
+latency[hw:1]:  sw+hw   9.704ms  hw   1.892ms  hw_avg5   1.892ms
+latency[hw:2]:  sw+hw   9.680ms  hw   2.846ms  hw_avg5   2.846ms
+latency[hw:1]:  sw+hw   8.990ms  hw   1.823ms  hw_avg5   1.858ms
+latency[hw:2]:  sw+hw   9.837ms  hw   2.670ms  hw_avg5   2.758ms
+latency[hw:1]:  sw+hw   8.942ms  hw   1.942ms  hw_avg5   1.886ms
+latency[hw:2]:  sw+hw  10.038ms  hw   3.038ms  hw_avg5   2.852ms
+latency[hw:1]:  sw+hw   8.914ms  hw   1.914ms  hw_avg5   1.893ms
+latency[hw:2]:  sw+hw  10.330ms  hw   3.330ms  hw_avg5   2.971ms
+...
 ```
-
-Note: Here `sw_hw` means `sw+hw` - total software + hardware latency, including ALSA ring buffer. All the notations are the same as mentioned in the measuring latency and losses section. All time units are in milliseconds.
 
 Dumping streams
 ---------------
 
 In any mode, you can specify `--dump-out` and `--dump-in` options to dump output and input samples and their timestamps to file or stdout (use `-`), in CSV format.
 
-To reduce the file size, the tool can dump only one (average) value per frame of the size specified by `--dump-compression` option. This is enabled by default and can be disabled by setting this parameter to zero.
+To reduce the file size, the tool can dump only one (average) value per frame of the size specified by `--dump-compression` option (disabled by default).
 
-The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to hardware or read from hardware.
+The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to hardware or read from hardware. The clock starts from an unspecified point.
 
 ```
 $ sudo signal-estimator -vv -m latency_step -o hw:0 -i hw:0 -d 5 \
-    --volume 1.0 --dump-out output.csv --dump-in input.csv
+    --dump-out output.csv --dump-in input.csv
 ...
 ```
 
@@ -480,24 +496,26 @@ $ ls -lh *.csv
 -rw-r--r-- 1 user user 118K Jan 15 16:22 input.csv
 ```
 
-We also provide a helper script that plots the files using matplotlib. You can use it to manually inspect the signal:
+There is a helper script that plots the dump files using matplotlib. You can use it to manually inspect the signal:
 
 ```
-$ ./script/plot_csv.py output.csv input.csv
+$ ./script/plot_csv.py [--device <device>] <output.csv> <input.csv>
 ```
 
 ![](./doc/plot_edited.png)
 
 In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238ms.
 
+If output and input dumps were written to the same file, you can specify only one file. If dump includes multiple input devices, you should choose which one to display using `--device` option of the script.
+
 ALSA parameters
 ---------------
 
 ALSA output and input device names are the same as passed to `aplay` and `arecord` tools.
 
-You may need to configure sample rate and the number of channels. Selected rate should be supported by both output and input devices.
+You may need to configure sample rate (`--rate`) and the number of channels (`--chans`). Selected rate should be supported by both output and input devices.
 
-You may also need to configure ALSA ring buffer size and the number of periods (I/O frames) in the ring buffer. These parameters affect software latency and output / input robustness.
+You may also need to configure ALSA ring buffer size (`--out-latency` and `--in-latency`) and the number of periods (I/O frames) in the ring buffer (`--out-periods` and `--in-periods`). These parameters affect software latency and output / input robustness, but should not affect measured hardware latency. If there are glitches, you can try doubling default buffer size and period count.
 
 Disabling PulseAudio
 --------------------
