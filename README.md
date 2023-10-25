@@ -16,8 +16,8 @@ Signal Estimator
 - [Measuring latency](#measuring-latency)
 - [Measuring losses](#measuring-losses)
 - [Measuring I/O jitter](#measuring-io-jitter)
-- [JSON output](#json-output)
 - [Multiple input devices](#multiple-input-devices)
+- [JSON output](#json-output)
 - [Dumping streams](#dumping-streams)
 - [ALSA parameters](#alsa-parameters)
 - [Disabling PulseAudio](#disabling-pulseaudio)
@@ -37,54 +37,71 @@ Features
 
 Features:
 
-* send test signal to output device and receive looped back signal from input device
+* send test signal to output device and receive looped back signal from input device(s)
 * measure signal latency (the shift between output and input signal)
 * measure signal loss ratio (number of glitches per second in the input signal)
-* measurements output in JSON format for easy parsing
-* dump output and input streams to text files and plot them using matplotlib
+* measure I/O jitter
+* print reports in JSON format for easy parsing
+* dump output and input streams in CSV format for later inspection
 
 Usage examples
 --------------
 
 * **Measure hardware latency of sound card (by cable)**
 
-   Connect computer audio output to its audio input using a jack cable.
+   Connect PC audio output to audio input using a jack cable.
 
    Measured loopback latency (bold red) will give you output + input latency of sound card.
 
-   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_soundcard_jack.drawio.png" width="400" />
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_soundcard_cable.drawio.png" width="400" />
 
 * **Measure hardware latency of sound card (by air)**
 
-   Place computer speakers near microphone.
+   Place PC speakers near microphone.
 
    Measured loopback latency (bold red) will give you output + input latency of sound card + latency of spreading over air if distance is significant.
 
    <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_soundcard_air.drawio.png" width="400" />
 
-* **Measure hardware + software latency of Raspberry Pi soundcard loopback**
+* **Measure hardware + software latency of loopback setup**
 
-   Connect computer audio output to Raspberry Pi audio input using a jack cable. Connect Raspberry Pi audio output to computer audio input. On Raspberry Pi, run software that loops back signal from input to output device (e.g. snd-aloop).
+   Connect PC audio output to DUT (Device Under Test) audio input using a jack cable. Connect DUT audio output to PC audio input. On DUT, run software that loops back signal from input to output device.
 
-   Measured loopback latency (bold red) will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound card + latency of software running on Raspberry Pi.
+   Measured loopback latency (bold red) will give you output + input latency of PC sound card (which you can measure separately and subtract) + output + input latency of DUT sound card (which you can also measure separately) + latency of software running on DUT.
 
-   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_raspberry.drawio.png" width="700" />
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_dut_loopback.drawio.png" width="700" />
 
-* **Measure hardware + software + network latency of two Raspberry Pies connected via LAN**
+* **Measure hardware + software + network latency of streaming setup**
 
-   Connect computer audio output to audio input of first Raspberry Pi. Connect audio output of second Raspberry Pi to computer audio input. Run software that reads audio input on first Raspberry Pi, sends it to second Raspberry Pi, and writes to its audio output.
+   Connect PC audio output to audio input of first DUT (Device Under Test). Connect audio output of second DUT to PC audio input. Run software that reads audio input on first DUT, sends it to second DUT, and writes to its audio output.
 
-   Measured loopback latency (bold red) will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Raspberry Pi sound cards + latency of software running on Raspberry Pi + latency of network.
+   Measured loopback latency (bold red) will give you output + input latency of PC sound card (which you can measure separately and subtract) + output + input latency of DUT sound cards (which you can also measure separately) + latency of software running on DUTs + latency of network.
 
-   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_raspberry_net.drawio.png" width="700" />
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_dut_streaming.drawio.png" width="700" />
 
 * **Measure hardware + software + bluetooth latency of mobile phone with Bluetooth headset**
 
-   Place computer speakers near bluetooth microphone connected to a mobile phone. Place computer microphone near bluetooth headphones connected to the phone. Run a mobile app that loops back signal from bluetooth microphone to bluetooth headphones.
+   Place PC speakers near bluetooth microphone connected to a mobile phone. Place PC microphone near bluetooth headphones connected to the phone. Run a mobile app that loops back signal from bluetooth microphone to bluetooth headphones.
 
-   Measured loopback latency (bold red) will give you output + input latency of computer sound card (which you can measure separately and subtract) + output + input latency of Bluetooth stack and software running on phone + latency of Bluetooth.
+   Measured loopback latency (bold red) will give you output + input latency of PC sound card (which you can measure separately and subtract) + output + input latency of Bluetooth stack and software running on phone + latency of Bluetooth.
 
    <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_bluetooth.drawio.png" width="700" />
+
+* **Measure synchronicity of two microphones**
+
+   Place one speaker and two microphones in the same room, and connect all three to the PC. Run signal-estimator with one output and two input devices.
+
+   Difference between measured latencies of the two inputs (bold red) will show how synchronous are the two microphones.
+
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_sync_mics.drawio.png" width="400" />
+
+* **Measure synchronicity of streaming setup**
+
+   Connect PC audio output to audio input of sender DUT (Device Under Test). Connect audio outputs of two receiver DUTs to audio inputs of PC. On DUTs, run software that sends audio input to audio outputs over network. On PC, run signal-estimator with one output and two input devices.
+
+   Difference between measured latencies of the two inputs (bold red) will show how synchronous are the two streams played on two receiver DUTs.
+
+   <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_sync_streaming.drawio.png" width="500" />
 
 Supported platforms
 -------------------
@@ -427,6 +444,28 @@ Notation:
 
 You can configure SMA window and percentile via `--io-jitter-xxx` options.
 
+Multiple input devices
+----------------------
+
+It is possible to specify one output and multiple input devices. The tool assumes that the output reaches all inputs, and performs independent measurement for every input device.
+
+```
+$ sudo ./bin/x86_64-linux-gnu/signal-estimator -v -o hw:0 -i hw:1 -i hw:2
+[II] opening alsa writer for device hw:0
+[II] opening alsa reader for device hw:1
+[II] opening alsa reader for device hw:2
+[II] starting measurement
+latency[hw:1]:  sw+hw   9.704ms  hw   1.892ms  hw_avg5   1.892ms
+latency[hw:2]:  sw+hw   9.680ms  hw   2.846ms  hw_avg5   2.846ms
+latency[hw:1]:  sw+hw   8.990ms  hw   1.823ms  hw_avg5   1.858ms
+latency[hw:2]:  sw+hw   9.837ms  hw   2.670ms  hw_avg5   2.758ms
+latency[hw:1]:  sw+hw   8.942ms  hw   1.942ms  hw_avg5   1.886ms
+latency[hw:2]:  sw+hw  10.038ms  hw   3.038ms  hw_avg5   2.852ms
+latency[hw:1]:  sw+hw   8.914ms  hw   1.914ms  hw_avg5   1.893ms
+latency[hw:2]:  sw+hw  10.330ms  hw   3.330ms  hw_avg5   2.971ms
+...
+```
+
 JSON output
 -----------
 
@@ -448,30 +487,6 @@ Sample JSON output format for measuring latency is shown below.
 ```
 
 All the notations are the same as mentioned in the text reports. All time units are in milliseconds.
-
-Multiple input devices
-----------------------
-
-It is possible to specify one output and multiple input devices. The tool assumes that the output reaches all inputs, and performs independent measurement for every input device.
-
-This can be useful to compare how synchronous are the inputs. One example use-case is two microphones recording sound from the same speakers. Another is two speakers in a multiroom setup aimed to produce synchronous streams.
-
-```
-$ sudo ./bin/x86_64-linux-gnu/signal-estimator -v -o hw:0 -i hw:1 -i hw:2
-[II] opening alsa writer for device hw:0
-[II] opening alsa reader for device hw:1
-[II] opening alsa reader for device hw:2
-[II] starting measurement
-latency[hw:1]:  sw+hw   9.704ms  hw   1.892ms  hw_avg5   1.892ms
-latency[hw:2]:  sw+hw   9.680ms  hw   2.846ms  hw_avg5   2.846ms
-latency[hw:1]:  sw+hw   8.990ms  hw   1.823ms  hw_avg5   1.858ms
-latency[hw:2]:  sw+hw   9.837ms  hw   2.670ms  hw_avg5   2.758ms
-latency[hw:1]:  sw+hw   8.942ms  hw   1.942ms  hw_avg5   1.886ms
-latency[hw:2]:  sw+hw  10.038ms  hw   3.038ms  hw_avg5   2.852ms
-latency[hw:1]:  sw+hw   8.914ms  hw   1.914ms  hw_avg5   1.893ms
-latency[hw:2]:  sw+hw  10.330ms  hw   3.330ms  hw_avg5   2.971ms
-...
-```
 
 Dumping streams
 ---------------
