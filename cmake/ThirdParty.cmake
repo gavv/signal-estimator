@@ -199,3 +199,31 @@ foreach(DEPENDENCY IN LISTS ALL_DEPENDENCIES)
       )
   endif()
 endforeach()
+
+#google test
+include(ExternalProject)
+
+ExternalProject_Add(
+    googletest
+    SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-src"
+    BINARY_DIR "${CMAKE_BINARY_DIR}/googletest-build"
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.11.0
+    GIT_SHALLOW ON
+    INSTALL_COMMAND ""
+    TEST_COMMAND ""
+    LOG_DOWNLOAD ON
+    LOG_BUILD ON
+)
+
+option(BUILD_TESTING "Build tests" ON)
+
+if (BUILD_TESTING)
+    add_executable(tests gtest/gtest_main.cpp)
+    
+    target_link_libraries(tests gtest)
+    add_dependencies(tests googletest)
+    include_directories("${CMAKE_BINARY_DIR}/googletest-src/googletest/include")
+    link_directories("${CMAKE_BINARY_DIR}/googletest-build/lib")
+    
+endif()
