@@ -26,11 +26,11 @@ CorrelationLatencyEstimator::~CorrelationLatencyEstimator() {
 }
 
 void CorrelationLatencyEstimator::add_output(FramePtr frame) {
-    queue_out_.push(frame);
+    queue_out_.push(std::move(frame));
 }
 
 void CorrelationLatencyEstimator::add_input(FramePtr frame) {
-    queue_in_.push(frame);
+    queue_in_.push(std::move(frame));
 }
 
 void CorrelationLatencyEstimator::run_() {
@@ -136,7 +136,7 @@ CorrelationLatencyEstimator::Processor::seek_correlation_(
     optimal_filter_.perform(from, to, sz);
 
     // Abs(conv_out)
-    std::transform(to, to + sz, to, [](const float x) { return fabs(x); });
+    std::transform(to, to + sz, to, [](const float x) { return std::abs(x); });
 
     Timestamp res;
 

@@ -43,11 +43,11 @@ StepsLatencyEstimator::~StepsLatencyEstimator() {
 }
 
 void StepsLatencyEstimator::add_output(FramePtr frame) {
-    queue_out_.push(frame);
+    queue_out_.push(std::move(frame));
 }
 
 void StepsLatencyEstimator::add_input(FramePtr frame) {
-    queue_in_.push(frame);
+    queue_in_.push(std::move(frame));
 }
 
 void StepsLatencyEstimator::run_() {

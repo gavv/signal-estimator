@@ -57,13 +57,13 @@ IOJitterEstimator::~IOJitterEstimator() {
 
 void IOJitterEstimator::add_output(FramePtr frame) {
     if (dir_ == Dir::Output) {
-        queue_.push(frame);
+        queue_.push(std::move(frame));
     }
 }
 
 void IOJitterEstimator::add_input(FramePtr frame) {
     if (dir_ == Dir::Input) {
-        queue_.push(frame);
+        queue_.push(std::move(frame));
     }
 }
 

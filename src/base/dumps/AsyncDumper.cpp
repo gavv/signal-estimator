@@ -19,7 +19,7 @@ AsyncDumper::~AsyncDumper() {
 }
 
 void AsyncDumper::write(FramePtr frame) {
-    queue_.push(frame);
+    queue_.push(std::move(frame));
 }
 
 void AsyncDumper::run_() {
