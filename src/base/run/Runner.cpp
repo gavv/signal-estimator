@@ -210,7 +210,9 @@ void Runner::wait() {
 }
 
 void Runner::output_loop_() {
-    make_realtime();
+    if (!config_.no_realtime) {
+        make_realtime();
+    }
 
     uint64_t current_samples = 0, total_samples = config_.total_samples(),
              warmup_samples = config_.warmup_samples();
@@ -257,7 +259,9 @@ void Runner::output_loop_() {
 }
 
 void Runner::input_loop_(size_t dev_index) {
-    make_realtime();
+    if (!config_.no_realtime) {
+        make_realtime();
+    }
 
     uint64_t current_samples = 0, total_samples = config_.total_samples(),
              warmup_samples = config_.warmup_samples();

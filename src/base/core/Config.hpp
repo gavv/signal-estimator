@@ -38,6 +38,9 @@ struct Config {
     // instead of output + input, pass two inputs to estimator
     bool diff_inputs { false };
 
+    // disable using SCHED_RR policy
+    bool no_realtime { false };
+
     // device names
     std::string output_dev;
     std::vector<std::string> input_devs;

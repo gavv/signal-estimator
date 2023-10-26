@@ -235,6 +235,7 @@ I/O options:
   --in-periods UINT [2]       Number of periods in input ring buffer
   --out-latency UINT [8000]   Output ring buffer size, microseconds
   --out-periods UINT [2]      Number of periods in output ring buffer
+  --no-rt                     Don't try using SCHED_RR policy
 
 Report options:
   -f,--report-format TEXT [text]

@@ -71,6 +71,7 @@ int main(int argc, char** argv) {
         ->add_option("--out-periods", config.requested_output_period_count,
             "Number of periods in output ring buffer")
         ->default_val(config.requested_output_period_count);
+    io_opts->add_flag("--no-rt", config.no_realtime, "Don't try using SCHED_RR policy");
 
     auto report_opts = app.add_option_group("Report options");
 
