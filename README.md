@@ -65,7 +65,7 @@ Usage examples
 
 * **Measure hardware + software latency of loopback setup**
 
-   Connect PC audio output to DUT (Device Under Test) audio input using a jack cable. Connect DUT audio output to PC audio input. On DUT, run software that loops back signal from input to output device.
+   Connect PC audio output to DUT (Device Under Test, e.g. another computer) audio input using a jack cable. Connect DUT audio output to PC audio input. On DUT, run software that loops back signal from input to output device.
 
    Measured loopback latency (bold red) will give you output + input latency of PC sound card (which you can measure separately and subtract) + output + input latency of DUT sound card (which you can also measure separately) + latency of software running on DUT.
 
@@ -73,7 +73,7 @@ Usage examples
 
 * **Measure hardware + software + network latency of streaming setup**
 
-   Connect PC audio output to audio input of first DUT (Device Under Test). Connect audio output of second DUT to PC audio input. Run software that reads audio input on first DUT, sends it to second DUT, and writes to its audio output.
+   Connect PC audio output to audio input of first DUT (Device Under Test, e.g. another computer). Connect audio output of second DUT to PC audio input. Run software that reads audio input on first DUT, sends it to second DUT, and writes to its audio output.
 
    Measured loopback latency (bold red) will give you output + input latency of PC sound card (which you can measure separately and subtract) + output + input latency of DUT sound cards (which you can also measure separately) + latency of software running on DUTs + latency of network.
 
@@ -97,7 +97,7 @@ Usage examples
 
 * **Measure synchronicity of streaming setup**
 
-   Connect PC audio output to audio input of sender DUT (Device Under Test). Connect audio outputs of two receiver DUTs to audio inputs of PC. On DUTs, run software that sends audio input to audio outputs over network. On PC, run signal-estimator with one output and two input devices.
+   Connect PC audio output to audio input of sender DUT (Device Under Test, e.g. another computer). Connect audio outputs of two receiver DUTs to audio inputs of PC. On DUTs, run software that sends audio input to audio outputs over network. On PC, run signal-estimator with one output and two input devices.
 
    Difference between measured latencies of the two inputs (bold red) will show how synchronous are the two streams played on two receiver DUTs.
 
@@ -450,7 +450,7 @@ Multiple input devices
 It is possible to specify one output and multiple input devices. The tool assumes that the output reaches all inputs, and performs independent measurement for every input device.
 
 ```
-$ sudo ./bin/x86_64-linux-gnu/signal-estimator -v -o hw:0 -i hw:1 -i hw:2
+$ sudo signal-estimator -v -o hw:0 -i hw:1 -i hw:2
 [II] opening alsa writer for device hw:0
 [II] opening alsa reader for device hw:1
 [II] opening alsa reader for device hw:2
@@ -521,7 +521,7 @@ $ ./script/plot_csv.py [--device <device>] <output.csv> <input.csv>
 
 In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238ms.
 
-If output and input dumps were written to the same file, you can specify only one file. If dump includes multiple input devices, you should choose which one to display using `--device` option of the script.
+If output and input dumps were written to the same file, you can pass to the script just that one file. If dump includes multiple input devices, you should choose which one to display using `--device` option of the script.
 
 ALSA parameters
 ---------------
@@ -530,7 +530,9 @@ ALSA output and input device names are the same as passed to `aplay` and `arecor
 
 You may need to configure sample rate (`--rate`) and the number of channels (`--chans`). Selected rate should be supported by both output and input devices.
 
-You may also need to configure ALSA ring buffer size (`--out-latency` and `--in-latency`) and the number of periods (I/O frames) in the ring buffer (`--out-periods` and `--in-periods`). These parameters affect software latency and output / input robustness, but should not affect measured hardware latency. If there are glitches, you can try doubling default buffer size and period count.
+You may also need to configure ALSA ring buffer size (`--out-latency` and `--in-latency`) and the number of periods (I/O frames) in the ring buffer (`--out-periods` and `--in-periods`). These parameters affect software latency and output / input robustness, but almost does not affect estimated hardware latency.
+
+If there are glitches, you can try increasing buffer size and number of periods. Note that usually both of them should be multiple of power of two.
 
 Disabling PulseAudio
 --------------------
