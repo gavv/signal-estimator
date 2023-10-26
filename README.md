@@ -24,7 +24,7 @@ Signal Estimator
 - [Disabling PipeWire](#disabling-pipewire)
 - [Real-time scheduling policy](#real-time-scheduling-policy)
 - [Internals](#internals)
-- [Acknowledgments](#acknowledgments)
+- [Acknowledgements](#acknowledgements)
 - [Authors](#authors)
 - [License](#license)
 
@@ -207,6 +207,8 @@ Here is how it looks like:
 Command-line options
 --------------------
 
+<!-- help -->
+
 ```
 $ signal-estimator --help
 Measure characteristics of a looped back signal
@@ -277,6 +279,8 @@ I/O jitter estimation options:
   --io-jitter-percentile UINT [95]
                               I/O jitter percentile, from 1 to 100
 ```
+
+<!-- helpstop -->
 
 Measuring latency
 -----------------
@@ -418,24 +422,24 @@ Notation:
 
 * `sw` - software timestamp jitter
 
-    Deviation from period size of delta between software timestamps of subsequent frames. **Sofware timestamp** is the wallclock time when we wrote frame to ALSA ring buffer or read frame from it.
+    Deviation from period size of delta between software timestamps of subsequent frames. **Software timestamp** is the wallclock time when we wrote frame to ALSA ring buffer or read frame from it.
 
     * `avg` - average deviation
-    * `p95` - 95-percentile of deviation
+    * `p95` - 95th percentile of deviation
 
 * `hw` - hardware timestamp jitter
 
     Deviation from period size of delta between hardware timestamps of subsequent frames. **Hardware timestamp** is the estimation of wallclock time when the frame was sent from ALSA ring buffer to hardware, or received from hardware and placed into ring buffer.
 
     * `avg` - average deviation
-    * `p95` - 95-percentile of deviation
+    * `p95` - 95th percentile of deviation
 
 * `buf` - ring buffer length
 
     Length of ALSA ring buffer at the time when we wrote or read frame from it.
 
     * `avg` - average buffer length
-    * `p95` - 95-percentile of buffer length
+    * `p95` - 95th percentile of buffer length
 
 `buf` length shows how the jitter affects ALSA ring buffer:
 
@@ -519,7 +523,7 @@ $ ./script/plot_csv.py [--device <device>] <output.csv> <input.csv>
 
 ![](./doc/plot_edited.png)
 
-In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238ms.
+In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238 ms.
 
 If output and input dumps were written to the same file, you can pass to the script just that one file. If dump includes multiple input devices, you should choose which one to display using `--device` option of the script.
 
@@ -570,7 +574,7 @@ And this one shows interfaces and classes that implement them:
 
 ![](./doc/classes.drawio.png)
 
-Acknowledgments
+Acknowledgements
 ---------------
 
 The development of this tool was heavily sponsored by Samuel Blum at Boring Technologies. Thanks a lot to him for letting the code to be open-sourced!
