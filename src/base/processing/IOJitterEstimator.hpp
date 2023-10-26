@@ -4,7 +4,7 @@
 #pragma once
 
 #include "core/Config.hpp"
-#include "core/Queue.hpp"
+#include "core/FrameQueue.hpp"
 #include "core/RateLimiter.hpp"
 #include "core/Time.hpp"
 #include "processing/IEstimator.hpp"
@@ -63,7 +63,7 @@ private:
     const DevInfo dev_info_;
     const Dir dir_;
 
-    Queue<FramePtr> queue_;
+    FrameQueue queue_;
     std::thread thread_;
 
     JitterStats sw_stats_;

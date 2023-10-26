@@ -12,6 +12,7 @@
 
 namespace signal_estimator {
 
+// thread-safe lock-free frame pool
 class FramePool {
 public:
     FramePool(const Config& config);
@@ -20,6 +21,8 @@ public:
     FramePool(const FramePool&) = delete;
     FramePool& operator=(const FramePool&) = delete;
 
+    // allocate and reset() frame
+    // frame smart pointer will automatically return frame to pool
     FramePtr allocate(Dir dir, size_t dev_index);
 
 private:

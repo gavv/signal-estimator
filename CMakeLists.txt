@@ -117,6 +117,7 @@ endif()
 add_library(base_objects OBJECT
   src/base/core/Frame.cpp
   src/base/core/FramePool.cpp
+  src/base/core/FrameQueue.cpp
   src/base/core/Log.cpp
   src/base/core/RateLimiter.cpp
   src/base/core/Realtime.cpp

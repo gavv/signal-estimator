@@ -4,7 +4,7 @@
 #pragma once
 
 #include "core/Config.hpp"
-#include "core/Queue.hpp"
+#include "core/FrameQueue.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/MovAvg.hpp"
 #include "processing/MovMax.hpp"
@@ -77,8 +77,8 @@ private:
 
     const Config config_;
 
-    Queue<FramePtr> queue_in_;
-    Queue<FramePtr> queue_out_;
+    FrameQueue queue_in_;
+    FrameQueue queue_out_;
     std::thread thread_;
 
     StepTrigger output_trigger_;

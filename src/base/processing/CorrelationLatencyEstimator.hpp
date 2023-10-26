@@ -4,7 +4,7 @@
 #pragma once
 
 #include "core/Frame.hpp"
-#include "core/Queue.hpp"
+#include "core/FrameQueue.hpp"
 #include "processing/FFTConvolution.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/Impulse.hpp"
@@ -88,8 +88,8 @@ private:
     const Config& config_;
     IReporter& reporter_;
     MovAvg<double> hw_avg_;
-    Queue<FramePtr> queue_in_;
-    Queue<FramePtr> queue_out_;
+    FrameQueue queue_in_;
+    FrameQueue queue_out_;
     std::thread thread_;
 
     const double causality_timeout_lim_;

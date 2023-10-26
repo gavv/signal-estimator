@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "core/Queue.hpp"
+#include "core/FrameQueue.hpp"
 #include "dumps/IDumper.hpp"
 
 #include <memory>
@@ -26,7 +26,7 @@ private:
     void run_();
 
     std::shared_ptr<IDumper> dumper_;
-    Queue<FramePtr> queue_;
+    FrameQueue queue_;
     std::thread thread_;
 };
 
