@@ -84,11 +84,11 @@ function add_if_new() {
 
     if [ -z "${print_addr}" ]
     then
-        echo "adding ${print_name}" 1>&2
-        echo "${print_name}"
+        echo "Adding ${print_name}" 1>&2
+        echo "* ${print_name}"
     else
-        echo "adding ${print_name} <${print_addr}>" 1>&2
-        echo "${print_name} <${print_addr}>"
+        echo "Adding ${print_name} (${print_addr})" 1>&2
+        echo "* ${print_name} (${print_addr})"
     fi
 }
 
@@ -109,7 +109,7 @@ function add_contributors() {
 }
 
 function update_authors() {
-    file="AUTHORS"
+    file="AUTHORS.md"
     temp="$(mktemp)"
 
     cat "${file}" > "${temp}"
@@ -124,4 +124,4 @@ cd "$(dirname "$0")/.."
 
 update_authors "${sphinx}"
 
-echo "done"
+echo "Updated AUTHORS.md"
