@@ -103,7 +103,7 @@ void CsvDumper::print_frame_(const Frame& frame) {
                 win_pos_ = 0;
             }
             if (!win_time_) {
-                win_time_ = frame.hw_sample_time(n)
+                win_time_ = frame.wc_sample_time(n)
                     + config_.samples_to_ns(win_size_ / 2 * config_.channel_count);
             }
             win_pos_++;

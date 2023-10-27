@@ -69,9 +69,11 @@ int AlsaReader::read_(Frame& frame) {
     nanoseconds_t sw_time = monotonic_timestamp_ns();
     nanoseconds_t hw_time = sw_time - config_.frames_to_ns((size_t)avail)
         - config_.frames_to_ns(dev_samples / dev_chans_);
+    nanoseconds_t wc_time = wallclock_timestamp_ns() - config_.frames_to_ns((size_t)avail)
+        - config_.frames_to_ns(dev_samples / dev_chans_);
     nanoseconds_t hw_buf = config_.frames_to_ns((size_t)avail);
 
-    frame.set_times(sw_time, hw_time, hw_buf);
+    frame.set_times(sw_time, hw_time, wc_time, hw_buf);
 
     // read from buffer to frame
     read_buf_(frame);

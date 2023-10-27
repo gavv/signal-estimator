@@ -48,6 +48,7 @@ void Frame::reset(Dir dir, size_t dev_index) {
 
     sw_time_ = 0;
     hw_time_ = 0;
+    wc_time_ = 0;
     hw_buf_ = 0;
 }
 
@@ -83,10 +84,11 @@ sample_t* Frame::data() {
     return &data_[0];
 }
 
-void Frame::set_times(
-    nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t hw_buf) {
+void Frame::set_times(nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t wc_time,
+    nanoseconds_t hw_buf) {
     sw_time_ = sw_time;
     hw_time_ = hw_time;
+    wc_time_ = wc_time;
     hw_buf_ = hw_buf;
 }
 
@@ -98,12 +100,20 @@ nanoseconds_t Frame::hw_frame_time() const {
     return hw_time_;
 }
 
+nanoseconds_t Frame::wc_frame_time() const {
+    return wc_time_;
+}
+
 nanoseconds_t Frame::sw_sample_time(size_t sample_index) const {
     return sw_time_ + config_.samples_to_ns(sample_index);
 }
 
 nanoseconds_t Frame::hw_sample_time(size_t sample_index) const {
     return hw_time_ + config_.samples_to_ns(sample_index);
+}
+
+nanoseconds_t Frame::wc_sample_time(size_t sample_index) const {
+    return wc_time_ + config_.samples_to_ns(sample_index);
 }
 
 nanoseconds_t Frame::hw_buf_len() const {

@@ -43,7 +43,8 @@ public:
     sample_t* data();
 
     // record hw and sw times
-    void set_times(nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t hw_buf);
+    void set_times(nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t wc_time,
+        nanoseconds_t hw_buf);
 
     // get time when the frame was passed to or received from the OS
     nanoseconds_t sw_frame_time() const;
@@ -52,12 +53,20 @@ public:
     // takes into account ALSA ring buffer size
     nanoseconds_t hw_frame_time() const;
 
+    // same as hw time, but using wallclock (absolute system clock) instead
+    // of monotonic clock
+    nanoseconds_t wc_frame_time() const;
+
     // get time when the sample inside frame was passed to or received from the OS
     nanoseconds_t sw_sample_time(size_t sample_index) const;
 
     // get time when the sample inside frame was passed to or received from hardware
     // takes into account ALSA ring buffer size and position of sample in frame
     nanoseconds_t hw_sample_time(size_t sample_index) const;
+
+    // same as hw_sample_time, but using wallclock (absolute system clock) instead
+    // of monotonic clock
+    nanoseconds_t wc_sample_time(size_t sample_index) const;
 
     // get hardware buffer length at the time when frame was captured or played
     nanoseconds_t hw_buf_len() const;
@@ -91,6 +100,7 @@ private:
 
     nanoseconds_t sw_time_ {};
     nanoseconds_t hw_time_ {};
+    nanoseconds_t wc_time_ {};
     nanoseconds_t hw_buf_ {};
 
     std::atomic<int> refcount_ {};

@@ -27,7 +27,9 @@ inline constexpr nanoseconds_t Minute = 60 * Second;
 inline constexpr nanoseconds_t Hour = 60 * Minute;
 
 // current timestamp from monotonic source
-// starts from zero (returned on the first invocation)
 nanoseconds_t monotonic_timestamp_ns();
+
+// current timestamp from wallclock source
+nanoseconds_t wallclock_timestamp_ns();
 
 } // namespace signal_estimator

@@ -76,9 +76,11 @@ int AlsaWriter::write_(Frame& frame) {
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
     const nanoseconds_t hw_time = sw_time + config_.frames_to_ns(pending)
         - config_.frames_to_ns(dev_samples / dev_chans_);
+    const nanoseconds_t wc_time = wallclock_timestamp_ns() + config_.frames_to_ns(pending)
+        - config_.frames_to_ns(dev_samples / dev_chans_);
     const nanoseconds_t hw_buf = config_.frames_to_ns(pending);
 
-    frame.set_times(sw_time, hw_time, hw_buf);
+    frame.set_times(sw_time, hw_time, wc_time, hw_buf);
 
     return 0;
 }
