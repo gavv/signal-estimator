@@ -32,7 +32,8 @@ public:
     void reset(Dir dir, size_t dev_index);
 
     // source or destination device
-    const DevInfo& dev() const;
+    size_t dev_index() const;
+    const DevInfo& dev_info() const;
 
     // frame direction (input or output)
     Dir dir() const;

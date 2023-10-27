@@ -14,16 +14,28 @@
 
 namespace signal_estimator {
 
-CsvDumper::CsvDumper(const Config& config)
-    : config_(config) {
-    win_size_ = std::max(config.dump_compression, size_t(1));
+namespace {
 
-    for (size_t ch = 0; ch < config_.channel_count; ch++) {
-        win_avg_.emplace_back(win_size_);
+std::string quote(const std::string& str) {
+    std::string quoted_str = str;
+
+    if (quoted_str.find(',') != std::string::npos
+        || quoted_str.find('"') != std::string::npos
+        || quoted_str.find('\n') != std::string::npos
+        || quoted_str.find('\r') != std::string::npos) {
+        quoted_str = std::regex_replace(quoted_str, std::regex("\""), "\"\"");
+        quoted_str = "\"" + quoted_str + "\"";
     }
 
+    return quoted_str;
+}
+
+} // namespace
+
+CsvDumper::CsvDumper(const Config& config)
+    : config_(config) {
     // upper bound
-    buf_.resize(128 + 24 * config_.channel_count);
+    buf_.resize(256 + 24 * config_.channel_count);
 }
 
 CsvDumper::~CsvDumper() {
@@ -63,12 +75,55 @@ void CsvDumper::write(FramePtr frame) {
         return;
     }
 
-    if (!header_printed_) {
-        header_printed_ = true;
-        print_header_();
+    DeviceState& dev = devices_[frame->dir()][frame->dev_index()];
+
+    if (dev.win_size == 0) {
+        device_init_(dev, *frame);
     }
 
-    print_frame_(*frame);
+    device_add_(dev, *frame);
+}
+
+void CsvDumper::device_init_(DeviceState& dev, const Frame& frame) {
+    dev.dir = frame.dir();
+
+    if (config_.show_device_names) {
+        dev.name = quote(frame.dev_info().short_name);
+    }
+
+    // if dump_compression is 0 or 1, SMA window is 1, but has no effect
+    dev.win_size = std::max(config_.dump_compression, (size_t)1);
+
+    for (size_t ch = 0; ch < config_.channel_count; ch++) {
+        dev.win_avg.emplace_back(dev.win_size);
+    }
+}
+
+void CsvDumper::device_add_(DeviceState& dev, const Frame& frame) {
+    for (size_t ns = 0; ns < frame.size(); ns += config_.channel_count) {
+        // add samples to SMA window
+        for (size_t ch = 0; ch < config_.channel_count; ch++) {
+            dev.win_avg[ch].add(frame[ns + ch]);
+        }
+
+        if (dev.win_pos == 0) {
+            // remember time of the middle of the sliding window
+            dev.win_time
+                = frame.wc_sample_time(ns) + config_.frames_to_ns(dev.win_size / 2);
+        }
+
+        dev.win_pos++;
+
+        // once per window, print line
+        if (dev.win_pos == dev.win_size) {
+            if (!header_printed_) {
+                header_printed_ = true;
+                print_header_();
+            }
+            print_line_(dev);
+            dev.win_pos = 0;
+        }
+    }
 }
 
 void CsvDumper::print_header_() {
@@ -93,69 +148,29 @@ void CsvDumper::print_header_() {
     fflush(fp_);
 }
 
-void CsvDumper::print_frame_(const Frame& frame) {
-    for (size_t n = 0; n < frame.size(); n++) {
-        if (n % config_.channel_count == 0) {
-            if (win_pos_ == win_size_) {
-                print_line_(frame.dir(), quote_dev_(frame.dev()), *win_time_);
-
-                win_time_ = {};
-                win_pos_ = 0;
-            }
-            if (!win_time_) {
-                win_time_ = frame.wc_sample_time(n)
-                    + config_.samples_to_ns(win_size_ / 2 * config_.channel_count);
-            }
-            win_pos_++;
-        }
-        win_avg_[n % config_.channel_count].add(frame[n]);
-    }
-}
-
-void CsvDumper::print_line_(Dir dir, const char* dev, nanoseconds_t timestamp) {
+void CsvDumper::print_line_(const DeviceState& dev) {
     size_t off = 0;
 
     off += (size_t)snprintf(
-        buf_.data() + off, buf_.size() - off, "%s", dir == Dir::Output ? "o" : "i");
+        buf_.data() + off, buf_.size() - off, "%s", dev.dir == Dir::Output ? "o" : "i");
 
     if (config_.show_device_names) {
-        off += (size_t)snprintf(buf_.data() + off, buf_.size() - off, ",%s", dev);
+        off += (size_t)snprintf(
+            buf_.data() + off, buf_.size() - off, ",%s", dev.name.c_str());
     }
 
     off += (size_t)snprintf(
-        buf_.data() + off, buf_.size() - off, ",%lld", (long long)timestamp);
+        buf_.data() + off, buf_.size() - off, ",%lld", (long long)dev.win_time);
 
     for (size_t ch = 0; ch < config_.channel_count; ch++) {
-        off += (size_t)snprintf(
-            buf_.data() + off, buf_.size() - off, ",%lld", (long long)win_avg_[ch].get());
+        off += (size_t)snprintf(buf_.data() + off, buf_.size() - off, ",%lld",
+            (long long)dev.win_avg[ch].get());
     }
 
     off += (size_t)snprintf(buf_.data() + off, buf_.size() - off, "\n");
 
     fprintf(fp_, "%s", buf_.data());
     fflush(fp_);
-}
-
-const char* CsvDumper::quote_dev_(const DevInfo& dev_info) {
-    if (!config_.show_device_names) {
-        return nullptr;
-    }
-
-    if (!quoted_devs_.count(dev_info.short_name)) {
-        std::string quoted_name = dev_info.short_name;
-
-        if (quoted_name.find(',') != std::string::npos
-            || quoted_name.find('"') != std::string::npos
-            || quoted_name.find('\n') != std::string::npos
-            || quoted_name.find('\r') != std::string::npos) {
-            quoted_name = std::regex_replace(quoted_name, std::regex("\""), "\"\"");
-            quoted_name = "\"" + quoted_name + "\"";
-        }
-
-        quoted_devs_[dev_info.short_name] = std::move(quoted_name);
-    }
-
-    return quoted_devs_.at(dev_info.short_name).c_str();
 }
 
 } // namespace signal_estimator

@@ -39,7 +39,7 @@ void Frame::reset(Dir dir, size_t dev_index) {
     dir_ = dir;
     dev_index_ = dev_index;
 
-    size_ = dev().period_size;
+    size_ = dev_info().period_size;
     assert(size_ > 0);
     if (data_.size() < size_) {
         data_.resize(size_);
@@ -52,7 +52,11 @@ void Frame::reset(Dir dir, size_t dev_index) {
     hw_buf_ = 0;
 }
 
-const DevInfo& Frame::dev() const {
+size_t Frame::dev_index() const {
+    return dev_index_;
+}
+
+const DevInfo& Frame::dev_info() const {
     switch (dir_) {
     case Dir::Output:
         assert(dev_index_ == 0);

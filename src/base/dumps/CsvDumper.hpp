@@ -9,7 +9,7 @@
 #include "processing/MovAvg.hpp"
 
 #include <cstdlib>
-#include <optional>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -34,25 +34,29 @@ public:
     void write(FramePtr frame) override;
 
 private:
-    void print_header_();
-    void print_frame_(const Frame& frame);
-    void print_line_(Dir dir, const char* dev, nanoseconds_t timestamp);
+    struct DeviceState {
+        Dir dir { Dir::Output };
+        std::string name;
 
-    const char* quote_dev_(const DevInfo& dev_info);
+        std::vector<MovAvg<float>> win_avg;
+        size_t win_size { 0 };
+        size_t win_pos { 0 };
+        nanoseconds_t win_time { 0 };
+    };
+
+    void device_init_(DeviceState& dev, const Frame& frame);
+    void device_add_(DeviceState& dev, const Frame& frame);
+
+    void print_header_();
+    void print_line_(const DeviceState& dev);
 
     const Config config_;
 
+    std::map<Dir, std::unordered_map<size_t, DeviceState>> devices_;
     bool header_printed_ { false };
-
-    std::vector<MovAvg<float>> win_avg_;
-    std::optional<nanoseconds_t> win_time_ { 0 };
-    size_t win_size_ { 0 };
-    size_t win_pos_ { 0 };
 
     FILE* fp_ {};
     std::vector<char> buf_;
-
-    std::unordered_map<std::string, std::string> quoted_devs_;
 };
 
 } // namespace signal_estimator
