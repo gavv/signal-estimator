@@ -3,11 +3,16 @@
 
 #pragma once
 
+#include "core/Dir.hpp"
+
 #include <string>
 
 namespace signal_estimator {
 
 struct DevInfo {
+    // input or output device
+    Dir dir;
+
     // short name of device for reports and dumps
     std::string short_name;
 

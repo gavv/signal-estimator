@@ -34,7 +34,7 @@ public:
     void write(FramePtr frame) override;
 
 private:
-    struct DeviceState {
+    struct DevState {
         Dir dir { Dir::Output };
         std::string name;
 
@@ -44,15 +44,15 @@ private:
         nanoseconds_t win_time { 0 };
     };
 
-    void device_init_(DeviceState& dev, const Frame& frame);
-    void device_add_(DeviceState& dev, const Frame& frame);
+    void device_init_(DevState& dev, const DevInfo& info);
+    void device_add_frame_(DevState& dev, const Frame& frame);
 
     void print_header_();
-    void print_line_(const DeviceState& dev);
+    void print_line_(const DevState& dev);
 
     const Config config_;
 
-    std::map<Dir, std::unordered_map<size_t, DeviceState>> devices_;
+    std::map<Dir, std::unordered_map<size_t, DevState>> devices_;
     bool header_printed_ { false };
 
     FILE* fp_ {};

@@ -75,20 +75,20 @@ void CsvDumper::write(FramePtr frame) {
         return;
     }
 
-    DeviceState& dev = devices_[frame->dir()][frame->dev_index()];
+    DevState& dev = devices_[frame->dir()][frame->dev_index()];
 
     if (dev.win_size == 0) {
-        device_init_(dev, *frame);
+        device_init_(dev, frame->dev_info());
     }
 
-    device_add_(dev, *frame);
+    device_add_frame_(dev, *frame);
 }
 
-void CsvDumper::device_init_(DeviceState& dev, const Frame& frame) {
-    dev.dir = frame.dir();
+void CsvDumper::device_init_(DevState& dev, const DevInfo& info) {
+    dev.dir = info.dir;
 
     if (config_.show_device_names) {
-        dev.name = quote(frame.dev_info().short_name);
+        dev.name = quote(info.short_name);
     }
 
     // if dump_compression is 0 or 1, SMA window is 1, but has no effect
@@ -99,7 +99,7 @@ void CsvDumper::device_init_(DeviceState& dev, const Frame& frame) {
     }
 }
 
-void CsvDumper::device_add_(DeviceState& dev, const Frame& frame) {
+void CsvDumper::device_add_frame_(DevState& dev, const Frame& frame) {
     for (size_t ns = 0; ns < frame.size(); ns += config_.channel_count) {
         // add samples to SMA window
         for (size_t ch = 0; ch < config_.channel_count; ch++) {
@@ -148,7 +148,7 @@ void CsvDumper::print_header_() {
     fflush(fp_);
 }
 
-void CsvDumper::print_line_(const DeviceState& dev) {
+void CsvDumper::print_line_(const DevState& dev) {
     size_t off = 0;
 
     off += (size_t)snprintf(

@@ -211,6 +211,7 @@ snd_pcm_t* alsa_open(const std::string& device, snd_pcm_stream_t stream,
         goto error;
     }
 
+    dev_info.dir = stream == SND_PCM_STREAM_PLAYBACK ? Dir::Output : Dir::Input;
     dev_info.short_name = device;
     dev_info.period_count = buffer_size / period_size;
     dev_info.period_size = period_size * config.channel_count;
