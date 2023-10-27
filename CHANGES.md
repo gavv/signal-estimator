@@ -15,6 +15,7 @@
 * Saturate instead of overflowing when `--gain`-ed signal is high
 * Enable `--warmup` by default
 * Disable `--dump-compression` by default
+* Use wallclock (absolute system time) time in csv dumps ([gh-60][gh-60])
 * GUI: Display measurement results ([gh-13][gh-13])
 * GUI: Fix mode names
 * GUI: Reduce default dump compression
@@ -39,6 +40,7 @@
 [gh-51]: https://github.com/gavv/signal-estimator/issues/51
 [gh-52]: https://github.com/gavv/signal-estimator/issues/52
 [gh-53]: https://github.com/gavv/signal-estimator/issues/53
+[gh-60]: https://github.com/gavv/signal-estimator/issues/60
 
 ## [v0.0.7][v0.0.7] - 19 Sep 2023
 

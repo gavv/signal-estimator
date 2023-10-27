@@ -7,6 +7,7 @@ Signal Estimator
 
 - [Features](#features)
 - [Usage examples](#usage-examples)
+- [Release history](#release-history)
 - [Supported platforms](#supported-platforms)
 - [Dependencies](#dependencies)
 - [Installation](#installation)
@@ -49,7 +50,7 @@ Usage examples
 
 * **Measure hardware latency of sound card (by cable)**
 
-   Connect PC audio output to audio input using a jack cable.
+   Connect audio output of PC to audio input using a jack cable.
 
    Measured loopback latency (bold red) will give you output + input latency of sound card.
 
@@ -65,7 +66,7 @@ Usage examples
 
 * **Measure hardware + software latency of loopback setup**
 
-   Connect PC audio output to DUT (Device Under Test, e.g. another computer) audio input using a jack cable. Connect DUT audio output to PC audio input. On DUT, run software that loops back signal from input to output device.
+   Connect audio output of PC to audio input of DUT (Device Under Test, e.g. another computer) using a jack cable. Connect audio output of DUT to audio input of PC. On DUT, run software that loops back signal from input to output device.
 
    Measured loopback latency (bold red) will give you output + input latency of PC sound card (which you can measure separately and subtract) + output + input latency of DUT sound card (which you can also measure separately) + latency of software running on DUT.
 
@@ -73,7 +74,7 @@ Usage examples
 
 * **Measure hardware + software + network latency of streaming setup**
 
-   Connect PC audio output to audio input of first DUT (Device Under Test, e.g. another computer). Connect audio output of second DUT to PC audio input. Run software that reads audio input on first DUT, sends it to second DUT, and writes to its audio output.
+   Connect audio output of PC to audio input of first DUT (Device Under Test, e.g. another computer). Connect audio output of second DUT to audio input of PC. Run software that reads audio input on first DUT, sends it to second DUT, and writes to its audio output.
 
    Measured loopback latency (bold red) will give you output + input latency of PC sound card (which you can measure separately and subtract) + output + input latency of DUT sound cards (which you can also measure separately) + latency of software running on DUTs + latency of network.
 
@@ -97,11 +98,16 @@ Usage examples
 
 * **Measure synchronicity of streaming setup**
 
-   Connect PC audio output to audio input of sender DUT (Device Under Test, e.g. another computer). Connect audio outputs of two receiver DUTs to audio inputs of PC. On DUTs, run software that sends audio input to audio outputs over network. On PC, run signal-estimator with one output and two input devices.
+   Connect audio output of PC to audio input of sender DUT (Device Under Test, e.g. another computer). Connect audio outputs of two receiver DUTs to audio inputs of PC. On DUTs, run software that sends audio input to audio outputs over network. On PC, run signal-estimator with one output and two input devices.
 
    Difference between measured latencies of the two inputs (bold red) will show how synchronous are the two streams played on two receiver DUTs.
 
    <img src="https://github.com/gavv/signal-estimator/blob/main/doc/example_sync_streaming.drawio.png" width="500" />
+
+Release history
+---------------
+
+Changelog file can be found here: [changelog](CHANGES.md).
 
 Supported platforms
 -------------------
@@ -562,7 +568,9 @@ systemctl --user stop pipewire pipewire.socket pipewire-pulse pipewire-pulse.soc
 Real-time scheduling policy
 ---------------------------
 
-If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically enable `SCHED_RR` scheduling policy sensitive threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or software being measured) on a loaded system and make the measurement more stable and precise.
+If you run the tool under the `root` user, or with `CAP_SYS_NICE` and `CAP_SYS_ADMIN` capabilities, it will automatically try to enable `SCHED_RR` scheduling policy for sensitive threads. This may help to avoid glitches introduced by the tool itself (not by the hardware or software being measured) and make the measurement more stable and precise.
+
+You can disable this behavior by providing `--no-rt` option.
 
 Internals
 ---------
