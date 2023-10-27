@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     app.formatter(std::make_shared<Formatter>());
 
     app.add_flag("-v,--verbose", verbosity,
-        "Increase verbosity level (may be used multiple times)");
+        "Increase verbosity level (can be used multiple times)");
 
     auto control_opts = app.add_option_group("Control options");
 
@@ -36,8 +36,10 @@ int main(int argc, char** argv) {
     control_opts->add_option("-o,--output", config.output_dev, "Output device name");
     control_opts->add_option("-i,--input", config.input_devs, "Input device name(s)")
         ->expected(0, -1);
-    control_opts->add_flag("--diff", config.diff_inputs,
-        "Measure difference between two input devices (need exactly 2 inputs)");
+    control_opts
+        ->add_flag("--diff", config.diff_inputs,
+            "Measure difference between two input devices (needs exactly 2 inputs)")
+        ->group("");
     control_opts
         ->add_option("-d,--duration", config.measurement_duration,
             "Limit measurement duration, seconds (zero for no limit)")

@@ -17,6 +17,9 @@ std::string Formatter::make_expanded(const CLI::App* sub) const {
         if (opt == sub->get_help_ptr() || opt == sub->get_help_all_ptr()) {
             continue;
         }
+        if (opt->get_group().empty()) {
+            continue;
+        }
         out << make_option(opt, false);
     }
 

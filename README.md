@@ -229,7 +229,6 @@ Control options:
                               Operation mode: latency_corr|latency_step|losses|io_jitter
   -o,--output TEXT            Output device name
   -i,--input TEXT ...         Input device name(s)
-  --diff                      Measure difference between two input devices (need exactly 2 inputs)
   -d,--duration FLOAT [0]     Limit measurement duration, seconds (zero for no limit)
   -w,--warmup FLOAT [1]       Warmup duration, seconds (zero for no warmup)
 

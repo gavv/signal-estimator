@@ -4,7 +4,7 @@
 
 * Overhaul hardware latency calculation and improve its precision
 * Implement new `io_jitter` measurement mode ([gh-53][gh-53])
-* Support multiple input devices and `--diff` mode ([gh-51][gh-51])
+* Support multiple input devices ([gh-51][gh-51])
 * Support different channel counts for output and input devices ([gh-50][gh-50])
 * Support different period size and count for output and input devices ([gh-52][gh-52])
 * Rename `-v` (`--volume`) to `-g` (`--gain`)
