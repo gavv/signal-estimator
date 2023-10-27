@@ -66,7 +66,7 @@ base = min(out_sig[0,0], in_sig[0,0])
 out_sig[:,0] -= base
 in_sig[:,0] -= base
 
-print("Plotting ...")
+print('Plotting ...', file=sys.stderr)
 
 fig = pylab.figure()
 fig.canvas.mpl_connect('close_event', lambda ev: os._exit(0))
@@ -76,8 +76,8 @@ pylab.plot(in_sig[:,0], in_sig[:,1], '-o',
            label=(f'input signal ({args.device})' if has_device else 'input signal'))
 
 pylab.grid()
-pylab.xlabel("time, milliseconds")
-pylab.ylabel("amplitude")
+pylab.xlabel('time, milliseconds')
+pylab.ylabel('amplitude')
 
 pylab.legend()
 pylab.show()
