@@ -416,13 +416,32 @@
        </attribute>
        <layout class="QFormLayout" name="formLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="SampleRateLabel">
+         <widget class="QLabel" name="IOOption">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Sample Rate:</string>
+           <string>I/O</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="0">
+         <widget class="QLabel" name="SampleRateLabel">
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string/>
+          </property>
+          <property name="text">
+           <string>Sample Rate (Hz):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
          <widget class="QSpinBox" name="SampleRate">
           <property name="minimum">
            <number>1</number>
@@ -435,14 +454,14 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="NumChannelsLabel">
           <property name="text">
            <string>Number of Channels:</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QSpinBox" name="NumChannels">
           <property name="minimum">
            <number>1</number>
@@ -455,14 +474,17 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="VolumeLabel_2">
+          <property name="toolTip">
+           <string>Output signal gain, from 0 to 1</string>
+          </property>
           <property name="text">
            <string>Signal Volume:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QDoubleSpinBox" name="SignalVolume">
           <property name="decimals">
            <number>6</number>
@@ -481,14 +503,17 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="PRBLabel">
+          <property name="toolTip">
+           <string>Number of periods in output ring buffer</string>
+          </property>
           <property name="text">
            <string>Periods in Ring Buffer:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QSpinBox" name="PRB">
           <property name="minimum">
            <number>0</number>
@@ -504,14 +529,17 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="RBSLabel">
+          <property name="toolTip">
+           <string>Output ring buffer size, microseconds</string>
+          </property>
           <property name="text">
-           <string>Ring Buffer Size (ms):</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ring Buffer Size (μs):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="QSpinBox" name="RBS">
           <property name="minimum">
            <number>0</number>
@@ -527,14 +555,17 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="DurationLabel">
+          <property name="toolTip">
+           <string>Limit measurement duration, seconds (zero for no limit)</string>
+          </property>
           <property name="text">
-           <string>Measurement Duration (seconds):</string>
+           <string>Measurement Duration (s):</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QSpinBox" name="Duration">
           <property name="minimum">
            <number>0</number>
@@ -550,94 +581,63 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="Label1_6">
-          <property name="text">
-           <string>Signal Detection Window:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QSpinBox" name="SigDW">
-          <property name="suffix">
-           <string/>
-          </property>
-          <property name="maximum">
-           <number>2147483647</number>
-          </property>
-          <property name="value">
-           <number>48</number>
-          </property>
-         </widget>
-        </item>
         <item row="7" column="0">
-         <widget class="QLabel" name="Label1_7">
+         <widget class="QLabel" name="Report">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Signal Detection Threshold:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="QDoubleSpinBox" name="SigDT">
-          <property name="decimals">
-           <number>6</number>
-          </property>
-          <property name="maximum">
-           <double>1.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.010000000000000</double>
-          </property>
-          <property name="value">
-           <double>0.150000000000000</double>
+           <string>Report</string>
           </property>
          </widget>
         </item>
         <item row="8" column="0">
-         <widget class="QLabel" name="Label1_8">
+         <widget class="QLabel" name="Label1">
+          <property name="toolTip">
+           <string>Simple Moving Average window for latency reports</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
           <property name="text">
-           <string>Glitch Detection Window:</string>
+           <string>Simple Moving Average Window:</string>
           </property>
          </widget>
         </item>
         <item row="8" column="1">
-         <widget class="QSpinBox" name="GliDW">
+         <widget class="QSpinBox" name="SMA">
           <property name="suffix">
-           <string/>
+           <string> seconds</string>
           </property>
           <property name="maximum">
            <number>2147483647</number>
           </property>
           <property name="value">
-           <number>32</number>
+           <number>5</number>
           </property>
          </widget>
         </item>
         <item row="9" column="0">
-         <widget class="QLabel" name="Label1_9">
+         <widget class="QLabel" name="Dump">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Glitch Detection Threshold:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QDoubleSpinBox" name="GliDT">
-          <property name="decimals">
-           <number>6</number>
-          </property>
-          <property name="maximum">
-           <double>1.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.010000000000000</double>
-          </property>
-          <property name="value">
-           <double>0.050000000000000</double>
+           <string>Dump</string>
           </property>
          </widget>
         </item>
         <item row="11" column="0">
          <widget class="QLabel" name="Label1_11">
+          <property name="toolTip">
+           <string>Compress dumped samples by given ratio using SMA</string>
+          </property>
           <property name="text">
            <string>Dump Compression:</string>
           </property>
@@ -657,33 +657,102 @@
          </widget>
         </item>
         <item row="12" column="0">
-         <widget class="QLabel" name="Label1">
+         <widget class="QLabel" name="label_4">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Simple Moving Average Window:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="1">
-         <widget class="QSpinBox" name="SMA">
-          <property name="suffix">
-           <string> seconds</string>
-          </property>
-          <property name="maximum">
-           <number>2147483647</number>
-          </property>
-          <property name="value">
-           <number>5</number>
+           <string>Correlation-based latency estimation</string>
           </property>
          </widget>
         </item>
         <item row="13" column="0">
-         <widget class="QLabel" name="Label1_2">
+         <widget class="QLabel" name="ImpulseIntervalLabel">
+          <property name="toolTip">
+           <string>Impulse interval, seconds</string>
+          </property>
           <property name="text">
-           <string>Step Period:</string>
+           <string>Impulse Interval (s):</string>
           </property>
          </widget>
         </item>
         <item row="13" column="1">
+         <widget class="QSpinBox" name="ImpulseInterval">
+          <property name="maximum">
+           <number>2147483647</number>
+          </property>
+          <property name="value">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="0">
+         <widget class="QLabel" name="PeakToNoiseMRTLabel">
+          <property name="toolTip">
+           <string>The peak-to-noise minimum ratio threshold</string>
+          </property>
+          <property name="text">
+           <string>Peak-to-Noise Min. Ratio Threshold:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="1">
+         <widget class="QSpinBox" name="PeakToNoiseMRT">
+          <property name="maximum">
+           <number>2147483647</number>
+          </property>
+          <property name="value">
+           <number>4</number>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="0">
+         <widget class="QLabel" name="PeakDWLLabel">
+          <property name="toolTip">
+           <string>Peak detection window length, samples</string>
+          </property>
+          <property name="text">
+           <string>Peak Detection Window Length</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="1">
+         <widget class="QSpinBox" name="PeakDWL">
+          <property name="maximum">
+           <number>2147483647</number>
+          </property>
+          <property name="value">
+           <number>128</number>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0">
+         <widget class="QLabel" name="StepBasedLatencyEst">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Step-based latency estimation</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="0">
+         <widget class="QLabel" name="Label1_2">
+          <property name="toolTip">
+           <string>Step interval, seconds</string>
+          </property>
+          <property name="text">
+           <string>Step Period (s):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="1">
          <widget class="QSpinBox" name="StepPeriod">
           <property name="suffix">
            <string> seconds</string>
@@ -696,14 +765,17 @@
           </property>
          </widget>
         </item>
-        <item row="14" column="0">
+        <item row="18" column="0">
          <widget class="QLabel" name="Label1_3">
+          <property name="toolTip">
+           <string>Step length, seconds</string>
+          </property>
           <property name="text">
-           <string>Step Length:</string>
+           <string>Step Length (s):</string>
           </property>
          </widget>
         </item>
-        <item row="14" column="1">
+        <item row="18" column="1">
          <widget class="QDoubleSpinBox" name="StepLength">
           <property name="decimals">
            <number>6</number>
@@ -719,14 +791,17 @@
           </property>
          </widget>
         </item>
-        <item row="15" column="0">
+        <item row="19" column="0">
          <widget class="QLabel" name="Label1_4">
+          <property name="toolTip">
+           <string>Step detection running maximum window, samples</string>
+          </property>
           <property name="text">
            <string>Step Detection Window:</string>
           </property>
          </widget>
         </item>
-        <item row="15" column="1">
+        <item row="19" column="1">
          <widget class="QSpinBox" name="StepDW">
           <property name="suffix">
            <string/>
@@ -742,14 +817,17 @@
           </property>
          </widget>
         </item>
-        <item row="16" column="0">
+        <item row="20" column="0">
          <widget class="QLabel" name="Label1_5">
+          <property name="toolTip">
+           <string>Step detection threshold, from 0 to 1</string>
+          </property>
           <property name="text">
            <string>Step Detection Threshold:</string>
           </property>
          </widget>
         </item>
-        <item row="16" column="1">
+        <item row="20" column="1">
          <widget class="QDoubleSpinBox" name="StepDT">
           <property name="decimals">
            <number>6</number>
@@ -762,6 +840,117 @@
           </property>
           <property name="value">
            <double>0.400000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="21" column="0">
+         <widget class="QLabel" name="LossRatioEst">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Loss ratio estimation</string>
+          </property>
+         </widget>
+        </item>
+        <item row="22" column="0">
+         <widget class="QLabel" name="Label1_6">
+          <property name="toolTip">
+           <string>Signal detection running maximum window, samples</string>
+          </property>
+          <property name="text">
+           <string>Signal Detection Window:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="22" column="1">
+         <widget class="QSpinBox" name="SigDW">
+          <property name="suffix">
+           <string/>
+          </property>
+          <property name="maximum">
+           <number>2147483647</number>
+          </property>
+          <property name="value">
+           <number>48</number>
+          </property>
+         </widget>
+        </item>
+        <item row="23" column="0">
+         <widget class="QLabel" name="Label1_7">
+          <property name="toolTip">
+           <string>Signal detection threshold, from 0 to 1</string>
+          </property>
+          <property name="text">
+           <string>Signal Detection Threshold:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="23" column="1">
+         <widget class="QDoubleSpinBox" name="SigDT">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.150000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="0">
+         <widget class="QLabel" name="Label1_8">
+          <property name="toolTip">
+           <string>Glitch detection running maximum window, samples</string>
+          </property>
+          <property name="text">
+           <string>Glitch Detection Window:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="1">
+         <widget class="QSpinBox" name="GliDW">
+          <property name="suffix">
+           <string/>
+          </property>
+          <property name="maximum">
+           <number>2147483647</number>
+          </property>
+          <property name="value">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item row="25" column="0">
+         <widget class="QLabel" name="Label1_9">
+          <property name="toolTip">
+           <string>Glitch detection threshold, from 0 to 1</string>
+          </property>
+          <property name="text">
+           <string>Glitch Detection Threshold:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="25" column="1">
+         <widget class="QDoubleSpinBox" name="GliDT">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.050000000000000</double>
           </property>
          </widget>
         </item>
