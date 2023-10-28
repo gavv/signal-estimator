@@ -68,7 +68,9 @@ private:
     PointsBuffer data2_;
     PointsBuffer data3_;
 
-    QScopedPointer<QwtPlotGrid> grid_ { new QwtPlotGrid() };
+    QScopedPointer<QwtPlotGrid> grid1_ { new QwtPlotGrid() };
+    QScopedPointer<QwtPlotGrid> grid2_ { new QwtPlotGrid() };
+    QScopedPointer<QwtPlotGrid> grid3_ { new QwtPlotGrid() };
 
     QScopedPointer<QwtPlotCurve> inputCurve_ { new QwtPlotCurve(
         "Input signal (captured)") };

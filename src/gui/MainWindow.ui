@@ -50,8 +50,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>825</width>
-             <height>773</height>
+             <width>812</width>
+             <height>1058</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -400,10 +400,10 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>300</height>
+                <height>200</height>
                </size>
               </property>
-              <property name="autoReplot" stdset="0">
+              <property name="autoReplot">
                <bool>false</bool>
               </property>
              </widget>
@@ -427,6 +427,26 @@
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtPlot" name="ResultPlot1">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>200</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QwtPlot" name="ResultPlot2">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>200</height>
+               </size>
               </property>
              </widget>
             </item>
@@ -857,7 +877,7 @@
      <x>0</x>
      <y>0</y>
      <width>871</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>

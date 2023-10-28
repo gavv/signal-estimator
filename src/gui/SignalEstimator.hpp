@@ -32,9 +32,9 @@ struct DataPoint {
     PointType type {};
     double time {};
                      //Depending on PointType:
-    double data1 {}; //HW + SW Latency  | Loss Rate     | Signal level
+    double data1 {}; //Avg HW Latency   | Loss Rate     | Signal level
     double data2 {}; //HW  Latency      | Avg Loss Rate | Not used (garbage)
-    double data3 {}; //Avg HW Latency   | Loss Ratio    | Not used (garbage)
+    double data3 {}; //HW + SW Latency  | Loss Ratio    | Not used (garbage)
 };
 
 class SignalEstimator : public QObject {

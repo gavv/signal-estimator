@@ -155,9 +155,9 @@ std::optional<DataPoint> SignalEstimator::parseIO_(
             latency_ = *latencyValues;
             pt.type = PointType::Latency;
             pt.time = (monotonic_timestamp_ns()-startTime_)/1e6;
-            pt.data1 = latency_->swHw;
+            pt.data1 = latency_->hwAvgN;
             pt.data2 = latency_->hw;
-            pt.data3 = latency_->hwAvgN;
+            pt.data3 = latency_->swHw;
             return pt;
         }
     }
