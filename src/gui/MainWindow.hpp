@@ -43,8 +43,6 @@ private slots:
     void on_StartButton_released();
     void on_StopButton_clicked();
 
-    void setCurveVisibility(QScopedPointer<QwtPlotCurve>& curve, int state);
-
     void update_graphs();
     void read_graph_data();
     void show_error(QString error);

@@ -26,12 +26,6 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     connect(signal_estimator_, &SignalEstimator::can_read, this,
         &MainWindow::read_graph_data);
 
-    //ui->OutputSig->setCanvasBackground(Qt::white);
-    //ui->ResultPlot1->setCanvasBackground(Qt::white);
-    //ui->ResultPlot2->setCanvasBackground(Qt::white);
-
-    //ui->OutputSig->enableAxis(QwtPlot::yRight, true);
-
     outputCurve_->setPen(QColor(0x1f77b4));
     outputCurve_->attach(ui->OutputSig);
 
@@ -39,36 +33,30 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     inputCurve_->attach(ui->OutputSig);
 
     data1Curve_->setPen(QColor(0x1f77b4),2);
-    //data1Curve_->setYAxis(QwtPlot::yRight);
     QColor color1 = data1Curve_->pen().color();
-    QwtSymbol* symbol1 = new QwtSymbol(QwtSymbol::Ellipse); //Done only once, so leak is small hopefuly
+    QwtSymbol* symbol1 = new QwtSymbol(QwtSymbol::Ellipse);
     symbol1->setColor(data1Curve_->pen().color());
     symbol1->setSize(5);
     color1.setAlphaF(0.1);
     data1Curve_->setBrush(QBrush(color1));
     data1Curve_->setSymbol(symbol1);
-    //data1Curve_->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
     data1Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     data1Curve_->attach(ui->ResultPlot1);
 
     data2Curve_->setPen(QColor(0xff7f0e),2);
-    //data2Curve_->setYAxis(QwtPlot::yRight);
     QColor color2 = data2Curve_->pen().color();
-    QwtSymbol* symbol2 = new QwtSymbol(QwtSymbol::Ellipse); //Done only once, so leak is small hopefuly
+    QwtSymbol* symbol2 = new QwtSymbol(QwtSymbol::Ellipse);
     symbol2->setColor(data2Curve_->pen().color());
     symbol2->setSize(5);
     color2.setAlphaF(0.1);
     data2Curve_->setBrush(QBrush(color2));
     data2Curve_->setSymbol(symbol2);
-    //data2Curve_->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
     data2Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     data2Curve_->attach(ui->ResultPlot1);
 
     data3Curve_->setPen(QColor(0x1f77b4), 2);
-    //data3Curve_->setYAxis(QwtPlot::yRight);
     data3Curve_->setBrush(QBrush(color1));
     data3Curve_->setSymbol(symbol1);
-    //data3Curve_->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
     data3Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     data3Curve_->attach(ui->ResultPlot2);
 
@@ -76,44 +64,12 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     ui->ResultPlot1->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
     ui->ResultPlot2->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
 
-    //grid1_->enableX(ui->GridCheckBox->isChecked());
-    //grid1_->enableY(ui->GridCheckBox->isChecked());
     grid1_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
     grid1_->attach(ui->OutputSig);
     grid2_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
     grid2_->attach(ui->ResultPlot1);
     grid3_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
     grid3_->attach(ui->ResultPlot2);
-    //grid1_->attach(ui->ResultPlot1);
-    //grid1_->attach(ui->ResultPlot2);
-
-    //connect(ui->GridCheckBox, &QCheckBox::stateChanged, [this](int state) {
-        //const bool enable = (state == Qt::Checked);
-        //grid1_->enableX(enable);
-        //grid1_->enableY(enable);
-        //ui->OutputSig->replot();
-    //});
-
-    connect(ui->CheckBoxOut, &QCheckBox::stateChanged, this, [this](int state) {
-        setCurveVisibility(outputCurve_, state);
-    });
-
-    connect(ui->CheckBoxIn, &QCheckBox::stateChanged, this, [this](int state) {
-        setCurveVisibility(inputCurve_, state);
-    });
-
-    connect(ui->CheckBoxData1, &QCheckBox::stateChanged, this, [this](int state) {
-        setCurveVisibility(data1Curve_, state);
-    });
-
-    connect(ui->CheckBoxData2, &QCheckBox::stateChanged, this, [this](int state) {
-        setCurveVisibility(data2Curve_, state);
-    });
-
-    connect(ui->CheckBoxData3, &QCheckBox::stateChanged, this, [this](int state) {
-        setCurveVisibility(data3Curve_, state);
-    });
-
 
     QwtPlotPicker* zoomInPicker = new QwtPlotPicker(ui->OutputSig->canvas());
     zoomInPicker->setStateMachine(new QwtPickerDragRectMachine());
@@ -139,11 +95,6 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
     QwtPlotPicker* trackPicker1 = new QwtPlotPicker(ui->OutputSig->canvas());
     trackPicker1->setStateMachine(new QwtPickerTrackerMachine());
-    connect(trackPicker1, &QwtPlotPicker::moved, [this](const QPointF& pos) {
-        ui->CursorPositionLabel->setText(QString("(%1, %2)")
-                                             .arg(QString::number(pos.x()))
-                                             .arg(QString::number(pos.y())));
-    });
     trackPicker1->setTrackerPen(QApplication::palette().text().color());
     trackPicker1->setTrackerMode(QwtPlotPicker::DisplayMode::AlwaysOn);
 
@@ -156,14 +107,6 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     trackPicker3->setStateMachine(new QwtPickerTrackerMachine());
     trackPicker3->setTrackerPen(QApplication::palette().text().color());
     trackPicker3->setTrackerMode(QwtPlotPicker::DisplayMode::AlwaysOn);
-
-//    QwtPlotPicker* trackPickerRight = new QwtPlotPicker(QwtPlot::Axis::xBottom, QwtPlot::yRight, ui->OutputSig->canvas());
-//    trackPickerRight->setStateMachine(new QwtPickerTrackerMachine());
-//    connect(trackPickerRight, &QwtPlotPicker::moved, [this](const QPointF& pos) {
-//        ui->CursorPositionLabelRight->setText(QString("(%1, %2)")
-//                                             .arg(QString::number(pos.x()))
-//                                             .arg(QString::number(pos.y())));
-//    });
 
     const std::vector<std::string> in_devices = device_manager_.get_input_devices();
     const std::vector<std::string> out_devices = device_manager_.get_output_devices();
@@ -241,7 +184,7 @@ void MainWindow::update_graphs() {
     if (!update_plots_) {
         return;
     }
-    // update both input and output signal graphs
+    // update all graphs
     QVector<QPointF> in_current = in_data_.get_current_points();
     QVector<QPointF> out_current = out_data_.get_current_points();
     QVector<QPointF> data1_current = data1_.get_current_points();
@@ -405,9 +348,6 @@ void MainWindow::display_latency_text_() {
     data1Curve_->setTitle("Average Hardware Latency");
     data2Curve_->setTitle("Hardware Latency");
     data3Curve_->setTitle("Hardware + Software Latency");
-    ui->CheckBoxData1->setText("Average Hardware Latency");
-    ui->CheckBoxData2->setText("Hardware Latency");
-    ui->CheckBoxData3->setText("Hardware + Software Latency");
 }
 
 void MainWindow::display_losses_text_() {
@@ -417,9 +357,6 @@ void MainWindow::display_losses_text_() {
     data1Curve_->setTitle("Loss Rate");
     data2Curve_->setTitle("Average Loss Rate");
     data3Curve_->setTitle("Loss Ratio");
-    ui->CheckBoxData1->setText("Loss Rate");
-    ui->CheckBoxData2->setText("Average Loss Rate");
-    ui->CheckBoxData3->setText("Loss Ratio");
 }
 
 void MainWindow::clear_results_text_() {
@@ -429,15 +366,6 @@ void MainWindow::clear_results_text_() {
     ui->Result1->setText("");
     ui->Result2->setText("");
     ui->Result3->setText("");
-}
-
-void MainWindow::setCurveVisibility(QScopedPointer<QwtPlotCurve>& curve, int state) {
-    if(state == Qt::Checked) {
-        curve->setStyle(QwtPlotCurve::Lines);
-    } else {
-        curve->setStyle(QwtPlotCurve::NoCurve);
-    }
-    ui->OutputSig->replot();
 }
 
 } // namespace signal_estimator
