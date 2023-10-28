@@ -87,12 +87,12 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     //grid1_->attach(ui->ResultPlot1);
     //grid1_->attach(ui->ResultPlot2);
 
-    connect(ui->GridCheckBox, &QCheckBox::stateChanged, [this](int state) {
+    //connect(ui->GridCheckBox, &QCheckBox::stateChanged, [this](int state) {
         //const bool enable = (state == Qt::Checked);
         //grid1_->enableX(enable);
         //grid1_->enableY(enable);
         //ui->OutputSig->replot();
-    });
+    //});
 
     connect(ui->CheckBoxOut, &QCheckBox::stateChanged, this, [this](int state) {
         setCurveVisibility(outputCurve_, state);
