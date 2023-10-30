@@ -26,14 +26,14 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     connect(signal_estimator_, &SignalEstimator::can_read, this,
         &MainWindow::read_graph_data);
 
-    outputCurve_->setPen(QColor(0x1f77b4));
+    outputCurve_->setPen(QColor(0x1F77B4));
     outputCurve_->attach(ui->OutputSig);
 
-    inputCurve_->setPen(QColor(0xff7f0e));
+    inputCurve_->setPen(QColor(0xFF7F0E));
     inputCurve_->attach(ui->OutputSig);
 
     {
-        data1Curve_->setPen(QColor(0x107F7B), 2);
+        data1Curve_->setPen(QColor(0xBA2D0B), 2);
 
         QwtSymbol* symbol1 = new QwtSymbol(QwtSymbol::Ellipse);
         symbol1->setColor(data1Curve_->pen().color());

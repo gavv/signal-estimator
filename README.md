@@ -222,7 +222,7 @@ Usage: signal-estimator [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
-  -v,--verbose [0]            Increase verbosity level (may be used multiple times)
+  -v,--verbose [0]            Increase verbosity level (can be used multiple times)
 
 Control options:
   -m,--mode TEXT [latency_corr]
