@@ -342,6 +342,18 @@ QStringList MainWindow::set_up_program_() {
     list.append("--glitch-detection-threshold");
     list.append(t);
 
+    t = ui->ImpulseInterval->cleanText();
+    list.append("--impulse-interval");
+    list.append(t);
+
+    t = ui->PeakToNoiseMRT->cleanText();
+    list.append("--impulse-peak-noise-ratio");
+    list.append(t);
+
+    t = ui->PeakDWL->cleanText();
+    list.append("--impulse-peak-window");
+    list.append(t);
+
     return list;
 }
 
