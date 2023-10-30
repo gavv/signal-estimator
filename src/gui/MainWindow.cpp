@@ -316,6 +316,10 @@ QStringList MainWindow::set_up_program_() {
     list.append("--in-periods");
     list.append(t);
 
+    if (!ui->Realtime->isChecked()) {
+        list.append("--no-rt");
+    }
+
     // Reports
     t = ui->SMA->cleanText();
     list.append("--report-sma");
