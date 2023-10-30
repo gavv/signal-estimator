@@ -7,7 +7,7 @@
 * GUI: Show plots with measurement results ([gh-47][gh-47])
 * GUI: Group options by category and add tooltips ([gh-15][gh-15])
 * GUI: Add missing options: impulse settings ([gh-27][gh-27]), input/output ring buffer settings, I/O jitter settings, warmup setting, SCHED_RR option
-* GUI: Refine option named, tooltips, and units (suffixes)
+* GUI: Refine option names, tooltips, and units (suffixes)
 * GUI: Change plot window to 15 seconds
 * GUI: Fix SIGSEGV when exiting during measurement
 
