@@ -630,7 +630,7 @@
            <string>Peak detection window length, samples</string>
           </property>
           <property name="text">
-           <string>Peak Detection Window Length</string>
+           <string>Peak Detection Window Length:</string>
           </property>
          </widget>
         </item>
@@ -846,55 +846,6 @@
           </property>
          </widget>
         </item>
-        <item row="29" column="0">
-         <widget class="QLabel" name="GliDWLabel">
-          <property name="toolTip">
-           <string>Glitch detection running maximum window, samples</string>
-          </property>
-          <property name="text">
-           <string>Glitch Detection Window:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="29" column="1">
-         <widget class="QSpinBox" name="GliDW">
-          <property name="suffix">
-           <string> samples</string>
-          </property>
-          <property name="maximum">
-           <number>2147483647</number>
-          </property>
-          <property name="value">
-           <number>32</number>
-          </property>
-         </widget>
-        </item>
-        <item row="30" column="0">
-         <widget class="QLabel" name="GliDTLabel">
-          <property name="toolTip">
-           <string>Glitch detection threshold, from 0 to 1</string>
-          </property>
-          <property name="text">
-           <string>Glitch Detection Threshold:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="30" column="1">
-         <widget class="QDoubleSpinBox" name="GliDT">
-          <property name="decimals">
-           <number>6</number>
-          </property>
-          <property name="maximum">
-           <double>1.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.010000000000000</double>
-          </property>
-          <property name="value">
-           <double>0.050000000000000</double>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="DurationLabel">
           <property name="toolTip">
@@ -1034,6 +985,114 @@
           </property>
           <property name="value">
            <number>2</number>
+          </property>
+         </widget>
+        </item>
+        <item row="31" column="0">
+         <widget class="QLabel" name="IOJitterOptionsLabel">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>I/O Jitter</string>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="0">
+         <widget class="QLabel" name="IOJitWindowLabel">
+          <property name="toolTip">
+           <string>I/O jitter detection window, number of periods</string>
+          </property>
+          <property name="text">
+           <string>I/O Jitter Window:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="1">
+         <widget class="QSpinBox" name="IOJitWindow">
+          <property name="suffix">
+           <string> periods</string>
+          </property>
+          <property name="maximum">
+           <number>2147483647</number>
+          </property>
+          <property name="value">
+           <number>250</number>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="0">
+         <widget class="QLabel" name="IOJitPercentileLabel">
+          <property name="toolTip">
+           <string>I/O jitter percentile, from 1 to 100</string>
+          </property>
+          <property name="text">
+           <string>I/O Jitter Percentile:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="1">
+         <widget class="QSpinBox" name="IOJitPercentile">
+          <property name="suffix">
+           <string> %</string>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>95</number>
+          </property>
+         </widget>
+        </item>
+        <item row="29" column="0">
+         <widget class="QLabel" name="GliDWLabel">
+          <property name="toolTip">
+           <string>Glitch detection running maximum window, samples</string>
+          </property>
+          <property name="text">
+           <string>Glitch Detection Window:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="29" column="1">
+         <widget class="QSpinBox" name="GliDW">
+          <property name="suffix">
+           <string> samples</string>
+          </property>
+          <property name="maximum">
+           <number>2147483647</number>
+          </property>
+          <property name="value">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item row="30" column="0">
+         <widget class="QLabel" name="GliDTLabel">
+          <property name="toolTip">
+           <string>Glitch detection threshold, from 0 to 1</string>
+          </property>
+          <property name="text">
+           <string>Glitch Detection Threshold:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="30" column="1">
+         <widget class="QDoubleSpinBox" name="GliDT">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.010000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.050000000000000</double>
           </property>
          </widget>
         </item>

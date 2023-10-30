@@ -376,6 +376,15 @@ QStringList MainWindow::set_up_program_() {
     list.append("--glitch-detection-threshold");
     list.append(t);
 
+    // IOJitter
+    t = ui->IOJitWindow->cleanText();
+    list.append("--io-jitter-window");
+    list.append(t);
+
+    t = ui->IOJitPercentile->cleanText();
+    list.append("--io-jitter-percentile");
+    list.append(t);
+
     return list;
 }
 
