@@ -71,9 +71,6 @@
              <layout class="QGridLayout" name="gridLayout">
               <item row="1" column="1">
                <widget class="QComboBox" name="OutputDevice">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the desired output device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
                 <item>
                  <property name="text">
                   <string>default</string>
@@ -93,9 +90,6 @@
               </item>
               <item row="5" column="1">
                <widget class="QComboBox" name="Mode">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the desired mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
                 <item>
                  <property name="text">
                   <string>latency_corr</string>
@@ -135,9 +129,6 @@
               </item>
               <item row="4" column="1">
                <widget class="QComboBox" name="InputDevice">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the desired input device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
                 <item>
                  <property name="text">
                   <string>default</string>
@@ -174,9 +165,6 @@
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QPushButton" name="StartButton">
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Run signal-estimator and graph the results&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
                  <property name="text">
                   <string>Start</string>
                  </property>
@@ -184,9 +172,6 @@
                </item>
                <item>
                 <widget class="QPushButton" name="StopButton">
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop graphing. Please wait for the sounds of signal-estimator to stop&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
                  <property name="text">
                   <string>Stop</string>
                  </property>
