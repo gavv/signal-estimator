@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.0.8][v0.0.8] - ???
+## [v0.0.8][v0.0.8] - 30 Oct 2023
 
 * Overhaul hardware latency calculation and improve its precision
 * Implement new `io_jitter` measurement mode ([gh-53][gh-53])
