@@ -109,6 +109,8 @@ bool SignalEstimator::start(QStringList args) {
         return false;
     }
 
+    startTime_ = monotonic_timestamp_ns()-Minute;//for latency and losses ploting
+
     return true;
 }
 
@@ -120,7 +122,7 @@ void SignalEstimator::stop() {
     proc_ = {};
 }
 
-std::optional<std::tuple<QPointF, PointType>> SignalEstimator::read() {
+std::optional<DataPoint> SignalEstimator::read() {
     if (!proc_) {
         return {};
     }
@@ -139,16 +141,24 @@ void SignalEstimator::clearResults_() {
     losses_ = {};
 }
 
-std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(
+std::optional<DataPoint> SignalEstimator::parseIO_(
     const QString& buffer) {
     if (buffer[0] == "#") {
         return {};
     }
 
+    DataPoint pt{};
+
     if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "a") {
         if (auto latencyValues = parseLatency(buffer)) {
             clearResults_();
             latency_ = *latencyValues;
+            pt.type = PointType::Latency;
+            pt.time = (monotonic_timestamp_ns()-startTime_)/1e6;
+            pt.data1 = latency_->hwAvgN;
+            pt.data2 = latency_->hw;
+            pt.data3 = latency_->swHw;
+            return pt;
         }
     }
 
@@ -156,6 +166,12 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(
         if (auto lossesValues = parseLosses(buffer)) {
             clearResults_();
             losses_ = *lossesValues;
+            pt.type = PointType::Losses;
+            pt.time = (monotonic_timestamp_ns()-startTime_)/1e6;
+            pt.data1 = losses_->rate;
+            pt.data2 = losses_->avgRate;
+            pt.data3 = losses_->ratio;
+            return pt;
         }
     }
 
@@ -166,26 +182,26 @@ std::optional<std::tuple<QPointF, PointType>> SignalEstimator::parseIO_(
         return {};
     }
 
-    QPointF pt;
-
     try {
-        pt.setX(tokens[1].toDouble() / 1000000);
+        pt.time = tokens[1].toDouble() / 1000000;
     } catch (const std::invalid_argument&) {
         return {};
     }
 
     try {
-        pt.setY(tokens[2].toDouble() / 1000);
+        pt.data1 = tokens[2].toDouble() / 1000;
     } catch (const std::invalid_argument&) {
         return {};
     }
 
     if (tokens[0] == "i") {
-        return std::make_tuple(pt, PointType::Input);
+        pt.type = PointType::Input;
+        return pt;
     }
 
     if (tokens[0] == "o") {
-        return std::make_tuple(pt, PointType::Output);
+        pt.type = PointType::Output;
+        return pt;
     }
 
     return {};

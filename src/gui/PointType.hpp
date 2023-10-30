@@ -8,6 +8,8 @@ namespace signal_estimator {
 enum class PointType {
     Input,
     Output,
+    Latency,
+    Losses,
 };
 
 } // namespace signal_estimator

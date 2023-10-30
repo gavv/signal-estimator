@@ -62,13 +62,24 @@ private:
 
     PointsBuffer out_data_;
     PointsBuffer in_data_;
+    PointsBuffer data1_;
+    PointsBuffer data2_;
+    PointsBuffer data3_;
 
-    QScopedPointer<QwtPlotGrid> grid_ { new QwtPlotGrid() };
+    QScopedPointer<QwtPlotGrid> grid1_ { new QwtPlotGrid() };
+    QScopedPointer<QwtPlotGrid> grid2_ { new QwtPlotGrid() };
+    QScopedPointer<QwtPlotGrid> grid3_ { new QwtPlotGrid() };
 
     QScopedPointer<QwtPlotCurve> inputCurve_ { new QwtPlotCurve(
         "Input signal (captured)") };
     QScopedPointer<QwtPlotCurve> outputCurve_ { new QwtPlotCurve(
         "Output signal (emitted)") };
+    QScopedPointer<QwtPlotCurve> data1Curve_ { new QwtPlotCurve(
+        "Hardware + Software Latency") };
+    QScopedPointer<QwtPlotCurve> data2Curve_ { new QwtPlotCurve(
+        "Hardware Latency") };
+    QScopedPointer<QwtPlotCurve> data3Curve_ { new QwtPlotCurve(
+        "Average Hardware Latency") };
 
     QTimer* timer_ = nullptr;
 

@@ -4,8 +4,8 @@
 #pragma once
 
 #include "PointType.hpp"
+#include "core/Time.hpp"
 
-#include <QPointF>
 #include <QProcess>
 #include <QSharedPointer>
 #include <QString>
@@ -28,6 +28,15 @@ struct LossesResult {
     double ratio { 0 };
 };
 
+struct DataPoint {
+    PointType type {};
+    double time {};
+                     //Depending on PointType:
+    double data1 {}; //Avg HW Latency   | Loss Rate     | Signal level
+    double data2 {}; //HW  Latency      | Avg Loss Rate | Not used (garbage)
+    double data3 {}; //HW + SW Latency  | Loss Ratio    | Not used (garbage)
+};
+
 class SignalEstimator : public QObject {
     Q_OBJECT
 
@@ -40,7 +49,7 @@ public:
     bool start(QStringList args);
     void stop();
 
-    std::optional<std::tuple<QPointF, PointType>> read();
+    std::optional<DataPoint> read();
     std::optional<LatencyResult> latencyUpdate();
     std::optional<LossesResult> lossesUpdate();
 
@@ -49,12 +58,14 @@ signals:
     void error(QString);
 
 private:
-    std::optional<std::tuple<QPointF, PointType>> parseIO_(const QString& buffer);
+    std::optional<DataPoint> parseIO_(const QString& buffer);
     void clearResults_();
 
     QSharedPointer<QProcess> proc_;
     std::optional<LatencyResult> latency_ = {};
     std::optional<LossesResult> losses_ = {};
+
+    nanoseconds_t startTime_{};
 };
 
 } // namespace signal_estimator
