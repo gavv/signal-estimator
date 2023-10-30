@@ -31,7 +31,7 @@ void TextReporter::report_losses(
 
 void TextReporter::report_jitter(double swdev_avg, double swdev_per, double hwdev_avg,
     double hwdev_per, double hwbuf_avg, double hwbuf_per, int percentile) {
-    printf("jitter%s:"
+    printf("io_jitter%s:"
            "  sw avg %6.3fms p%d %6.3fms"
            "  hw avg %6.3fms p%d %6.3fms"
            "  buf avg %6.3fms p%d %6.3fms\n",
