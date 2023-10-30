@@ -58,6 +58,30 @@ std::optional<LossesResult> parseLosses(const QString& buffer) {
     return values;
 }
 
+std::optional<SignalPoint> parseSignal(const QString& buffer) {
+    QRegularExpression reg(",|\\n");
+    QStringList tokens = buffer.split(reg, Qt::SkipEmptyParts);
+    if (tokens.count() < 3) {
+        return {};
+    }
+
+    SignalPoint pt;
+
+    pt.isOutput = tokens[0] == "o";
+    try {
+        pt.time = tokens[1].toDouble();
+    } catch (const std::invalid_argument&) {
+        return {};
+    }
+    try {
+        pt.amplitude = tokens[2].toDouble();
+    } catch (const std::invalid_argument&) {
+        return {};
+    }
+
+    return pt;
+}
+
 } // namespace
 
 SignalEstimator::SignalEstimator(QObject* parent)
@@ -177,33 +201,13 @@ std::optional<DataPoint> SignalEstimator::parseIO_(const QString& buffer) {
         }
     }
 
-    QRegularExpression reg(",|\\n");
-
-    QStringList tokens = buffer.split(reg, Qt::SkipEmptyParts);
-    if (tokens.count() < 3) {
-        return {};
-    }
-
-    try {
-        pt.time = (tokens[1].toDouble() - startTime_) / Millisecond;
-    } catch (const std::invalid_argument&) {
-        return {};
-    }
-
-    try {
-        pt.data1 = tokens[2].toDouble() / MaxSample * 100;
-    } catch (const std::invalid_argument&) {
-        return {};
-    }
-
-    if (tokens[0] == "i") {
-        pt.type = PointType::Input;
-        return pt;
-    }
-
-    if (tokens[0] == "o") {
-        pt.type = PointType::Output;
-        return pt;
+    if (buffer.size() > 1 && (buffer[0] == "i" || buffer[0] == "o")) {
+        if (auto sigPoint = parseSignal(buffer)) {
+            pt.type = sigPoint->isOutput ? PointType::Output : PointType::Input;
+            pt.time = (sigPoint->time - startTime_) / Millisecond;
+            pt.data1 = sigPoint->amplitude / MaxSample * 100;
+            return pt;
+        }
     }
 
     return {};
