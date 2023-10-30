@@ -33,23 +33,19 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     inputCurve_->attach(ui->OutputSig);
 
     {
-        data1Curve_->setPen(QColor(0x1f77b4), 2);
-
-        QColor color1 = data1Curve_->pen().color();
-        color1.setAlphaF(0.1);
+        data1Curve_->setPen(QColor(0x107F7B), 2);
 
         QwtSymbol* symbol1 = new QwtSymbol(QwtSymbol::Ellipse);
         symbol1->setColor(data1Curve_->pen().color());
         symbol1->setSize(5);
 
-        data1Curve_->setBrush(QBrush(color1));
         data1Curve_->setSymbol(symbol1);
         data1Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
         data1Curve_->attach(ui->ResultPlot1);
     }
 
     {
-        data2Curve_->setPen(QColor(0xff7f0e), 2);
+        data2Curve_->setPen(QColor(0x14A3A1), 2);
 
         QColor color2 = data2Curve_->pen().color();
         color2.setAlphaF(0.1);
@@ -65,7 +61,7 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     }
 
     {
-        data3Curve_->setPen(QColor(0x1f77b4), 2);
+        data3Curve_->setPen(QColor(0xB2A3B5), 2);
 
         QColor color3 = data3Curve_->pen().color();
         color3.setAlphaF(0.1);
