@@ -12,3 +12,4 @@ Signal Estimator authors, ordered by first contribution:
 * Mikhail Baranov (baranov.mv@gmail.com)
 * Chinry (https://github.com/Chinry)
 * Aadithyaa Eeswaran (eaadithyaa@gmail.com)
+* Jānis Ancāns (https://github.com/RandomJanis)
