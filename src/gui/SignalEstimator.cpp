@@ -3,6 +3,9 @@
 
 #include "SignalEstimator.hpp"
 
+#include "core/Sample.hpp"
+#include "core/Time.hpp"
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -109,7 +112,7 @@ bool SignalEstimator::start(QStringList args) {
         return false;
     }
 
-    startTime_ = monotonic_timestamp_ns()-Minute;//for latency and losses ploting
+    startTime_ = wallclock_timestamp_ns();
 
     return true;
 }
@@ -141,20 +144,19 @@ void SignalEstimator::clearResults_() {
     losses_ = {};
 }
 
-std::optional<DataPoint> SignalEstimator::parseIO_(
-    const QString& buffer) {
+std::optional<DataPoint> SignalEstimator::parseIO_(const QString& buffer) {
     if (buffer[0] == "#") {
         return {};
     }
 
-    DataPoint pt{};
+    DataPoint pt {};
 
     if (buffer.size() > 1 && buffer[0] == "l" && buffer[1] == "a") {
         if (auto latencyValues = parseLatency(buffer)) {
             clearResults_();
             latency_ = *latencyValues;
             pt.type = PointType::Latency;
-            pt.time = (monotonic_timestamp_ns()-startTime_)/1e6;
+            pt.time = (wallclock_timestamp_ns() - startTime_) / Millisecond;
             pt.data1 = latency_->hwAvgN;
             pt.data2 = latency_->hw;
             pt.data3 = latency_->swHw;
@@ -167,7 +169,7 @@ std::optional<DataPoint> SignalEstimator::parseIO_(
             clearResults_();
             losses_ = *lossesValues;
             pt.type = PointType::Losses;
-            pt.time = (monotonic_timestamp_ns()-startTime_)/1e6;
+            pt.time = (wallclock_timestamp_ns() - startTime_) / Millisecond;
             pt.data1 = losses_->rate;
             pt.data2 = losses_->avgRate;
             pt.data3 = losses_->ratio;
@@ -183,13 +185,13 @@ std::optional<DataPoint> SignalEstimator::parseIO_(
     }
 
     try {
-        pt.time = tokens[1].toDouble() / 1000000;
+        pt.time = (tokens[1].toDouble() - startTime_) / Millisecond;
     } catch (const std::invalid_argument&) {
         return {};
     }
 
     try {
-        pt.data1 = tokens[2].toDouble() / 1000;
+        pt.data1 = tokens[2].toDouble() / MaxSample * 100;
     } catch (const std::invalid_argument&) {
         return {};
     }
