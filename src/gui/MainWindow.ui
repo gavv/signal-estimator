@@ -394,7 +394,7 @@
         <item row="5" column="0">
          <widget class="QLabel" name="SampleRateLabel">
           <property name="toolTip">
-           <string>Number of samples per second</string>
+           <string/>
           </property>
           <property name="whatsThis">
            <string/>
@@ -406,6 +406,9 @@
         </item>
         <item row="5" column="1">
          <widget class="QSpinBox" name="SampleRate">
+          <property name="toolTip">
+           <string>Number of samples per second</string>
+          </property>
           <property name="suffix">
            <string> Hz</string>
           </property>
@@ -423,7 +426,7 @@
         <item row="6" column="0">
          <widget class="QLabel" name="ChannelCountLabel">
           <property name="toolTip">
-           <string>Number of channels</string>
+           <string/>
           </property>
           <property name="text">
            <string>Channel Count:</string>
@@ -432,6 +435,9 @@
         </item>
         <item row="6" column="1">
          <widget class="QSpinBox" name="ChannelCount">
+          <property name="toolTip">
+           <string>Number of audio channels</string>
+          </property>
           <property name="minimum">
            <number>1</number>
           </property>
@@ -446,7 +452,7 @@
         <item row="7" column="0">
          <widget class="QLabel" name="SignalGainLabel">
           <property name="toolTip">
-           <string>Output signal gain, from 0 to 1</string>
+           <string/>
           </property>
           <property name="text">
            <string>Signal Gain:</string>
@@ -455,6 +461,9 @@
         </item>
         <item row="7" column="1">
          <widget class="QDoubleSpinBox" name="SignalGain">
+          <property name="toolTip">
+           <string>Output signal gain, from 0 to 1</string>
+          </property>
           <property name="decimals">
            <number>6</number>
           </property>
@@ -475,7 +484,7 @@
         <item row="9" column="0">
          <widget class="QLabel" name="OutputPeriodsLabel">
           <property name="toolTip">
-           <string>Number of periods in output ring buffer</string>
+           <string/>
           </property>
           <property name="text">
            <string>Output Ring Buffer Periods:</string>
@@ -484,6 +493,9 @@
         </item>
         <item row="9" column="1">
          <widget class="QSpinBox" name="OutputPeriods">
+          <property name="toolTip">
+           <string>Number of periods in output ring buffer</string>
+          </property>
           <property name="minimum">
            <number>0</number>
           </property>
@@ -514,7 +526,7 @@
         <item row="13" column="0">
          <widget class="QLabel" name="SMALabel">
           <property name="toolTip">
-           <string>Simple Moving Average window for latency reports</string>
+           <string/>
           </property>
           <property name="toolTipDuration">
            <number>-1</number>
@@ -526,6 +538,9 @@
         </item>
         <item row="13" column="1">
          <widget class="QSpinBox" name="SMA">
+          <property name="toolTip">
+           <string>Simple Moving Average window for latency reports</string>
+          </property>
           <property name="suffix">
            <string> values</string>
           </property>
@@ -553,7 +568,7 @@
         <item row="16" column="0">
          <widget class="QLabel" name="DCLabel_2">
           <property name="toolTip">
-           <string>Compress dumped samples by given ratio using SMA</string>
+           <string/>
           </property>
           <property name="text">
            <string>Dump Compression:</string>
@@ -562,6 +577,9 @@
         </item>
         <item row="16" column="1">
          <widget class="QSpinBox" name="DC">
+          <property name="toolTip">
+           <string>Compress dumped samples by given ratio using SMA</string>
+          </property>
           <property name="suffix">
            <string> samples</string>
           </property>
@@ -589,7 +607,7 @@
         <item row="18" column="0">
          <widget class="QLabel" name="ImpulseIntervalLabel">
           <property name="toolTip">
-           <string>Impulse interval, seconds</string>
+           <string/>
           </property>
           <property name="text">
            <string>Impulse Interval:</string>
@@ -598,6 +616,9 @@
         </item>
         <item row="18" column="1">
          <widget class="QSpinBox" name="ImpulseInterval">
+          <property name="toolTip">
+           <string>Impulse interval, seconds</string>
+          </property>
           <property name="suffix">
            <string> seconds</string>
           </property>
@@ -612,7 +633,7 @@
         <item row="19" column="0">
          <widget class="QLabel" name="PeakDWLLabel">
           <property name="toolTip">
-           <string>Peak detection window length, samples</string>
+           <string/>
           </property>
           <property name="text">
            <string>Peak Detection Window Length:</string>
@@ -621,6 +642,9 @@
         </item>
         <item row="19" column="1">
          <widget class="QSpinBox" name="PeakDWL">
+          <property name="toolTip">
+           <string>Peak detection window length, samples</string>
+          </property>
           <property name="suffix">
            <string> samples</string>
           </property>
@@ -635,7 +659,7 @@
         <item row="20" column="0">
          <widget class="QLabel" name="PeakToNoiseMRTLabel">
           <property name="toolTip">
-           <string>The peak-to-noise minimum ratio threshold</string>
+           <string/>
           </property>
           <property name="text">
            <string>Peak-to-Noise Min. Ratio Threshold:</string>
@@ -644,6 +668,9 @@
         </item>
         <item row="20" column="1">
          <widget class="QSpinBox" name="PeakToNoiseMRT">
+          <property name="toolTip">
+           <string>The peak-to-noise minimum ratio threshold</string>
+          </property>
           <property name="maximum">
            <number>2147483647</number>
           </property>
@@ -668,7 +695,7 @@
         <item row="22" column="0">
          <widget class="QLabel" name="StepIntervalLabel">
           <property name="toolTip">
-           <string>Step interval, seconds</string>
+           <string/>
           </property>
           <property name="text">
            <string>Step Interval:</string>
@@ -677,6 +704,9 @@
         </item>
         <item row="22" column="1">
          <widget class="QSpinBox" name="StepInterval">
+          <property name="toolTip">
+           <string>Step interval, seconds</string>
+          </property>
           <property name="suffix">
            <string> seconds</string>
           </property>
@@ -691,7 +721,7 @@
         <item row="23" column="0">
          <widget class="QLabel" name="StepLengthLabel">
           <property name="toolTip">
-           <string>Step length, seconds</string>
+           <string/>
           </property>
           <property name="text">
            <string>Step Length:</string>
@@ -700,6 +730,9 @@
         </item>
         <item row="23" column="1">
          <widget class="QDoubleSpinBox" name="StepLength">
+          <property name="toolTip">
+           <string>Step length, seconds</string>
+          </property>
           <property name="suffix">
            <string> seconds</string>
           </property>
@@ -720,7 +753,7 @@
         <item row="24" column="0">
          <widget class="QLabel" name="StepDWLabel">
           <property name="toolTip">
-           <string>Step detection running maximum window, samples</string>
+           <string/>
           </property>
           <property name="text">
            <string>Step Detection Window:</string>
@@ -729,6 +762,9 @@
         </item>
         <item row="24" column="1">
          <widget class="QSpinBox" name="StepDW">
+          <property name="toolTip">
+           <string>Step detection running maximum window, samples</string>
+          </property>
           <property name="suffix">
            <string> samples</string>
           </property>
@@ -746,7 +782,7 @@
         <item row="25" column="0">
          <widget class="QLabel" name="StepDTLabel">
           <property name="toolTip">
-           <string>Step detection threshold, from 0 to 1</string>
+           <string/>
           </property>
           <property name="text">
            <string>Step Detection Threshold:</string>
@@ -755,6 +791,9 @@
         </item>
         <item row="25" column="1">
          <widget class="QDoubleSpinBox" name="StepDT">
+          <property name="toolTip">
+           <string>Step detection threshold, from 0 to 1</string>
+          </property>
           <property name="decimals">
            <number>6</number>
           </property>
@@ -785,7 +824,7 @@
         <item row="27" column="0">
          <widget class="QLabel" name="SigDWLabel">
           <property name="toolTip">
-           <string>Signal detection running maximum window, samples</string>
+           <string/>
           </property>
           <property name="text">
            <string>Signal Detection Window:</string>
@@ -794,6 +833,9 @@
         </item>
         <item row="27" column="1">
          <widget class="QSpinBox" name="SigDW">
+          <property name="toolTip">
+           <string>Signal detection running maximum window, samples</string>
+          </property>
           <property name="suffix">
            <string> samples</string>
           </property>
@@ -808,7 +850,7 @@
         <item row="28" column="0">
          <widget class="QLabel" name="SigDTLabel">
           <property name="toolTip">
-           <string>Signal detection threshold, from 0 to 1</string>
+           <string/>
           </property>
           <property name="text">
            <string>Signal Detection Threshold:</string>
@@ -817,6 +859,9 @@
         </item>
         <item row="28" column="1">
          <widget class="QDoubleSpinBox" name="SigDT">
+          <property name="toolTip">
+           <string>Signal detection threshold, from 0 to 1</string>
+          </property>
           <property name="decimals">
            <number>6</number>
           </property>
@@ -834,7 +879,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="DurationLabel">
           <property name="toolTip">
-           <string>Limit measurement duration, seconds (zero for no limit)</string>
+           <string/>
           </property>
           <property name="text">
            <string>Measurement Duration:</string>
@@ -843,6 +888,9 @@
         </item>
         <item row="1" column="1">
          <widget class="QSpinBox" name="Duration">
+          <property name="toolTip">
+           <string>Limit measurement duration, seconds (zero for no limit)</string>
+          </property>
           <property name="suffix">
            <string> seconds</string>
           </property>
@@ -863,7 +911,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="WarmupLabel">
           <property name="toolTip">
-           <string>Warmup duration, seconds (zero for no warmup)</string>
+           <string/>
           </property>
           <property name="text">
            <string>Warmup Duration:</string>
@@ -872,6 +920,9 @@
         </item>
         <item row="2" column="1">
          <widget class="QSpinBox" name="Warmup">
+          <property name="toolTip">
+           <string>Warmup duration, seconds (zero for no warmup)</string>
+          </property>
           <property name="suffix">
            <string> seconds</string>
           </property>
@@ -892,7 +943,7 @@
         <item row="8" column="0">
          <widget class="QLabel" name="OutputBufferLabel">
           <property name="toolTip">
-           <string>Output ring buffer size, microseconds</string>
+           <string/>
           </property>
           <property name="text">
            <string>Output Ring Buffer Size:</string>
@@ -901,6 +952,9 @@
         </item>
         <item row="8" column="1">
          <widget class="QSpinBox" name="OutputBuffer">
+          <property name="toolTip">
+           <string>Output ring buffer size, microseconds</string>
+          </property>
           <property name="suffix">
            <string> μs</string>
           </property>
@@ -921,7 +975,7 @@
         <item row="10" column="0">
          <widget class="QLabel" name="InputBufferLabel">
           <property name="toolTip">
-           <string>Input ring buffer size, microseconds</string>
+           <string/>
           </property>
           <property name="text">
            <string>Input Ring Buffer Size:</string>
@@ -931,7 +985,7 @@
         <item row="11" column="0">
          <widget class="QLabel" name="InputPeriodsLabel">
           <property name="toolTip">
-           <string>Number of periods in input ring buffer</string>
+           <string/>
           </property>
           <property name="text">
            <string>Input Ring Buffer Periods:</string>
@@ -940,6 +994,9 @@
         </item>
         <item row="10" column="1">
          <widget class="QSpinBox" name="InputBuffer">
+          <property name="toolTip">
+           <string>Input ring buffer size, microseconds</string>
+          </property>
           <property name="suffix">
            <string> μs</string>
           </property>
@@ -959,6 +1016,9 @@
         </item>
         <item row="11" column="1">
          <widget class="QSpinBox" name="InputPeriods">
+          <property name="toolTip">
+           <string>Number of periods in input ring buffer</string>
+          </property>
           <property name="minimum">
            <number>0</number>
           </property>
@@ -989,7 +1049,7 @@
         <item row="32" column="0">
          <widget class="QLabel" name="IOJitWindowLabel">
           <property name="toolTip">
-           <string>I/O jitter detection window, number of periods</string>
+           <string/>
           </property>
           <property name="text">
            <string>I/O Jitter Window:</string>
@@ -998,6 +1058,9 @@
         </item>
         <item row="32" column="1">
          <widget class="QSpinBox" name="IOJitWindow">
+          <property name="toolTip">
+           <string>I/O jitter detection window, number of periods</string>
+          </property>
           <property name="suffix">
            <string> periods</string>
           </property>
@@ -1012,7 +1075,7 @@
         <item row="33" column="0">
          <widget class="QLabel" name="IOJitPercentileLabel">
           <property name="toolTip">
-           <string>I/O jitter percentile, from 1 to 100</string>
+           <string/>
           </property>
           <property name="text">
            <string>I/O Jitter Percentile:</string>
@@ -1021,6 +1084,9 @@
         </item>
         <item row="33" column="1">
          <widget class="QSpinBox" name="IOJitPercentile">
+          <property name="toolTip">
+           <string>I/O jitter percentile, from 1 to 100</string>
+          </property>
           <property name="suffix">
            <string> %</string>
           </property>
@@ -1035,7 +1101,7 @@
         <item row="29" column="0">
          <widget class="QLabel" name="GliDWLabel">
           <property name="toolTip">
-           <string>Glitch detection running maximum window, samples</string>
+           <string/>
           </property>
           <property name="text">
            <string>Glitch Detection Window:</string>
@@ -1044,6 +1110,9 @@
         </item>
         <item row="29" column="1">
          <widget class="QSpinBox" name="GliDW">
+          <property name="toolTip">
+           <string>Glitch detection running maximum window, samples</string>
+          </property>
           <property name="suffix">
            <string> samples</string>
           </property>
@@ -1058,7 +1127,7 @@
         <item row="30" column="0">
          <widget class="QLabel" name="GliDTLabel">
           <property name="toolTip">
-           <string>Glitch detection threshold, from 0 to 1</string>
+           <string/>
           </property>
           <property name="text">
            <string>Glitch Detection Threshold:</string>
@@ -1067,6 +1136,9 @@
         </item>
         <item row="30" column="1">
          <widget class="QDoubleSpinBox" name="GliDT">
+          <property name="toolTip">
+           <string>Glitch detection threshold, from 0 to 1</string>
+          </property>
           <property name="decimals">
            <number>6</number>
           </property>
