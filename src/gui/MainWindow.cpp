@@ -332,7 +332,7 @@ QStringList MainWindow::set_up_program_() {
     list.append("--dump-in");
     list.append("-");
 
-    t = ui->DC->cleanText();
+    t = ui->SigComp->cleanText();
     list.append("--dump-compression");
     list.append(t);
 
