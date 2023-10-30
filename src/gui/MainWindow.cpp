@@ -145,6 +145,10 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 }
 
 MainWindow::~MainWindow() {
+    signal_estimator_->stop();
+
+    timer_->stop();
+
     delete ui;
 }
 
