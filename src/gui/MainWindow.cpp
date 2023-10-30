@@ -136,8 +136,8 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
         return result;
     };
 
-    ui->InputDevices->addItems(to_list(in_devices));
-    ui->OutputDevices->addItems(to_list(out_devices));
+    ui->InputDevice->addItems(to_list(in_devices));
+    ui->OutputDevice->addItems(to_list(out_devices));
 
     display_latency_text_();
 
@@ -259,14 +259,14 @@ QStringList MainWindow::set_up_program_() {
     QString t;
 
     list.append("--mode");
-    list.append(ui->Modes->currentText());
+    list.append(ui->Mode->currentText());
 
-    t = ui->OutputDevices->currentText();
+    t = ui->OutputDevice->currentText();
     list.append("--output");
     list.append(
         QString::fromStdString(device_manager_.format_device_name(t.toStdString())));
 
-    t = ui->InputDevices->currentText();
+    t = ui->InputDevice->currentText();
     list.append("--input");
     list.append(
         QString::fromStdString(device_manager_.format_device_name(t.toStdString())));
@@ -275,11 +275,11 @@ QStringList MainWindow::set_up_program_() {
     list.append("--rate");
     list.append(t);
 
-    t = ui->NumChannels->cleanText();
+    t = ui->ChannelCount->cleanText();
     list.append("--chans");
     list.append(t);
 
-    t = ui->SignalVolume->cleanText();
+    t = ui->SignalGain->cleanText();
     list.append("--gain");
     list.append(t);
 
@@ -310,7 +310,7 @@ QStringList MainWindow::set_up_program_() {
     list.append("--report-sma");
     list.append(t);
 
-    t = ui->StepPeriod->cleanText();
+    t = ui->StepInterval->cleanText();
     list.append("--step-interval");
     list.append(t);
 

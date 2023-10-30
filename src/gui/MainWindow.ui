@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QTabWidget" name="Tabs">
+     <widget class="QTabWidget" name="DCLabel">
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -50,8 +50,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>827</width>
-             <height>887</height>
+             <width>831</width>
+             <height>910</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -70,7 +70,7 @@
             <item>
              <layout class="QGridLayout" name="gridLayout">
               <item row="1" column="1">
-               <widget class="QComboBox" name="OutputDevices">
+               <widget class="QComboBox" name="OutputDevice">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the desired output device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
@@ -82,7 +82,7 @@
                </widget>
               </item>
               <item row="4" column="0">
-               <widget class="QLabel" name="label_3">
+               <widget class="QLabel" name="InputDeviceLabel">
                 <property name="text">
                  <string>Input Device:</string>
                 </property>
@@ -92,7 +92,7 @@
                </widget>
               </item>
               <item row="5" column="1">
-               <widget class="QComboBox" name="Modes">
+               <widget class="QComboBox" name="Mode">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the desired mode&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
@@ -114,7 +114,7 @@
                </widget>
               </item>
               <item row="5" column="0">
-               <widget class="QLabel" name="label_2">
+               <widget class="QLabel" name="ModeLabel">
                 <property name="text">
                  <string>Mode :</string>
                 </property>
@@ -124,7 +124,7 @@
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QLabel" name="label">
+               <widget class="QLabel" name="OutputDeviceLabel">
                 <property name="text">
                  <string>Output Device :</string>
                 </property>
@@ -134,7 +134,7 @@
                </widget>
               </item>
               <item row="4" column="1">
-               <widget class="QComboBox" name="InputDevices">
+               <widget class="QComboBox" name="InputDevice">
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the desired input device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
@@ -148,7 +148,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QFrame" name="frame">
+             <widget class="QFrame" name="Padding1">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -170,7 +170,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="frame">
+             <widget class="QFrame" name="Buttons">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QPushButton" name="StartButton">
@@ -196,7 +196,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="frame_5">
+             <widget class="QFrame" name="ResultTable">
               <property name="autoFillBackground">
                <bool>true</bool>
               </property>
@@ -277,7 +277,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="frame_3">
+             <widget class="QFrame" name="Padding3">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -312,7 +312,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="frame_2">
+             <widget class="QFrame" name="Padding2">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -344,7 +344,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="frame_4">
+             <widget class="QFrame" name="Padding4">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -381,7 +381,7 @@
        </attribute>
        <layout class="QFormLayout" name="formLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="IOOption">
+         <widget class="QLabel" name="IOOptionsTitle">
           <property name="font">
            <font>
             <weight>75</weight>
@@ -423,14 +423,14 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="NumChannelsLabel">
+         <widget class="QLabel" name="ChannelCountLabel">
           <property name="text">
            <string>Channel Count:</string>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="NumChannels">
+         <widget class="QSpinBox" name="ChannelCount">
           <property name="minimum">
            <number>1</number>
           </property>
@@ -443,7 +443,7 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="VolumeLabel_2">
+         <widget class="QLabel" name="SignalGainLabel">
           <property name="toolTip">
            <string>Output signal gain, from 0 to 1</string>
           </property>
@@ -453,7 +453,7 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QDoubleSpinBox" name="SignalVolume">
+         <widget class="QDoubleSpinBox" name="SignalGain">
           <property name="decimals">
            <number>6</number>
           </property>
@@ -556,7 +556,7 @@
          </widget>
         </item>
         <item row="7" column="0">
-         <widget class="QLabel" name="Report">
+         <widget class="QLabel" name="ReportOptionsTitle">
           <property name="font">
            <font>
             <weight>75</weight>
@@ -569,7 +569,7 @@
          </widget>
         </item>
         <item row="8" column="0">
-         <widget class="QLabel" name="Label1">
+         <widget class="QLabel" name="SMALabel">
           <property name="toolTip">
            <string>Simple Moving Average window for latency reports</string>
           </property>
@@ -595,7 +595,7 @@
          </widget>
         </item>
         <item row="9" column="0">
-         <widget class="QLabel" name="Dump">
+         <widget class="QLabel" name="DumpOptionsTitle">
           <property name="font">
            <font>
             <weight>75</weight>
@@ -631,7 +631,7 @@
          </widget>
         </item>
         <item row="12" column="0">
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="LatencyCorrOptionsTitle">
           <property name="font">
            <font>
             <weight>75</weight>
@@ -655,14 +655,14 @@
         </item>
         <item row="13" column="1">
          <widget class="QSpinBox" name="ImpulseInterval">
+          <property name="suffix">
+           <string> seconds</string>
+          </property>
           <property name="maximum">
            <number>2147483647</number>
           </property>
           <property name="value">
            <number>1</number>
-          </property>
-          <property name="suffix">
-           <string> seconds</string>
           </property>
          </widget>
         </item>
@@ -710,7 +710,7 @@
          </widget>
         </item>
         <item row="16" column="0">
-         <widget class="QLabel" name="StepBasedLatencyEst">
+         <widget class="QLabel" name="LatencyStepOptionsTItle">
           <property name="font">
            <font>
             <weight>75</weight>
@@ -723,7 +723,7 @@
          </widget>
         </item>
         <item row="17" column="0">
-         <widget class="QLabel" name="Label1_2">
+         <widget class="QLabel" name="StepIntervalLabel">
           <property name="toolTip">
            <string>Step interval, seconds</string>
           </property>
@@ -733,7 +733,7 @@
          </widget>
         </item>
         <item row="17" column="1">
-         <widget class="QSpinBox" name="StepPeriod">
+         <widget class="QSpinBox" name="StepInterval">
           <property name="suffix">
            <string> seconds</string>
           </property>
@@ -746,7 +746,7 @@
          </widget>
         </item>
         <item row="18" column="0">
-         <widget class="QLabel" name="Label1_3">
+         <widget class="QLabel" name="StepLengthLabel">
           <property name="toolTip">
            <string>Step length, seconds</string>
           </property>
@@ -757,6 +757,9 @@
         </item>
         <item row="18" column="1">
          <widget class="QDoubleSpinBox" name="StepLength">
+          <property name="suffix">
+           <string> seconds</string>
+          </property>
           <property name="decimals">
            <number>6</number>
           </property>
@@ -769,13 +772,10 @@
           <property name="value">
            <double>0.100000000000000</double>
           </property>
-          <property name="suffix">
-           <string> seconds</string>
-          </property>
          </widget>
         </item>
         <item row="19" column="0">
-         <widget class="QLabel" name="Label1_4">
+         <widget class="QLabel" name="StepDWLabel">
           <property name="toolTip">
            <string>Step detection running maximum window, samples</string>
           </property>
@@ -801,7 +801,7 @@
          </widget>
         </item>
         <item row="20" column="0">
-         <widget class="QLabel" name="Label1_5">
+         <widget class="QLabel" name="StepDTLabel">
           <property name="toolTip">
            <string>Step detection threshold, from 0 to 1</string>
           </property>
@@ -827,7 +827,7 @@
          </widget>
         </item>
         <item row="21" column="0">
-         <widget class="QLabel" name="LossRatioEst">
+         <widget class="QLabel" name="LossOptionsTitle">
           <property name="font">
            <font>
             <weight>75</weight>
@@ -840,7 +840,7 @@
          </widget>
         </item>
         <item row="22" column="0">
-         <widget class="QLabel" name="Label1_6">
+         <widget class="QLabel" name="SigDWLabel">
           <property name="toolTip">
            <string>Signal detection running maximum window, samples</string>
           </property>
@@ -863,7 +863,7 @@
          </widget>
         </item>
         <item row="23" column="0">
-         <widget class="QLabel" name="Label1_7">
+         <widget class="QLabel" name="SigDTLabel">
           <property name="toolTip">
            <string>Signal detection threshold, from 0 to 1</string>
           </property>
@@ -889,7 +889,7 @@
          </widget>
         </item>
         <item row="24" column="0">
-         <widget class="QLabel" name="Label1_8">
+         <widget class="QLabel" name="GliDWLabel">
           <property name="toolTip">
            <string>Glitch detection running maximum window, samples</string>
           </property>
@@ -912,7 +912,7 @@
          </widget>
         </item>
         <item row="25" column="0">
-         <widget class="QLabel" name="Label1_9">
+         <widget class="QLabel" name="GliDTLabel">
           <property name="toolTip">
            <string>Glitch detection threshold, from 0 to 1</string>
           </property>
@@ -950,17 +950,17 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
+  <widget class="QMenuBar" name="MenuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>865</width>
-     <height>30</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
-  <widget class="QToolBar" name="mainToolBar">
+  <widget class="QToolBar" name="MainToolBar">
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -968,7 +968,7 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="StatusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
