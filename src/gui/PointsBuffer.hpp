@@ -22,7 +22,7 @@ public:
     }
 
 private:
-    const int ring_size_milliseconds_ = 5000;
+    const int ring_size_milliseconds_ = 10000;
 
     std::deque<QPointF> ringbuf_;
 };
