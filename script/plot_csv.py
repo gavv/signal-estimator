@@ -28,8 +28,11 @@ def load(filename, direction, has_device, filter_device):
                 row = row[1:]
             if len(row) < 2:
                 continue
-            ts = float(row[0])
-            amp = float(row[1])
+            try:
+                ts = float(row[0])
+                amp = float(row[1])
+            except:
+                continue
             if ts <= 0:
                 continue
             x_vals.append(ts)
