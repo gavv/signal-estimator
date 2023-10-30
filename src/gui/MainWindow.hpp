@@ -74,11 +74,9 @@ private:
         "Input signal (captured)") };
     QScopedPointer<QwtPlotCurve> outputCurve_ { new QwtPlotCurve(
         "Output signal (emitted)") };
-    QScopedPointer<QwtPlotCurve> data1Curve_ { new QwtPlotCurve(
-        "Hardware + Software Latency") };
-    QScopedPointer<QwtPlotCurve> data2Curve_ { new QwtPlotCurve("Hardware Latency") };
-    QScopedPointer<QwtPlotCurve> data3Curve_ { new QwtPlotCurve(
-        "Average Hardware Latency") };
+    QScopedPointer<QwtPlotCurve> data1Curve_ { new QwtPlotCurve("") };
+    QScopedPointer<QwtPlotCurve> data2Curve_ { new QwtPlotCurve("") };
+    QScopedPointer<QwtPlotCurve> data3Curve_ { new QwtPlotCurve("") };
 
     QTimer* timer_ = nullptr;
 

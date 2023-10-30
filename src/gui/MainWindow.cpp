@@ -139,6 +139,8 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     ui->InputDevices->addItems(to_list(in_devices));
     ui->OutputDevices->addItems(to_list(out_devices));
 
+    display_latency_text_();
+
     show();
 }
 
