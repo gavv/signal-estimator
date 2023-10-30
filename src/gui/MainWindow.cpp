@@ -237,7 +237,7 @@ QStringList MainWindow::set_up_program_() {
     list.append(t);
 
     t = ui->StepPeriod->cleanText();
-    list.append("--step-period");
+    list.append("--step-interval");
     list.append(t);
 
     t = ui->StepLength->cleanText();
