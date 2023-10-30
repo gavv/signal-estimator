@@ -76,8 +76,7 @@ private:
         "Output signal (emitted)") };
     QScopedPointer<QwtPlotCurve> data1Curve_ { new QwtPlotCurve(
         "Hardware + Software Latency") };
-    QScopedPointer<QwtPlotCurve> data2Curve_ { new QwtPlotCurve(
-        "Hardware Latency") };
+    QScopedPointer<QwtPlotCurve> data2Curve_ { new QwtPlotCurve("Hardware Latency") };
     QScopedPointer<QwtPlotCurve> data3Curve_ { new QwtPlotCurve(
         "Average Hardware Latency") };
 

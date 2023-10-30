@@ -32,33 +32,53 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     inputCurve_->setPen(QColor(0xff7f0e));
     inputCurve_->attach(ui->OutputSig);
 
-    data1Curve_->setPen(QColor(0x1f77b4),2);
-    QColor color1 = data1Curve_->pen().color();
-    QwtSymbol* symbol1 = new QwtSymbol(QwtSymbol::Ellipse);
-    symbol1->setColor(data1Curve_->pen().color());
-    symbol1->setSize(5);
-    color1.setAlphaF(0.1);
-    data1Curve_->setBrush(QBrush(color1));
-    data1Curve_->setSymbol(symbol1);
-    data1Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-    data1Curve_->attach(ui->ResultPlot1);
+    {
+        data1Curve_->setPen(QColor(0x1f77b4), 2);
 
-    data2Curve_->setPen(QColor(0xff7f0e),2);
-    QColor color2 = data2Curve_->pen().color();
-    QwtSymbol* symbol2 = new QwtSymbol(QwtSymbol::Ellipse);
-    symbol2->setColor(data2Curve_->pen().color());
-    symbol2->setSize(5);
-    color2.setAlphaF(0.1);
-    data2Curve_->setBrush(QBrush(color2));
-    data2Curve_->setSymbol(symbol2);
-    data2Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-    data2Curve_->attach(ui->ResultPlot1);
+        QColor color1 = data1Curve_->pen().color();
+        color1.setAlphaF(0.1);
 
-    data3Curve_->setPen(QColor(0x1f77b4), 2);
-    data3Curve_->setBrush(QBrush(color1));
-    data3Curve_->setSymbol(symbol1);
-    data3Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-    data3Curve_->attach(ui->ResultPlot2);
+        QwtSymbol* symbol1 = new QwtSymbol(QwtSymbol::Ellipse);
+        symbol1->setColor(data1Curve_->pen().color());
+        symbol1->setSize(5);
+
+        data1Curve_->setBrush(QBrush(color1));
+        data1Curve_->setSymbol(symbol1);
+        data1Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+        data1Curve_->attach(ui->ResultPlot1);
+    }
+
+    {
+        data2Curve_->setPen(QColor(0xff7f0e), 2);
+
+        QColor color2 = data2Curve_->pen().color();
+        color2.setAlphaF(0.1);
+
+        QwtSymbol* symbol2 = new QwtSymbol(QwtSymbol::Ellipse);
+        symbol2->setColor(data2Curve_->pen().color());
+        symbol2->setSize(5);
+
+        data2Curve_->setBrush(QBrush(color2));
+        data2Curve_->setSymbol(symbol2);
+        data2Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+        data2Curve_->attach(ui->ResultPlot1);
+    }
+
+    {
+        data3Curve_->setPen(QColor(0x1f77b4), 2);
+
+        QColor color3 = data3Curve_->pen().color();
+        color3.setAlphaF(0.1);
+
+        QwtSymbol* symbol3 = new QwtSymbol(QwtSymbol::Ellipse);
+        symbol3->setColor(data3Curve_->pen().color());
+        symbol3->setSize(5);
+
+        data3Curve_->setBrush(QBrush(color3));
+        data3Curve_->setSymbol(symbol3);
+        data3Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+        data3Curve_->attach(ui->ResultPlot2);
+    }
 
     ui->OutputSig->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
     ui->ResultPlot1->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
@@ -217,13 +237,13 @@ void MainWindow::read_graph_data() {
         auto pt = *entry;
 
         if (pt.type == PointType::Input) {
-            in_data_.append_point({pt.time, pt.data1});
+            in_data_.append_point({ pt.time, pt.data1 });
         } else if (pt.type == PointType::Output) {
-            out_data_.append_point({pt.time, pt.data1});
+            out_data_.append_point({ pt.time, pt.data1 });
         } else if (pt.type == PointType::Latency || pt.type == PointType::Losses) {
-            data1_.append_point({pt.time, pt.data1});
-            data2_.append_point({pt.time, pt.data2});
-            data3_.append_point({pt.time, pt.data3});
+            data1_.append_point({ pt.time, pt.data1 });
+            data2_.append_point({ pt.time, pt.data2 });
+            data3_.append_point({ pt.time, pt.data3 });
         }
     }
 }
