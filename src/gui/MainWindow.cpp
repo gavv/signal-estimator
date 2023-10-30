@@ -262,6 +262,7 @@ QStringList MainWindow::set_up_program_() {
     QStringList list;
     QString t;
 
+    // Control
     list.append("--mode");
     list.append(ui->Mode->currentText());
 
@@ -275,6 +276,15 @@ QStringList MainWindow::set_up_program_() {
     list.append(
         QString::fromStdString(device_manager_.format_device_name(t.toStdString())));
 
+    t = ui->Duration->cleanText();
+    list.append("--duration");
+    list.append(t);
+
+    t = ui->Warmup->cleanText();
+    list.append("--warmup");
+    list.append(t);
+
+    // I/O
     t = ui->SampleRate->cleanText();
     list.append("--rate");
     list.append(t);
@@ -287,33 +297,52 @@ QStringList MainWindow::set_up_program_() {
     list.append("--gain");
     list.append(t);
 
-    t = ui->PRB->cleanText();
-    list.append("--out-periods");
-    list.append(t);
-
-    t = ui->RBS->cleanText();
+    t = ui->OutputBuffer->cleanText();
     list.append("--out-latency");
     list.append(t);
 
-    t = ui->Duration->cleanText();
-    list.append("--duration");
+    t = ui->OutputPeriods->cleanText();
+    list.append("--out-periods");
     list.append(t);
 
-    // both of these options have to be stdout because we use a pipe
-    // that reads from signal_estimator stdout
-    list << "--dump-out"
-         << "-";
-    list << "--dump-in"
-         << "-";
+    t = ui->InputBuffer->cleanText();
+    list.append("--in-latency");
+    list.append(t);
+
+    t = ui->InputPeriods->cleanText();
+    list.append("--in-periods");
+    list.append(t);
+
+    // Reports
+    t = ui->SMA->cleanText();
+    list.append("--report-sma");
+    list.append(t);
+
+    // Dumps
+    list.append("--dump-out");
+    list.append("-");
+
+    list.append("--dump-in");
+    list.append("-");
 
     t = ui->DC->cleanText();
     list.append("--dump-compression");
     list.append(t);
 
-    t = ui->SMA->cleanText();
-    list.append("--report-sma");
+    // LatencyCorr
+    t = ui->ImpulseInterval->cleanText();
+    list.append("--impulse-interval");
     list.append(t);
 
+    t = ui->PeakDWL->cleanText();
+    list.append("--impulse-peak-window");
+    list.append(t);
+
+    t = ui->PeakToNoiseMRT->cleanText();
+    list.append("--impulse-peak-noise-ratio");
+    list.append(t);
+
+    // LatencyStep
     t = ui->StepInterval->cleanText();
     list.append("--step-interval");
     list.append(t);
@@ -330,6 +359,7 @@ QStringList MainWindow::set_up_program_() {
     list.append("--step-detection-threshold");
     list.append(t);
 
+    // Losses
     t = ui->SigDW->cleanText();
     list.append("--signal-detection-window");
     list.append(t);
@@ -344,18 +374,6 @@ QStringList MainWindow::set_up_program_() {
 
     t = ui->GliDT->cleanText();
     list.append("--glitch-detection-threshold");
-    list.append(t);
-
-    t = ui->ImpulseInterval->cleanText();
-    list.append("--impulse-interval");
-    list.append(t);
-
-    t = ui->PeakToNoiseMRT->cleanText();
-    list.append("--impulse-peak-noise-ratio");
-    list.append(t);
-
-    t = ui->PeakDWL->cleanText();
-    list.append("--impulse-peak-window");
     list.append(t);
 
     return list;
