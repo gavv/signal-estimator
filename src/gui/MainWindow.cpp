@@ -326,10 +326,7 @@ QStringList MainWindow::set_up_program_() {
     list.append(t);
 
     // Dumps
-    list.append("--dump-out");
-    list.append("-");
-
-    list.append("--dump-in");
+    list.append("--dump-file");
     list.append("-");
 
     t = ui->SigComp->cleanText();

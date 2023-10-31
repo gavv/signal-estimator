@@ -51,8 +51,7 @@ private:
     std::unique_ptr<IGenerator> generator_;
     std::vector<std::unique_ptr<IEstimator>> estimators_;
 
-    std::shared_ptr<IDumper> output_dumper_;
-    std::shared_ptr<IDumper> input_dumper_;
+    std::shared_ptr<IDumper> dumper_;
 
     std::thread output_thread_;
     std::vector<std::thread> input_threads_;

@@ -46,9 +46,8 @@ struct Config {
     std::string output_dev;
     std::vector<std::string> input_devs;
 
-    // dump files
-    std::string output_dump;
-    std::string input_dump;
+    // dump file
+    std::string dump_file;
 
     // total measurement duration
     float measurement_duration { 0 };

@@ -64,32 +64,17 @@ bool Runner::start() {
 
     config_.show_device_names = input_readers_.size() > 1 && !config_.diff_inputs;
 
-    if (!config_.output_dump.empty()) {
+    if (!config_.dump_file.empty()) {
         auto csv_dumper = std::make_shared<CsvDumper>(config_);
-        if (!csv_dumper->open(config_.output_dump)) {
+        if (!csv_dumper->open(config_.dump_file)) {
             fail_ = true;
             return false;
         }
-        output_dumper_ = std::move(csv_dumper);
+        dumper_ = std::move(csv_dumper);
     }
 
-    if (!config_.input_dump.empty() && config_.input_dump != config_.output_dump) {
-        auto csv_dumper = std::make_shared<CsvDumper>(config_);
-        if (!csv_dumper->open(config_.input_dump)) {
-            fail_ = true;
-            return false;
-        }
-        input_dumper_ = std::move(csv_dumper);
-    }
-
-    if (output_dumper_) {
-        output_dumper_ = std::make_shared<AsyncDumper>(std::move(output_dumper_));
-    }
-
-    if (input_dumper_) {
-        input_dumper_ = std::make_shared<AsyncDumper>(std::move(input_dumper_));
-    } else if (config_.input_dump == config_.output_dump) {
-        input_dumper_ = output_dumper_;
+    if (dumper_) {
+        dumper_ = std::make_shared<AsyncDumper>(std::move(dumper_));
     }
 
     se_log_info("starting measurement");
@@ -246,8 +231,8 @@ void Runner::output_loop_() {
             }
         }
 
-        if (output_dumper_) {
-            output_dumper_->write(frame);
+        if (dumper_) {
+            dumper_->write(frame);
         }
     }
 
@@ -295,8 +280,8 @@ void Runner::input_loop_(size_t dev_index) {
             }
         }
 
-        if (input_dumper_) {
-            input_dumper_->write(frame);
+        if (dumper_) {
+            dumper_->write(frame);
         }
     }
 

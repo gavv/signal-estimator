@@ -102,10 +102,8 @@ int main(int argc, char** argv) {
 
     auto dump_opts = app.add_option_group("Dump options");
 
-    dump_opts->add_option("--dump-out", config.output_dump,
-        "File to dump output stream (\"-\" for stdout)");
     dump_opts->add_option(
-        "--dump-in", config.input_dump, "File to dump input stream (\"-\" for stdout)");
+        "-D,--dump-file", config.dump_file, "File to dump samples (\"-\" for stdout)");
     dump_opts
         ->add_option("--dump-compression", config.dump_compression,
             "Compress dumped samples by given ratio using SMA")

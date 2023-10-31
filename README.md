@@ -504,37 +504,31 @@ All the notations are the same as mentioned in the text reports. All time units 
 Dumping streams
 ---------------
 
-In any mode, you can specify `--dump-out` and `--dump-in` options to dump output and input samples and their timestamps to file or stdout (use `-`), in CSV format.
+In any mode, you can specify `--dump-file` option to dump output and input samples and their timestamps to file or stdout (use `-`), in CSV format.
 
 To reduce the file size, the tool can dump only one (average) value per frame of the size specified by `--dump-compression` option (disabled by default).
 
-The timestamps in the dumped files correspond to the estimate time, in nanoseconds, when the sample was written to hardware or read from hardware. The clock starts from an unspecified point.
+The timestamps in the dumped files correspond to the estimate time, in nanoseconds since Unix Epoch, when the sample was written to hardware or read from hardware.
 
 ```
-$ sudo signal-estimator -vv -m latency_step -o hw:0 -i hw:0 -d 5 \
-    --dump-out output.csv --dump-in input.csv
-...
+sudo signal-estimator -vv -m latency_step -o hw:0 -i hw:0 -d 5 --dump-file dump.csv
 ```
 
-The command above will produce two files:
+There is a helper script that plots the dump file using matplotlib. You can use it to manually inspect the signal:
 
 ```
-$ ls -lh *.csv
--rw-r--r-- 1 user user  13K Jan 15 16:22 output.csv
--rw-r--r-- 1 user user 118K Jan 15 16:22 input.csv
-```
-
-There is a helper script that plots the dump files using matplotlib. You can use it to manually inspect the signal:
-
-```
-$ ./script/plot_csv.py [--device <device>] <output.csv> <input.csv>
+./script/plot_dump.py [--device <device>] dump.csv
 ```
 
 ![](./doc/plot_edited.png)
 
 In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238 ms.
 
-If output and input dumps were written to the same file, you can pass to the script just that one file. If dump includes multiple input devices, you should choose which one to display using `--device` option of the script.
+If dump includes multiple input devices, you should choose which one to display using `--device` option, e.g.:
+
+```
+./script/plot_dump.py --device hw:1 dump.csv
+```
 
 ALSA parameters
 ---------------

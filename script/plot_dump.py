@@ -39,28 +39,18 @@ def load(filename, direction, has_device, filter_device):
             y_vals.append(amp)
     return numpy.array([x_vals, y_vals]).T
 
-parser = argparse.ArgumentParser(description='plot dump(s) in csv format')
+parser = argparse.ArgumentParser(description='plot dump in csv format')
 
 parser.add_argument('-d,--device', dest='device', type=str, required=False,
                     help='filter by device name (for multi-input setup)')
-
-parser.add_argument('dump', nargs='+',
-                    help='one or two dump files (output and input)')
+parser.add_argument('dump_file', nargs=1, help='csv dump file')
 
 args = parser.parse_args()
 
-out_dump = args.dump[0]
-if len(args.dump) > 1:
-    in_dump = args.dump[1]
-else:
-    in_dump = out_dump
-if len(args.dump) > 2:
-    parser.error('too many arguments, expected one or two dump files')
-
 has_device = bool(args.device)
 
-out_sig = load(out_dump, 'output', has_device, None)
-in_sig = load(in_dump, 'input', has_device, args.device)
+out_sig = load(args.dump_file[0], 'output', has_device, None)
+in_sig = load(args.dump_file[0], 'input', has_device, args.device)
 
 out_sig[:,0] /= 1000000
 in_sig[:,0] /= 1000000
