@@ -37,10 +37,11 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
         QwtSymbol* symbol1 = new QwtSymbol(QwtSymbol::Ellipse);
         symbol1->setColor(data1Curve_->pen().color());
+        symbol1->setPen(data1Curve_->pen().color());
         symbol1->setSize(5);
 
         data1Curve_->setSymbol(symbol1);
-        data1Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+        data1Curve_->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
         data1Curve_->attach(ui->ResultPlot1);
     }
 
@@ -52,11 +53,12 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
         QwtSymbol* symbol2 = new QwtSymbol(QwtSymbol::Ellipse);
         symbol2->setColor(data2Curve_->pen().color());
+        symbol2->setPen(data2Curve_->pen().color());
         symbol2->setSize(5);
 
         data2Curve_->setBrush(QBrush(color2));
         data2Curve_->setSymbol(symbol2);
-        data2Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+        data2Curve_->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
         data2Curve_->attach(ui->ResultPlot1);
     }
 
@@ -68,11 +70,12 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
 
         QwtSymbol* symbol3 = new QwtSymbol(QwtSymbol::Ellipse);
         symbol3->setColor(data3Curve_->pen().color());
+        symbol3->setPen(data3Curve_->pen().color());
         symbol3->setSize(5);
 
         data3Curve_->setBrush(QBrush(color3));
         data3Curve_->setSymbol(symbol3);
-        data3Curve_->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+        data3Curve_->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
         data3Curve_->attach(ui->ResultPlot2);
     }
 
@@ -313,6 +316,10 @@ QStringList MainWindow::set_up_program_() {
     list.append("--in-periods");
     list.append(t);
 
+    if (!ui->Realtime->isChecked()) {
+        list.append("--no-rt");
+    }
+
     // Reports
     t = ui->SMA->cleanText();
     list.append("--report-sma");
@@ -325,7 +332,7 @@ QStringList MainWindow::set_up_program_() {
     list.append("--dump-in");
     list.append("-");
 
-    t = ui->DC->cleanText();
+    t = ui->SigComp->cleanText();
     list.append("--dump-compression");
     list.append(t);
 

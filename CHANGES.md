@@ -1,5 +1,23 @@
 # Changelog
 
+## [v0.0.9][v0.0.9] - ???
+
+* Improve impulse detection stability in latency_corr mode
+* Add more info to JSON reports ([gh-65][gh-65])
+* GUI: Show plots with measurement results ([gh-47][gh-47])
+* GUI: Group options by category and add tooltips ([gh-15][gh-15])
+* GUI: Add missing options: impulse settings ([gh-27][gh-27]), input/output ring buffer settings, I/O jitter settings, warmup setting, SCHED_RR option
+* GUI: Refine option names, tooltips, and units (suffixes)
+* GUI: Change plot window to 15 seconds
+* GUI: Fix SIGSEGV when exiting during measurement
+
+[v0.0.9]: https://github.com/gavv/signal-estimator/releases/tag/v0.0.9
+
+[gh-15]: https://github.com/gavv/signal-estimator/issues/15
+[gh-27]: https://github.com/gavv/signal-estimator/issues/27
+[gh-47]: https://github.com/gavv/signal-estimator/issues/47
+[gh-65]: https://github.com/gavv/signal-estimator/issues/65
+
 ## [v0.0.8][v0.0.8] - 30 Oct 2023
 
 * Overhaul hardware latency calculation and improve its precision
