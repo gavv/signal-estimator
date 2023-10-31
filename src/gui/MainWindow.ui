@@ -71,6 +71,12 @@
              <layout class="QGridLayout" name="gridLayout">
               <item row="1" column="1">
                <widget class="QComboBox" name="OutputDevice">
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
+                <property name="frame">
+                 <bool>true</bool>
+                </property>
                 <item>
                  <property name="text">
                   <string>default</string>
@@ -129,6 +135,9 @@
               </item>
               <item row="4" column="1">
                <widget class="QComboBox" name="InputDevice">
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
                 <item>
                  <property name="text">
                   <string>default</string>
@@ -376,7 +385,7 @@
              <property name="minimumSize">
               <size>
                <width>280</width>
-               <height>12</height>
+               <height>15</height>
               </size>
              </property>
              <property name="toolTip">
@@ -628,7 +637,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="InputBufferLabel">
              <property name="toolTip">
               <string/>
@@ -641,7 +650,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QSpinBox" name="InputBuffer">
              <property name="toolTip">
               <string>Input ring buffer size, microseconds</string>
@@ -663,7 +672,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="InputPeriodsLabel">
              <property name="toolTip">
               <string/>
@@ -676,7 +685,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QSpinBox" name="InputPeriods">
              <property name="toolTip">
               <string>Number of periods in input ring buffer</string>
@@ -695,7 +704,7 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="RealtimeLabel">
              <property name="text">
               <string>Real-Time Scheduling:</string>
@@ -705,7 +714,7 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="9" column="1">
             <widget class="QCheckBox" name="Realtime">
              <property name="toolTip">
               <string>Try to enable SCHED_RR scheduling policy for sensitive I/O threads</string>
@@ -714,6 +723,40 @@
               <string>Try enabling SCHED_RR</string>
              </property>
              <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="OutputFormatLabel">
+             <property name="text">
+              <string>Output Sample Format:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QComboBox" name="OutputFormat">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="InputFormatLabel">
+             <property name="text">
+              <string>Input Sample Format:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QComboBox" name="InputFormat">
+             <property name="editable">
               <bool>true</bool>
              </property>
             </widget>

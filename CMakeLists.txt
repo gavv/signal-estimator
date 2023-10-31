@@ -204,6 +204,7 @@ if(BUILD_GUI)
   find_package(Qwt REQUIRED)
 
   qt5_wrap_cpp(GENERATED_SOURCES
+    src/gui/ListValidator.hpp
     src/gui/MainWindow.hpp
     src/gui/NotFoundDialog.hpp
     src/gui/SignalEstimator.hpp
@@ -231,6 +232,7 @@ if(BUILD_GUI)
     )
 
   add_executable(signal-estimator-gui
+    src/gui/ListValidator.cpp
     src/gui/Main.cpp
     src/gui/MainWindow.cpp
     src/gui/NotFoundDialog.cpp

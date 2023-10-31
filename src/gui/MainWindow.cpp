@@ -2,8 +2,11 @@
 // Licensed under MIT
 
 #include "MainWindow.hpp"
+#include "ListValidator.hpp"
 #include "RightClickPickerMachine.hpp"
 #include "ui_MainWindow.h"
+
+#include "io/PcmFormat.hpp"
 
 #include <QCheckBox>
 #include <QList>
@@ -131,20 +134,27 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     trackPicker3->setTrackerPen(QApplication::palette().text().color());
     trackPicker3->setTrackerMode(QwtPlotPicker::DisplayMode::AlwaysOn);
 
-    const std::vector<std::string> in_devices = device_manager_.get_input_devices();
-    const std::vector<std::string> out_devices = device_manager_.get_output_devices();
+    for (const auto& dev : device_manager_.get_input_devices()) {
+        ui->InputDevice->addItem(QString::fromStdString(dev));
+    }
 
-    auto to_list = [](const std::vector<std::string>& device_names) {
-        QList<QString> result;
-        result.reserve(static_cast<int>(device_names.size()));
-        for (const std::string& device_name : device_names) {
-            result.push_back(QString::fromStdString(device_name));
-        }
-        return result;
-    };
+    for (const auto& dev : device_manager_.get_output_devices()) {
+        ui->OutputDevice->addItem(QString::fromStdString(dev));
+    }
 
-    ui->InputDevice->addItems(to_list(in_devices));
-    ui->OutputDevice->addItems(to_list(out_devices));
+    QStringList formats;
+    for (const auto& fmt : PcmFormat::supported_formats()) {
+        formats.append(QString::fromStdString(fmt.to_string()));
+    }
+
+    ui->InputFormat->addItems(formats);
+    ui->OutputFormat->addItems(formats);
+
+    ui->InputFormat->setValidator(new ListValidator(formats, this));
+    ui->OutputFormat->setValidator(new ListValidator(formats, this));
+
+    ui->InputFormat->setCurrentText(QString::fromStdString(PcmFormat().to_string()));
+    ui->OutputFormat->setCurrentText(QString::fromStdString(PcmFormat().to_string()));
 
     display_latency_text_();
 
