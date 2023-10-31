@@ -484,22 +484,18 @@ JSON output
 
 JSON output can be enabled by passing the `--report-format json` or `-f json` flag. By default, output is displayed in text format.
 
-Sample JSON output format for measuring latency is shown below.
+Sample JSON output format for measuring latency is shown below:
 
 ```
 [
-  {"dev":"hw:0", "sw_hw": 3.406247, "hw": 9.783531, "hw_avg": 3.406247},
-  {"dev":"hw:0", "sw_hw": 3.768061, "hw": 10.177324, "hw_avg": 3.768061},
-  {"dev":"hw:0", "sw_hw": 3.598191, "hw": 10.033534, "hw_avg": 3.598191},
-  {"dev":"hw:0", "sw_hw": 3.762508, "hw": 10.256863, "hw_avg": 3.762508},
-  {"dev":"hw:0", "sw_hw": 3.842750, "hw": 10.150537, "hw_avg": 3.842750},
-  {"dev":"hw:0", "sw_hw": 3.588736, "hw": 9.647981, "hw_avg": 3.588736},
-  {"dev":"hw:0", "sw_hw": 3.617144, "hw": 10.005338, "hw_avg": 3.617144},
-  {"dev":"hw:0", "sw_hw": 3.769689, "hw": 10.169054, "hw_avg": 3.769689}
+{"type": "latency", "device": "hw:0", "timestamp": 1698776522962310475, "sw_hw": 10.750376, "hw": 3.417044, "hw_avg": 3.417044},
+{"type": "latency", "device": "hw:0", "timestamp": 1698776523970598047, "sw_hw": 10.784796, "hw": 3.451464, "hw_avg": 3.434254},
+{"type": "latency", "device": "hw:0", "timestamp": 1698776524978383608, "sw_hw": 10.928465, "hw": 3.261799, "hw_avg": 3.376769},
+{"type": "latency", "device": "hw:0", "timestamp": 1698776525985503559, "sw_hw": 10.681216, "hw": 3.347884, "hw_avg": 3.369548}
 ]
 ```
 
-All the notations are the same as mentioned in the text reports. All time units are in milliseconds.
+All the notations are the same as mentioned in the text reports. "timestamp" field defines report time in nanoseconds since Unix Epoch. Measured values are in milliseconds.
 
 Dumping streams
 ---------------
@@ -520,7 +516,7 @@ There is a helper script that plots the dump file using matplotlib. You can use 
 ./script/plot_dump.py [--device <device>] dump.csv
 ```
 
-![](./doc/plot_edited.png)
+![](./doc/dump_plot_edited.png)
 
 In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238 ms.
 

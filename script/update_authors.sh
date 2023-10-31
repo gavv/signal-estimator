@@ -34,6 +34,14 @@ function find_email() {
     then
         echo "${github_email}"
     fi
+
+    local reflog_email="$(git reflog --pretty=format:"%an <%ae>" | sort -u | \
+        grep -vF users.noreply.github.com | grep -F "$1" | sed -re 's,.*<(.*)>,\1,')"
+
+    if [[ "${reflog_email}" != "" ]]
+    then
+        echo "${reflog_email}"
+    fi
 }
 
 function add_if_new() {
