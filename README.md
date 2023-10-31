@@ -121,6 +121,7 @@ External:
 
 * C++17 compiler (GCC or Clang)
 * CMake >= 3.5
+* pkg-config
 * libasound (ALSA devel)
 * libpng (for GUI)
 * Qt5 and Qwt (for GUI)
@@ -139,7 +140,7 @@ Installation
 Install external dependencies:
 
 ```
-sudo apt install libasound2-dev libpng-dev qtbase5-dev libqwt-qt5-dev
+sudo apt install g++ make cmake pkg-config libasound2-dev libpng-dev qtbase5-dev libqwt-qt5-dev
 ```
 
 Clone repo with submodules:
