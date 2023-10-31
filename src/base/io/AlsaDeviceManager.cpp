@@ -9,6 +9,23 @@
 
 namespace signal_estimator {
 
+namespace {
+
+void chomp(char* buffer) {
+    size_t len = strlen(buffer);
+
+    if (len == 0) {
+        return;
+    }
+
+    while (buffer[len - 1] == '\n') {
+        buffer[len - 1] = '\0';
+        len--;
+    }
+}
+
+} // namespace
+
 std::vector<std::string> AlsaDeviceManager::get_output_devices() {
     char buffer[128];
     std::vector<std::string> strvec;
@@ -24,6 +41,7 @@ std::vector<std::string> AlsaDeviceManager::get_output_devices() {
         // if line has both card and device in it
         if (std::strstr(buffer, "card") != nullptr
             && std::strstr(buffer, "device") != nullptr) {
+            chomp(buffer);
             strvec.emplace_back(buffer);
         }
     }
@@ -43,6 +61,7 @@ std::vector<std::string> AlsaDeviceManager::get_input_devices() {
         // if line has both card and device in it
         if (std::strstr(buffer, "card") != nullptr
             && std::strstr(buffer, "device") != nullptr) {
+            chomp(buffer);
             strvec.emplace_back(buffer);
         }
     }
