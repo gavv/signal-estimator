@@ -10,6 +10,7 @@ option(BUILD_GUI "build Qt GUI" ON)
 
 option(ENABLE_SANITIZERS "enable sanitizers" OFF)
 option(ENABLE_WERROR "enable -Werror" OFF)
+option(BUILD_TESTING "Build tests" ON)
 
 set(TOOLCHAIN_PREFIX "" CACHE STRING "target host triplet, e.g. aarch64-linux-gnu")
 include("cmake/SetupToolchain.cmake")
@@ -320,4 +321,13 @@ if(NOT CMAKE_CROSSCOMPILING)
   add_custom_target(compile_commands ALL
     DEPENDS ${PROJECT_SOURCE_DIR}/compile_commands.json
   )
+endif()
+
+if(BUILD_TESTING)
+
+  enable_testing()
+  include_directories("${CMAKE_BINARY_DIR}/googletest-src/googletest/include")
+  link_directories("${CMAKE_BINARY_DIR}/googletest-build/lib")
+  include("cmake/GTestConfig.cmake")
+  
 endif()
