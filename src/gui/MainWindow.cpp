@@ -29,15 +29,15 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
     connect(signal_estimator_, &SignalEstimator::can_read, this,
         &MainWindow::read_graph_data);
 
-    ui->OutputSig->setCanvasBackground(QApplication::palette().base().color());
+    ui->SignalPlot->setCanvasBackground(QApplication::palette().base().color());
     ui->ResultPlot1->setCanvasBackground(QApplication::palette().base().color());
     ui->ResultPlot2->setCanvasBackground(QApplication::palette().base().color());
 
     outputCurve_->setPen(QColor(0x1F77B4));
-    outputCurve_->attach(ui->OutputSig);
+    outputCurve_->attach(ui->SignalPlot);
 
     inputCurve_->setPen(QColor(0xFF7F0E));
-    inputCurve_->attach(ui->OutputSig);
+    inputCurve_->attach(ui->SignalPlot);
 
     {
         data1Curve_->setPen(QColor(0xBA2D0B), 2);
@@ -86,40 +86,40 @@ MainWindow::MainWindow(IDeviceManager& device_manager, QWidget* parent)
         data3Curve_->attach(ui->ResultPlot2);
     }
 
-    ui->OutputSig->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
+    ui->SignalPlot->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
     ui->ResultPlot1->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
     ui->ResultPlot2->insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
 
     grid1_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
-    grid1_->attach(ui->OutputSig);
+    grid1_->attach(ui->SignalPlot);
     grid2_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
     grid2_->attach(ui->ResultPlot1);
     grid3_->setMajorPen(Qt::black, 0.0, Qt::DotLine);
     grid3_->attach(ui->ResultPlot2);
 
-    QwtPlotPicker* zoomInPicker = new QwtPlotPicker(ui->OutputSig->canvas());
+    QwtPlotPicker* zoomInPicker = new QwtPlotPicker(ui->SignalPlot->canvas());
     zoomInPicker->setStateMachine(new QwtPickerDragRectMachine());
     zoomInPicker->setRubberBand(QwtPicker::RectRubberBand);
     zoomInPicker->setRubberBandPen(QPen(QColor(Qt::red)));
     connect(zoomInPicker, qOverload<const QRectF&>(&QwtPlotPicker::selected),
         [this](const QRectF& rect) {
-            ui->OutputSig->setAxisScale(
+            ui->SignalPlot->setAxisScale(
                 QwtPlot::xBottom, rect.topLeft().x(), rect.bottomRight().x());
-            ui->OutputSig->setAxisScale(
+            ui->SignalPlot->setAxisScale(
                 QwtPlot::yLeft, rect.topLeft().y(), rect.bottomLeft().y());
-            ui->OutputSig->replot();
+            ui->SignalPlot->replot();
         });
 
-    QwtPlotPicker* zoomOutPicker = new QwtPlotPicker(ui->OutputSig->canvas());
+    QwtPlotPicker* zoomOutPicker = new QwtPlotPicker(ui->SignalPlot->canvas());
     zoomOutPicker->setStateMachine(new RightClickPickerMachine());
     connect(zoomOutPicker, qOverload<const QPointF&>(&QwtPlotPicker::selected),
         [this](const QPointF&) {
-            ui->OutputSig->setAxisAutoScale(QwtPlot::xBottom);
-            ui->OutputSig->setAxisAutoScale(QwtPlot::yLeft);
-            ui->OutputSig->replot();
+            ui->SignalPlot->setAxisAutoScale(QwtPlot::xBottom);
+            ui->SignalPlot->setAxisAutoScale(QwtPlot::yLeft);
+            ui->SignalPlot->replot();
         });
 
-    QwtPlotPicker* trackPicker1 = new QwtPlotPicker(ui->OutputSig->canvas());
+    QwtPlotPicker* trackPicker1 = new QwtPlotPicker(ui->SignalPlot->canvas());
     trackPicker1->setStateMachine(new QwtPickerTrackerMachine());
     trackPicker1->setTrackerPen(QApplication::palette().text().color());
     trackPicker1->setTrackerMode(QwtPlotPicker::DisplayMode::AlwaysOn);
@@ -186,8 +186,8 @@ void MainWindow::on_StartButton_released() {
     data3_.clear_buf();
 
     // reset graphs
-    ui->OutputSig->updateAxes();
-    ui->OutputSig->replot();
+    ui->SignalPlot->updateAxes();
+    ui->SignalPlot->replot();
     ui->ResultPlot1->updateAxes();
     ui->ResultPlot1->replot();
     ui->ResultPlot2->updateAxes();
@@ -247,8 +247,8 @@ void MainWindow::update_graphs() {
     data2Curve_->setSamples(data2_current);
     data3Curve_->setSamples(data3_current);
 
-    ui->OutputSig->setAxisScale(QwtPlot::xBottom, xMin, xMax);
-    ui->OutputSig->replot();
+    ui->SignalPlot->setAxisScale(QwtPlot::xBottom, xMin, xMax);
+    ui->SignalPlot->replot();
     ui->ResultPlot1->setAxisScale(QwtPlot::xBottom, xMin, xMax);
     ui->ResultPlot1->replot();
     ui->ResultPlot2->setAxisScale(QwtPlot::xBottom, xMin, xMax);

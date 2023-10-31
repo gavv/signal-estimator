@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>782</width>
-    <height>984</height>
+    <width>801</width>
+    <height>912</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QTabWidget" name="DCLabel">
+     <widget class="QTabWidget" name="Tabs">
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -36,7 +36,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>850</height>
+            <height>0</height>
            </size>
           </property>
           <property name="frameShape">
@@ -45,13 +45,13 @@
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+          <widget class="QWidget" name="scrollAreaContents">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>748</width>
-             <height>850</height>
+             <width>767</width>
+             <height>775</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
@@ -146,28 +146,6 @@
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QFrame" name="Padding1">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>10</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>10</height>
-               </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
             </item>
             <item>
              <widget class="QFrame" name="Buttons">
@@ -271,33 +249,36 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="Padding3">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>10</height>
-               </size>
-              </property>
+             <widget class="QLabel" name="Padding">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
                 <height>10</height>
                </size>
               </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QwtPlot" name="OutputSig">
+             <widget class="QwtPlot" name="SignalPlot">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>150</height>
+                <height>160</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="autoReplot">
@@ -306,59 +287,45 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="Padding2">
+             <widget class="QwtPlot" name="ResultPlot1">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>10</height>
+                <height>160</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>10</height>
+                <height>16777215</height>
                </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QwtPlot" name="ResultPlot1">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>150</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QFrame" name="Padding4">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>10</height>
-               </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QwtPlot" name="ResultPlot2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>150</height>
+                <height>160</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
                </size>
               </property>
              </widget>
@@ -423,6 +390,12 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="WarmupLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -508,6 +481,12 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="ChannelCountLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -537,6 +516,12 @@
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="SignalGainLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -572,6 +557,12 @@
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="OutputBufferLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -607,6 +598,12 @@
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="OutputPeriodsLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -639,6 +636,12 @@
            </item>
            <item row="6" column="0">
             <widget class="QLabel" name="InputBufferLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -674,6 +677,12 @@
            </item>
            <item row="7" column="0">
             <widget class="QLabel" name="InputPeriodsLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -706,6 +715,12 @@
            </item>
            <item row="9" column="0">
             <widget class="QLabel" name="RealtimeLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>14</height>
+              </size>
+             </property>
              <property name="text">
               <string>Real-Time Scheduling:</string>
              </property>
@@ -729,6 +744,12 @@
            </item>
            <item row="5" column="0">
             <widget class="QLabel" name="OutputFormatLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
               <string>Output Sample Format:</string>
              </property>
@@ -746,6 +767,12 @@
            </item>
            <item row="8" column="0">
             <widget class="QLabel" name="InputFormatLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
               <string>Input Sample Format:</string>
              </property>
@@ -810,6 +837,12 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="SigCompLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -903,6 +936,12 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="PeakDWLLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -932,6 +971,12 @@
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="PeakToNoiseMRTLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1002,6 +1047,12 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="StepLengthLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1037,6 +1088,12 @@
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="StepDWLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1069,6 +1126,12 @@
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="StepDTLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1145,6 +1208,12 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="SigDTLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1177,6 +1246,12 @@
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="GliDWLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1206,6 +1281,12 @@
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="GliDTLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1282,6 +1363,12 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="IOJitPercentileLabel">
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>15</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string/>
              </property>
@@ -1343,7 +1430,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>782</width>
+     <width>801</width>
      <height>26</height>
     </rect>
    </property>
