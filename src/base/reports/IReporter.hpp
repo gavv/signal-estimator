@@ -8,20 +8,32 @@
 
 namespace signal_estimator {
 
+struct LatencyReport {
+    double sw_hw { 0 };
+    double hw { 0 };
+    double hw_avg { 0 };
+};
+
+struct LossReport {
+    double loss_rate { 0 };
+    double loss_rate_avg { 0 };
+    double loss_ratio { 0 };
+};
+
+struct IOJitterReport {
+    double swdev_avg { 0 };
+    double swdev_per { 0 };
+    double hwdev_avg { 0 };
+    double hwdev_per { 0 };
+};
+
 class IReporter {
 public:
     virtual ~IReporter() = default;
 
-    virtual void report_latency(double sw_hw, double hw, double hw_avg, int sma_window)
-        = 0;
-
-    virtual void report_losses(
-        double loss_rate, double avg_loss_rate, double loss_ratio, int sma_window)
-        = 0;
-
-    virtual void report_jitter(double swdev_avg, double swdev_per, double hwdev_avg,
-        double hwdev_per, double hwbuf_avg, double hwbuf_per, int percentile)
-        = 0;
+    virtual void report(const LatencyReport& rep) = 0;
+    virtual void report(const LossReport& rep) = 0;
+    virtual void report(const IOJitterReport& rep) = 0;
 };
 
 } // namespace signal_estimator

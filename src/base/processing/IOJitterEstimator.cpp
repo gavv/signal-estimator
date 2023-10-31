@@ -3,6 +3,7 @@
 
 #include "processing/IOJitterEstimator.hpp"
 #include "core/Time.hpp"
+#include "reports/IReporter.hpp"
 
 namespace signal_estimator {
 
@@ -75,10 +76,14 @@ void IOJitterEstimator::run_() {
         buf_stats_.update(frame->hw_buf_len());
 
         if (buf_stats_.len_avg.is_full() && report_limiter_.allow() > 0) {
-            reporter_.report_jitter(sw_stats_.dev_avg.get(), sw_stats_.dev_per.get(),
-                hw_stats_.dev_avg.get(), hw_stats_.dev_per.get(),
-                buf_stats_.len_avg.get(), buf_stats_.len_per.get(),
-                (int)config_.io_jitter_percentile);
+            IOJitterReport rep;
+
+            rep.swdev_avg = sw_stats_.dev_avg.get();
+            rep.swdev_per = sw_stats_.dev_per.get();
+            rep.hwdev_avg = hw_stats_.dev_avg.get();
+            rep.hwdev_per = hw_stats_.dev_per.get();
+
+            reporter_.report(rep);
         }
     }
 }

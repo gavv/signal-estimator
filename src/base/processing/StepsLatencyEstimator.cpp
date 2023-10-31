@@ -57,9 +57,9 @@ void StepsLatencyEstimator::run_() {
         while (auto out_frame = queue_out_.try_pop()) {
             output_trigger_.add_frame(*out_frame);
 
-            LatencyReport report;
-            if (check_output_(report)) {
-                print_report_(report);
+            LatencyReport rep;
+            if (check_output_(rep)) {
+                reporter_.report(rep);
             }
         }
 
@@ -70,9 +70,9 @@ void StepsLatencyEstimator::run_() {
             }
             input_trigger_.add_frame(*in_frame);
 
-            LatencyReport report;
-            if (check_input_(report)) {
-                print_report_(report);
+            LatencyReport rep;
+            if (check_input_(rep)) {
+                reporter_.report(rep);
             }
         } while (!queue_in_.empty());
     }
@@ -108,11 +108,6 @@ bool StepsLatencyEstimator::check_step_(LatencyReport& report) {
     report.hw_avg = sma_(report.hw);
 
     return true;
-}
-
-void StepsLatencyEstimator::print_report_(const LatencyReport& report) {
-    reporter_.report_latency(
-        report.sw_hw, report.hw, report.hw_avg, (int)config_.report_sma_window);
 }
 
 } // namespace signal_estimator

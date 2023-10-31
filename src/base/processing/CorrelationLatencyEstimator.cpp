@@ -75,12 +75,13 @@ void CorrelationLatencyEstimator::run_() {
 void CorrelationLatencyEstimator::report_(Timestamp out_peak, Timestamp in_peak) {
     const double impulse_duration = config_.frames_to_ns(impulse.size());
 
-    const double hw_ts = (in_peak.hw - out_peak.hw - impulse_duration) / Millisecond;
-    const double swhw_ts
-        = (in_peak.sw_hw - out_peak.sw_hw - impulse_duration) / Millisecond;
+    LatencyReport rep;
 
-    reporter_.report_latency(
-        swhw_ts, hw_ts, hw_avg_(hw_ts), (int)config_.report_sma_window);
+    rep.sw_hw = (in_peak.sw_hw - out_peak.sw_hw - impulse_duration) / Millisecond;
+    rep.hw = (in_peak.hw - out_peak.hw - impulse_duration) / Millisecond;
+    rep.hw_avg = hw_avg_(rep.hw);
+
+    reporter_.report(rep);
 }
 
 CorrelationLatencyEstimator::Processor::Processor(const Config& config)

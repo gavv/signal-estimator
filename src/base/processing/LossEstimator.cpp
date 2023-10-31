@@ -64,13 +64,13 @@ void LossEstimator::report_losses_() {
     const auto elapsed = limiter_.allow();
 
     if (elapsed > 0) {
-        const double loss_rate = (double)losses_ / elapsed;
-        const double avg_loss_rate = sma_(loss_rate);
+        LossReport rep;
 
-        const double loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
+        rep.loss_rate = (double)losses_ / elapsed;
+        rep.loss_rate_avg = sma_(rep.loss_rate);
+        rep.loss_ratio = double(no_signal_) / (signal_ + no_signal_) * 100.0;
 
-        reporter_.report_losses(
-            loss_rate, avg_loss_rate, loss_ratio, (int)config_.report_sma_window);
+        reporter_.report(rep);
 
         losses_ = 0;
         signal_ = no_signal_ = 0;

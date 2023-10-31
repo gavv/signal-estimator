@@ -31,12 +31,6 @@ public:
     void add_input(FramePtr frame) override;
 
 private:
-    struct LatencyReport {
-        double sw_hw {};
-        double hw {};
-        double hw_avg {};
-    };
-
     struct Timestamp {
         double sw_hw {};
         double hw {};
