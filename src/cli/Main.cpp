@@ -1,13 +1,15 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "Formatter.hpp"
+#include "Format.hpp"
+#include "Print.hpp"
 
 #include "core/Log.hpp"
 #include "run/Runner.hpp"
 
 #include <CLI/CLI.hpp>
 
+#include <cstdlib>
 #include <iostream>
 #include <map>
 
@@ -17,13 +19,18 @@ int main(int argc, char** argv) {
     Config config;
     std::string mode = "latency_corr";
     std::string report_format = "text";
+    std::string input_format = PcmFormat().to_string(),
+                output_format = PcmFormat().to_string();
     int verbosity = 0;
+    bool list_supported = false;
 
     CLI::App app { "Measure characteristics of a looped back signal",
         "signal-estimator" };
 
     app.formatter(std::make_shared<Formatter>());
 
+    app.add_flag(
+        "-L,--list-supported", list_supported, "Print supported features and exit");
     app.add_flag("-v,--verbose", verbosity,
         "Increase verbosity level (can be used multiple times)");
 
@@ -66,6 +73,10 @@ int main(int argc, char** argv) {
             "Number of periods in input ring buffer")
         ->default_val(config.requested_input_period_count);
     io_opts
+        ->add_option("--in-format", input_format,
+            "Input device sample format (see --list-supported)")
+        ->default_val(input_format);
+    io_opts
         ->add_option("--out-latency", config.requested_output_latency_us,
             "Output ring buffer size, microseconds")
         ->default_val(config.requested_output_latency_us);
@@ -73,6 +84,10 @@ int main(int argc, char** argv) {
         ->add_option("--out-periods", config.requested_output_period_count,
             "Number of periods in output ring buffer")
         ->default_val(config.requested_output_period_count);
+    io_opts
+        ->add_option("--out-format", output_format,
+            "Output device sample format (see --list-supported)")
+        ->default_val(output_format);
     io_opts->add_flag("--no-rt", config.no_realtime, "Don't try using SCHED_RR policy");
 
     auto report_opts = app.add_option_group("Report options");
@@ -164,6 +179,11 @@ int main(int argc, char** argv) {
         return app.exit(e);
     }
 
+    if (list_supported) {
+        print_supported_formats(std::cerr);
+        return EXIT_SUCCESS;
+    }
+
     // parse mode
     const std::map<std::string, Mode> mode_map {
         { "latency_corr", Mode::LatencyCorr },
@@ -180,7 +200,7 @@ int main(int argc, char** argv) {
 
     config.mode = mode_map.at(mode);
 
-    // parse format
+    // parse report format
     const std::map<std::string, Format> format_map {
         { "text", Format::Text },
         { "json", Format::Json },
@@ -193,6 +213,22 @@ int main(int argc, char** argv) {
     }
 
     config.report_format = format_map.at(report_format);
+
+    // parse io formats
+    if (auto fmt = PcmFormat::from_string(input_format)) {
+        config.requested_input_format = *fmt;
+    } else {
+        std::cerr << "--in-format: Invalid value\n"
+                  << "Run with --list-supported for more information.\n";
+        return EXIT_FAILURE;
+    }
+    if (auto fmt = PcmFormat::from_string(output_format)) {
+        config.requested_output_format = *fmt;
+    } else {
+        std::cerr << "--out-format: Invalid value\n"
+                  << "Run with --list-supported for more information.\n";
+        return EXIT_FAILURE;
+    }
 
     // validate devices
     const bool have_output = !config.output_dev.empty();
@@ -220,8 +256,8 @@ int main(int argc, char** argv) {
                       << "Run with --help for more information.\n";
             return EXIT_FAILURE;
         }
-        if (config.input_devs.size() != 2) {
-            std::cerr << "--diff requires exactly two --input devices\n"
+        if (config.input_devs.size() < 2) {
+            std::cerr << "--diff requires at least two --input devices\n"
                       << "Run with --help for more information.\n";
             return EXIT_FAILURE;
         }

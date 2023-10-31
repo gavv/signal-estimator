@@ -222,6 +222,7 @@ Usage: signal-estimator [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
+  -L,--list-supported         Print supported features and exit
   -v,--verbose [0]            Increase verbosity level (can be used multiple times)
 
 Control options:
@@ -238,8 +239,10 @@ I/O options:
   -g,--gain FLOAT [0.8]       Output signal gain, from 0 to 1
   --in-latency UINT [8000]    Input ring buffer size, microseconds
   --in-periods UINT [2]       Number of periods in input ring buffer
+  --in-format TEXT [s16]      Input device sample format (see --list-supported)
   --out-latency UINT [8000]   Output ring buffer size, microseconds
   --out-periods UINT [2]      Number of periods in output ring buffer
+  --out-format TEXT [s16]     Output device sample format (see --list-supported)
   --no-rt                     Don't try using SCHED_RR policy
 
 Report options:

@@ -3,6 +3,7 @@
 ## [v0.0.9][v0.0.9] - ???
 
 * Improve impulse detection stability in latency_corr mode
+* Support different formats for output and input devices ([gh-78](gh-78))
 * Add more info to JSON reports ([gh-65][gh-65])
 * GUI: Show plots with measurement results ([gh-47][gh-47])
 * GUI: Group options by category and add tooltips ([gh-15][gh-15])
@@ -17,6 +18,7 @@
 [gh-27]: https://github.com/gavv/signal-estimator/issues/27
 [gh-47]: https://github.com/gavv/signal-estimator/issues/47
 [gh-65]: https://github.com/gavv/signal-estimator/issues/65
+[gh-78]: https://github.com/gavv/signal-estimator/issues/78
 
 ## [v0.0.8][v0.0.8] - 30 Oct 2023
 

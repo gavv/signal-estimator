@@ -1,7 +1,7 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "Formatter.hpp"
+#include "Format.hpp"
 
 namespace signal_estimator {
 

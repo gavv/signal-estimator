@@ -15,11 +15,18 @@ bool AlsaReader::open(const Config& config, const std::string& device) {
     se_log_info("opening alsa reader for device {}", device);
 
     config_ = config;
+
     pcm_ = alsa_open(device.c_str(), SND_PCM_STREAM_CAPTURE, config_, dev_info_);
 
     frame_chans_ = config.channel_count;
     dev_chans_ = dev_info_.channel_count;
-    dev_buf_.resize(dev_info_.period_size / frame_chans_ * dev_chans_);
+
+    mapper_ = std::make_unique<PcmMapper>(
+        /* input:  */ dev_info_.sample_format, dev_info_.channel_count,
+        /* output: */ PcmFormat(), config.channel_count);
+
+    map_buf_.resize(
+        mapper_->input_bytes(dev_info_.period_size / frame_chans_ * dev_chans_));
 
     return pcm_;
 }
@@ -53,12 +60,16 @@ bool AlsaReader::read(Frame& frame) {
 }
 
 int AlsaReader::read_(Frame& frame) {
-    // ensure that buffer size is fine
-    const size_t dev_samples = resize_buf_(frame);
+    const size_t samples_per_chan = frame.size() / frame_chans_;
+
+    // prepare buffer
+    if (const size_t n_bytes = mapper_->input_bytes(samples_per_chan);
+        map_buf_.size() < n_bytes) {
+        map_buf_.resize(n_bytes);
+    }
 
     // read from device to buffer
-    if (snd_pcm_sframes_t err
-        = snd_pcm_readi(pcm_, dev_buf_.data(), dev_samples / dev_chans_);
+    if (snd_pcm_sframes_t err = snd_pcm_readi(pcm_, map_buf_.data(), samples_per_chan);
         err < 0) {
         return (int)err;
     }
@@ -68,47 +79,17 @@ int AlsaReader::read_(Frame& frame) {
 
     nanoseconds_t sw_time = monotonic_timestamp_ns();
     nanoseconds_t hw_time = sw_time - config_.frames_to_ns((size_t)avail)
-        - config_.frames_to_ns(dev_samples / dev_chans_);
+        - config_.frames_to_ns(samples_per_chan);
     nanoseconds_t wc_time = wallclock_timestamp_ns() - config_.frames_to_ns((size_t)avail)
-        - config_.frames_to_ns(dev_samples / dev_chans_);
+        - config_.frames_to_ns(samples_per_chan);
     nanoseconds_t hw_buf = config_.frames_to_ns((size_t)avail);
 
     frame.set_times(sw_time, hw_time, wc_time, hw_buf);
 
     // read from buffer to frame
-    read_buf_(frame);
+    mapper_->map(map_buf_.data(), (uint8_t*)frame.data(), samples_per_chan);
 
     return 0;
-}
-
-size_t AlsaReader::resize_buf_(const Frame& frame) {
-    const size_t dev_samples = frame.size() / frame_chans_ * dev_chans_;
-
-    if (dev_buf_.size() < dev_samples) {
-        dev_buf_.resize(dev_samples);
-    }
-
-    return dev_samples;
-}
-
-void AlsaReader::read_buf_(Frame& frame) {
-    sample_t* frame_ptr = frame.data();
-    const sample_t* buf_ptr = dev_buf_.data();
-
-    for (size_t ns = 0; ns < frame.size() / frame_chans_; ns++) {
-        size_t frame_pos = 0, buf_pos = 0;
-
-        while (frame_pos < frame_chans_ && buf_pos < dev_chans_) {
-            frame_ptr[frame_pos++] = buf_ptr[buf_pos++];
-        }
-
-        while (frame_pos < frame_chans_) {
-            frame_ptr[frame_pos++] = buf_ptr[dev_chans_ - 1];
-        }
-
-        frame_ptr += frame_chans_;
-        buf_ptr += dev_chans_;
-    }
 }
 
 } // namespace signal_estimator

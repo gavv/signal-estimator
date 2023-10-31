@@ -15,11 +15,18 @@ bool AlsaWriter::open(const Config& config, const std::string& device) {
     se_log_info("opening alsa writer for device {}", device);
 
     config_ = config;
+
     pcm_ = alsa_open(device.c_str(), SND_PCM_STREAM_PLAYBACK, config_, dev_info_);
 
     frame_chans_ = config_.channel_count;
     dev_chans_ = dev_info_.channel_count;
-    dev_buf_.resize(dev_info_.period_size / frame_chans_ * dev_chans_);
+
+    mapper_ = std::make_unique<PcmMapper>(
+        /* input:  */ PcmFormat(), config.channel_count,
+        /* output: */ dev_info_.sample_format, dev_info_.channel_count);
+
+    map_buf_.resize(
+        mapper_->output_bytes(dev_info_.period_size / frame_chans_ * dev_chans_));
 
     return pcm_;
 }
@@ -53,15 +60,19 @@ bool AlsaWriter::write(Frame& frame) {
 }
 
 int AlsaWriter::write_(Frame& frame) {
-    // ensure that buffer size is fine
-    const size_t dev_samples = resize_buf_(frame);
+    const size_t samples_per_chan = frame.size() / frame_chans_;
+
+    // prepare buffer
+    if (const size_t n_bytes = mapper_->output_bytes(samples_per_chan);
+        map_buf_.size() < n_bytes) {
+        map_buf_.resize(n_bytes);
+    }
 
     // write from frame to buffer
-    write_buf_(frame);
+    mapper_->map((const uint8_t*)frame.data(), map_buf_.data(), samples_per_chan);
 
     // write from buffer to device
-    if (snd_pcm_sframes_t err
-        = snd_pcm_writei(pcm_, dev_buf_.data(), dev_samples / dev_chans_);
+    if (snd_pcm_sframes_t err = snd_pcm_writei(pcm_, map_buf_.data(), samples_per_chan);
         err < 0) {
         return (int)err;
     }
@@ -75,44 +86,14 @@ int AlsaWriter::write_(Frame& frame) {
 
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
     const nanoseconds_t hw_time = sw_time + config_.frames_to_ns(pending)
-        - config_.frames_to_ns(dev_samples / dev_chans_);
+        - config_.frames_to_ns(samples_per_chan);
     const nanoseconds_t wc_time = wallclock_timestamp_ns() + config_.frames_to_ns(pending)
-        - config_.frames_to_ns(dev_samples / dev_chans_);
+        - config_.frames_to_ns(samples_per_chan);
     const nanoseconds_t hw_buf = config_.frames_to_ns(pending);
 
     frame.set_times(sw_time, hw_time, wc_time, hw_buf);
 
     return 0;
-}
-
-size_t AlsaWriter::resize_buf_(const Frame& frame) {
-    const size_t dev_samples = frame.size() / frame_chans_ * dev_chans_;
-
-    if (dev_buf_.size() < dev_samples) {
-        dev_buf_.resize(dev_samples);
-    }
-
-    return dev_samples;
-}
-
-void AlsaWriter::write_buf_(const Frame& frame) {
-    sample_t* buf_ptr = dev_buf_.data();
-    const sample_t* frame_ptr = frame.data();
-
-    for (size_t ns = 0; ns < frame.size() / frame_chans_; ns++) {
-        size_t buf_pos = 0, frame_pos = 0;
-
-        while (buf_pos < dev_chans_ && frame_pos < frame_chans_) {
-            buf_ptr[buf_pos++] = frame_ptr[frame_pos++];
-        }
-
-        while (buf_pos < dev_chans_) {
-            buf_ptr[buf_pos++] = frame_ptr[frame_chans_ - 1];
-        }
-
-        buf_ptr += dev_chans_;
-        frame_ptr += frame_chans_;
-    }
 }
 
 } // namespace signal_estimator

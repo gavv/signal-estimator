@@ -6,6 +6,7 @@
 #include "core/DevInfo.hpp"
 #include "core/Dir.hpp"
 #include "core/Time.hpp"
+#include "io/PcmFormat.hpp"
 
 #include <cstdlib>
 #include <string>
@@ -70,11 +71,17 @@ struct Config {
     // desired number of periods in output ring buffer(s)
     unsigned int requested_output_period_count { 2 };
 
+    // desired format for output device
+    PcmFormat requested_output_format {};
+
     // desired input latency, in microseconds
     unsigned int requested_input_latency_us { 8000 };
 
     // desired number of periods in input ring buffer(s)
     unsigned int requested_input_period_count { 2 };
+
+    // desired format for input device
+    PcmFormat requested_input_format {};
 
     // output device info
     DevInfo output_info;
