@@ -37,6 +37,8 @@ StepsLatencyEstimator::StepsLatencyEstimator(const Config& config, IReporter& re
 }
 
 StepsLatencyEstimator::~StepsLatencyEstimator() {
+    queue_in_.push(nullptr);
+
     if (thread_.joinable()) {
         thread_.join();
     }
@@ -97,7 +99,7 @@ bool StepsLatencyEstimator::check_step_(LatencyReport& report) {
         return false;
     }
 
-    if (input_ts_.hw < output_ts_.hw) {
+    if (std::abs(input_ts_.hw - output_ts_.hw) > (double)config_.step_interval * 1000) {
         return false;
     }
 

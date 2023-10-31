@@ -38,10 +38,9 @@ void IOJitterEstimator::BufStats::update(nanoseconds_t buf_len) {
 }
 
 IOJitterEstimator::IOJitterEstimator(
-    const Config& config, const DevInfo& dev_info, Dir dir, IReporter& reporter)
+    const Config& config, const DevInfo& dev_info, IReporter& reporter)
     : config_(config)
     , dev_info_(dev_info)
-    , dir_(dir)
     , thread_(&IOJitterEstimator::run_, this)
     , sw_stats_(config, dev_info)
     , hw_stats_(config, dev_info)
@@ -50,19 +49,21 @@ IOJitterEstimator::IOJitterEstimator(
 }
 
 IOJitterEstimator::~IOJitterEstimator() {
+    queue_.push(nullptr);
+
     if (thread_.joinable()) {
         thread_.join();
     }
 }
 
 void IOJitterEstimator::add_output(FramePtr frame) {
-    if (dir_ == Dir::Output) {
+    if (dev_info_.dir == Dir::Output) {
         queue_.push(std::move(frame));
     }
 }
 
 void IOJitterEstimator::add_input(FramePtr frame) {
-    if (dir_ == Dir::Input) {
+    if (dev_info_.dir == Dir::Input) {
         queue_.push(std::move(frame));
     }
 }

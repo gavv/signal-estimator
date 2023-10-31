@@ -20,6 +20,8 @@ CorrelationLatencyEstimator::CorrelationLatencyEstimator(
 }
 
 CorrelationLatencyEstimator::~CorrelationLatencyEstimator() {
+    queue_in_.push(nullptr);
+
     if (thread_.joinable()) {
         thread_.join();
     }

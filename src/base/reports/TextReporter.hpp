@@ -12,7 +12,7 @@ namespace signal_estimator {
 
 class TextReporter : public IReporter {
 public:
-    TextReporter(const Config& config, const std::string& dev_name);
+    TextReporter(const Config& config, const DevInfo& dev_info);
 
     TextReporter(const TextReporter&) = delete;
     TextReporter& operator=(const TextReporter&) = delete;
@@ -25,6 +25,7 @@ public:
 
 private:
     std::string suffix_;
+    bool sign_ {};
 };
 
 } // namespace signal_estimator

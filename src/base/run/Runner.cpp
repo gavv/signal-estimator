@@ -62,7 +62,8 @@ bool Runner::start() {
         config_.frame_size = std::max(config_.frame_size, (size_t)input_info.period_size);
     }
 
-    config_.show_device_names = input_readers_.size() > 1 && !config_.diff_inputs;
+    config_.show_device_names
+        = config_.diff_inputs ? input_readers_.size() > 2 : input_readers_.size() > 1;
 
     if (!config_.dump_file.empty()) {
         auto csv_dumper = std::make_shared<CsvDumper>(config_);
@@ -81,47 +82,49 @@ bool Runner::start() {
 
     frame_pool_ = std::make_unique<FramePool>(config_);
 
-    size_t num_reporters = 0;
-    if (config_.diff_inputs) {
-        num_reporters = 1;
-    } else if (config_.mode == Mode::IOJitter) {
-        if (input_readers_.size() != 0) {
-            num_reporters = input_readers_.size();
-        } else if (output_writer_) {
-            num_reporters = 1;
-        }
-    } else {
-        num_reporters = input_readers_.size();
-    }
-
-    for (size_t n = 0; n < num_reporters; n++) {
-        const auto dev_name = input_readers_.size() != 0
-            ? config_.input_info[n].short_name
-            : config_.output_info.short_name;
-
-        switch (config_.report_format) {
-        case Format::Text:
-            reporters_.emplace_back(std::make_unique<TextReporter>(config_, dev_name));
-            break;
-
-        case Format::Json:
-            if (!json_printer_) {
-                json_printer_ = std::make_unique<JsonPrinter>();
-            }
-            reporters_.emplace_back(
-                std::make_unique<JsonReporter>(config_, dev_name, *json_printer_));
-            break;
-        }
-    }
-
     size_t num_estimators = 0;
-    if (config_.diff_inputs) {
+    if (input_readers_.size() != 0) {
+        if (config_.diff_inputs) {
+            // measurement for each input device except first
+            num_estimators = input_readers_.size() - 1;
+        } else {
+            // measurement for each input device
+            num_estimators = input_readers_.size();
+        }
+    } else if (output_writer_) {
+        // measurements for one output device
         num_estimators = 1;
-    } else {
-        num_estimators = input_readers_.size();
+    }
+
+    if (config_.report_format == Format::Json) {
+        json_printer_ = std::make_unique<JsonPrinter>();
     }
 
     for (size_t n = 0; n < num_estimators; n++) {
+        DevInfo dev_info;
+        if (input_readers_.size() != 0) {
+            if (config_.diff_inputs) {
+                // measurement for each input device except first
+                dev_info = config_.input_info[n + 1];
+            } else {
+                // measurement for each input device
+                dev_info = config_.input_info[n];
+            }
+        } else {
+            dev_info = config_.output_info;
+        }
+
+        switch (config_.report_format) {
+        case Format::Text:
+            reporters_.emplace_back(std::make_unique<TextReporter>(config_, dev_info));
+            break;
+
+        case Format::Json:
+            reporters_.emplace_back(
+                std::make_unique<JsonReporter>(config_, dev_info, *json_printer_));
+            break;
+        }
+
         switch (config_.mode) {
         case Mode::LatencyCorr:
             estimators_.emplace_back(
@@ -139,8 +142,8 @@ bool Runner::start() {
             break;
 
         case Mode::IOJitter:
-            estimators_.emplace_back(std::make_unique<IOJitterEstimator>(
-                config_, config_.input_info[n], Dir::Input, *reporters_[n]));
+            estimators_.emplace_back(
+                std::make_unique<IOJitterEstimator>(config_, dev_info, *reporters_[n]));
             break;
         }
     }
@@ -161,8 +164,6 @@ bool Runner::start() {
 
         case Mode::IOJitter:
             generator_ = std::make_unique<ContinuousGenerator>(config_);
-            estimators_.emplace_back(std::make_unique<IOJitterEstimator>(
-                config_, config_.output_info, Dir::Output, *reporters_[0]));
             break;
         }
     }
@@ -235,12 +236,6 @@ void Runner::output_loop_() {
             dumper_->write(frame);
         }
     }
-
-    if (!config_.diff_inputs) {
-        for (auto& estimator : estimators_) {
-            estimator->add_output(nullptr);
-        }
-    }
 }
 
 void Runner::input_loop_(size_t dev_index) {
@@ -274,24 +269,16 @@ void Runner::input_loop_(size_t dev_index) {
             estimators_[dev_index]->add_input(frame);
         } else {
             if (dev_index == 0) {
-                estimators_[0]->add_output(frame);
+                for (auto& estimator : estimators_) {
+                    estimator->add_output(frame);
+                }
             } else {
-                estimators_[0]->add_input(frame);
+                estimators_[dev_index - 1]->add_input(frame);
             }
         }
 
         if (dumper_) {
             dumper_->write(frame);
-        }
-    }
-
-    if (!config_.diff_inputs) {
-        estimators_[dev_index]->add_input(nullptr);
-    } else {
-        if (dev_index == 0) {
-            estimators_[0]->add_output(nullptr);
-        } else {
-            estimators_[0]->add_input(nullptr);
         }
     }
 }

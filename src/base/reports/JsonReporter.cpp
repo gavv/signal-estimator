@@ -8,10 +8,9 @@
 
 namespace signal_estimator {
 
-JsonReporter::JsonReporter(
-    const Config& config, const std::string& dev_name, JsonPrinter& printer)
+JsonReporter::JsonReporter(const Config&, const DevInfo& dev_info, JsonPrinter& printer)
     : printer_(printer)
-    , dev_name_(config.diff_inputs ? "diff" : dev_name) {
+    , dev_name_(dev_info.short_name) {
 }
 
 void JsonReporter::report_latency(double sw_hw, double hw, double hw_avg, int) {

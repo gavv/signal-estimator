@@ -13,7 +13,7 @@ namespace signal_estimator {
 
 class JsonReporter : public IReporter {
 public:
-    JsonReporter(const Config& config, const std::string& dev_name, JsonPrinter& printer);
+    JsonReporter(const Config& config, const DevInfo& dev_info, JsonPrinter& printer);
 
     JsonReporter(const JsonReporter&) = delete;
     JsonReporter& operator=(const JsonReporter&) = delete;

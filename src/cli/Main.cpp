@@ -44,8 +44,8 @@ int main(int argc, char** argv) {
     control_opts->add_option("-i,--input", config.input_devs, "Input device name(s)")
         ->expected(0, -1);
     control_opts
-        ->add_flag("--diff", config.diff_inputs,
-            "Measure difference between two input devices (needs exactly 2 inputs)")
+        ->add_flag(
+            "--diff", config.diff_inputs, "Measure difference between input devices")
         ->group("");
     control_opts
         ->add_option("-d,--duration", config.measurement_duration,
@@ -232,16 +232,16 @@ int main(int argc, char** argv) {
     const bool have_output = !config.output_dev.empty();
     const bool have_input = !config.input_devs.empty();
 
-    if (config.mode != Mode::IOJitter) {
-        if (!have_output || !have_input) {
-            std::cerr << "--mode " << mode << " requires one --output device AND\n"
+    if (config.mode == Mode::IOJitter) {
+        if ((have_output && have_input) || (!have_output && !have_input)) {
+            std::cerr << "--mode " << mode << " requires either one --output device OR\n"
                       << "one or more --input devices\n"
                       << "Run with --help for more information.\n";
             return EXIT_FAILURE;
         }
     } else {
-        if ((have_output && have_input) || (!have_output && !have_input)) {
-            std::cerr << "--mode " << mode << " requires either one --output device OR\n"
+        if (!have_output || !have_input) {
+            std::cerr << "--mode " << mode << " requires one --output device AND\n"
                       << "one or more --input devices\n"
                       << "Run with --help for more information.\n";
             return EXIT_FAILURE;
