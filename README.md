@@ -209,7 +209,7 @@ It uses Qt and Qwt libraries. Internally, it invokes the command-line tool (`sig
 
 Here is how it looks like:
 
-<img src="https://github.com/gavv/signal-estimator/blob/main/doc/screenshot.png" width="600" />
+<img src="https://github.com/gavv/signal-estimator/blob/main/doc/gui_screenshot.png" width="600" />
 
 Command-line options
 --------------------
