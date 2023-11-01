@@ -539,8 +539,6 @@ There is a helper script that plots the dump file using matplotlib. You can use 
 
 ![](./doc/dump_plot_edited.png)
 
-In this example we were measuring the latency of an Android phone with AirPods connected via Bluetooth, and the measured latency was about 238 ms.
-
 If dump includes multiple input devices, you should choose which one to display using `--device` option, e.g.:
 
 ```
@@ -554,9 +552,11 @@ ALSA output and input device names are the same as passed to `aplay` and `arecor
 
 You may need to configure sample rate (`--rate`) and the number of channels (`--chans`). Selected rate should be supported by both output and input devices.
 
-You may also need to configure ALSA ring buffer size (`--out-latency` and `--in-latency`) and the number of periods (I/O frames) in the ring buffer (`--out-periods` and `--in-periods`). These parameters affect software latency and output / input robustness, but almost does not affect estimated hardware latency.
+You may also need to configure ALSA ring buffer size (`--out-latency` and `--in-latency`) and the number of periods (I/O frames) in the ring buffer (`--out-periods` and `--in-periods`). These parameters affect software latency and output / input robustness, but almost do not affect estimated hardware latency.
 
 If there are glitches, you can try increasing buffer size and number of periods. Note that usually both of them should be multiple of power of two.
+
+You can also configure which sample format to use (`--out-format` and `--in-format`), like `s16` or `s24_3le`. Usually signal-estimator automatically selects supported format, but you can specify preferred one if needed. Use `--list-supported` (`-L`) option to get list of all available formats.
 
 Disabling PulseAudio
 --------------------
