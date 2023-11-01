@@ -322,12 +322,20 @@ QStringList MainWindow::set_up_program_() {
     list.append("--out-periods");
     list.append(t);
 
+    t = ui->OutputFormat->currentText();
+    list.append("--out-format");
+    list.append(t);
+
     t = ui->InputBuffer->cleanText();
     list.append("--in-latency");
     list.append(t);
 
     t = ui->InputPeriods->cleanText();
     list.append("--in-periods");
+    list.append(t);
+
+    t = ui->InputFormat->currentText();
+    list.append("--in-format");
     list.append(t);
 
     if (!ui->Realtime->isChecked()) {
@@ -401,6 +409,11 @@ QStringList MainWindow::set_up_program_() {
 
     t = ui->IOJitPercentile->cleanText();
     list.append("--io-jitter-percentile");
+    list.append(t);
+
+    // IODelay
+    t = ui->IODelayWindow->cleanText();
+    list.append("--io-delay-window");
     list.append(t);
 
     return list;
