@@ -36,4 +36,12 @@ void JsonReporter::report(const IOJitterReport& rep) {
         rep.swdev_per, rep.hwdev_avg, rep.hwdev_per);
 }
 
+void JsonReporter::report(const IODelayReport& rep) {
+    printer_.write_line(
+        "{\"type\": \"io_delay\", \"device\": \"%s\", \"timestamp\": %llu,"
+        " \"sw_avg\": %f, \"hw_avg\": %f}",
+        dev_name_.c_str(), (unsigned long long)wallclock_timestamp_ns(), rep.sw_avg,
+        rep.hw_avg);
+}
+
 } // namespace signal_estimator

@@ -133,6 +133,7 @@ add_library(base_objects OBJECT
   src/base/io/PcmMapper.cpp
   src/base/processing/ContinuousGenerator.cpp
   src/base/processing/CorrelationLatencyEstimator.cpp
+  src/base/processing/IODelayEstimator.cpp
   src/base/processing/IOJitterEstimator.cpp
   src/base/processing/Impulse.cpp
   src/base/processing/ImpulseGenerator.cpp

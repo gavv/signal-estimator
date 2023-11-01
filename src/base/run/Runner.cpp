@@ -10,6 +10,7 @@
 #include "io/AlsaWriter.hpp"
 #include "processing/ContinuousGenerator.hpp"
 #include "processing/CorrelationLatencyEstimator.hpp"
+#include "processing/IODelayEstimator.hpp"
 #include "processing/IOJitterEstimator.hpp"
 #include "processing/Impulse.hpp"
 #include "processing/ImpulseGenerator.hpp"
@@ -145,6 +146,11 @@ bool Runner::start() {
             estimators_.emplace_back(
                 std::make_unique<IOJitterEstimator>(config_, dev_info, *reporters_[n]));
             break;
+
+        case Mode::IODelay:
+            estimators_.emplace_back(
+                std::make_unique<IODelayEstimator>(config_, dev_info, *reporters_[n]));
+            break;
         }
     }
 
@@ -163,6 +169,10 @@ bool Runner::start() {
             break;
 
         case Mode::IOJitter:
+            generator_ = std::make_unique<ContinuousGenerator>(config_);
+            break;
+
+        case Mode::IODelay:
             generator_ = std::make_unique<ContinuousGenerator>(config_);
             break;
         }

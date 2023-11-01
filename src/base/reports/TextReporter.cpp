@@ -45,10 +45,15 @@ void TextReporter::report(const LossReport& rep) {
 
 void TextReporter::report(const IOJitterReport& rep) {
     printf("io_jitter%s:"
-           "  sw_avg %6.3fms  sw_p%d %6.3fms"
-           "  hw_avg %6.3fms  hw_p%d %6.3fms\n",
+           "  sw_avg %7.3fms  sw_p%d %7.3fms  hw_avg %7.3fms  hw_p%d %7.3fms\n",
         suffix_.c_str(), rep.swdev_avg, (int)config_.io_jitter_percentile, rep.swdev_per,
         rep.hwdev_avg, (int)config_.io_jitter_percentile, rep.hwdev_per);
+}
+
+void TextReporter::report(const IODelayReport& rep) {
+    printf("io_delay%s:"
+           "  sw_avg %7.3fms  hw_avg %7.3fms\n",
+        suffix_.c_str(), rep.sw_avg, rep.hw_avg);
 }
 
 } // namespace signal_estimator

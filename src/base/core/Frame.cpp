@@ -46,10 +46,7 @@ void Frame::reset(Dir dir, size_t dev_index) {
     }
     std::fill_n(data_.data(), size_, 0);
 
-    sw_time_ = 0;
-    hw_time_ = 0;
-    wc_time_ = 0;
-    hw_buf_ = 0;
+    set_times(0, 0, 0, 0, 0);
 }
 
 size_t Frame::dev_index() const {
@@ -89,11 +86,12 @@ sample_t* Frame::data() {
 }
 
 void Frame::set_times(nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t wc_time,
-    nanoseconds_t hw_buf) {
+    nanoseconds_t sw_delay, nanoseconds_t hw_delay) {
     sw_time_ = sw_time;
     hw_time_ = hw_time;
     wc_time_ = wc_time;
-    hw_buf_ = hw_buf;
+    sw_delay_ = sw_delay;
+    hw_delay_ = hw_delay;
 }
 
 nanoseconds_t Frame::sw_frame_time() const {
@@ -120,8 +118,12 @@ nanoseconds_t Frame::wc_sample_time(size_t sample_index) const {
     return wc_time_ + config_.samples_to_ns(sample_index);
 }
 
-nanoseconds_t Frame::hw_buf_len() const {
-    return hw_buf_;
+nanoseconds_t Frame::sw_delay() const {
+    return sw_delay_;
+}
+
+nanoseconds_t Frame::hw_delay() const {
+    return hw_delay_;
 }
 
 } // namespace signal_estimator

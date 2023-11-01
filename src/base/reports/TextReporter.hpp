@@ -20,6 +20,7 @@ public:
     void report(const LatencyReport& rep) override;
     void report(const LossReport& rep) override;
     void report(const IOJitterReport& rep) override;
+    void report(const IODelayReport& rep) override;
 
 private:
     Config config_;

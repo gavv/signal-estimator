@@ -77,21 +77,27 @@ int AlsaWriter::write_(Frame& frame) {
         return (int)err;
     }
 
-    // number of samples in ring buffer available for write
-    const snd_pcm_sframes_t avail = snd_pcm_avail_update(pcm_);
+    // avail: free space in ring buffer
+    // delay: delay from ring buffer to DAC
+    snd_pcm_sframes_t avail = 0, delay = 0;
+    if (int err = snd_pcm_avail_delay(pcm_, &avail, &delay); err < 0) {
+        return err;
+    }
 
-    // number of samples pending in ring buffer
-    const size_t pending
+    // queued: number of samples in ring buffer
+    const size_t queued
         = dev_info_.period_count * dev_info_.period_size / frame_chans_ - (size_t)avail;
 
     const nanoseconds_t sw_time = monotonic_timestamp_ns();
-    const nanoseconds_t hw_time = sw_time + config_.frames_to_ns(pending)
+    const nanoseconds_t hw_time
+        = sw_time + config_.frames_to_ns(queued) - config_.frames_to_ns(samples_per_chan);
+    const nanoseconds_t wc_time = wallclock_timestamp_ns() + config_.frames_to_ns(queued)
         - config_.frames_to_ns(samples_per_chan);
-    const nanoseconds_t wc_time = wallclock_timestamp_ns() + config_.frames_to_ns(pending)
-        - config_.frames_to_ns(samples_per_chan);
-    const nanoseconds_t hw_buf = config_.frames_to_ns(pending);
 
-    frame.set_times(sw_time, hw_time, wc_time, hw_buf);
+    const nanoseconds_t sw_delay = config_.frames_to_ns((size_t)queued);
+    const nanoseconds_t hw_delay = config_.frames_to_ns((size_t)delay) - sw_delay;
+
+    frame.set_times(sw_time, hw_time, wc_time, sw_delay, hw_delay);
 
     return 0;
 }

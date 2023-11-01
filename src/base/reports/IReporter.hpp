@@ -27,6 +27,11 @@ struct IOJitterReport {
     double hwdev_per { 0 };
 };
 
+struct IODelayReport {
+    double sw_avg { 0 };
+    double hw_avg { 0 };
+};
+
 class IReporter {
 public:
     virtual ~IReporter() = default;
@@ -34,6 +39,7 @@ public:
     virtual void report(const LatencyReport& rep) = 0;
     virtual void report(const LossReport& rep) = 0;
     virtual void report(const IOJitterReport& rep) = 0;
+    virtual void report(const IODelayReport& rep) = 0;
 };
 
 } // namespace signal_estimator

@@ -26,18 +26,6 @@ void IOJitterEstimator::JitterStats::update(nanoseconds_t next_ts) {
     prev_ts = next_ts;
 }
 
-IOJitterEstimator::BufStats::BufStats(const Config& config)
-    : len_avg(config.io_jitter_window)
-    , len_per(config.io_jitter_window, config.io_jitter_percentile / 100.) {
-}
-
-void IOJitterEstimator::BufStats::update(nanoseconds_t buf_len) {
-    const double len_ms = (double)buf_len / Millisecond;
-
-    len_avg.add(len_ms);
-    len_per.add(len_ms);
-}
-
 IOJitterEstimator::IOJitterEstimator(
     const Config& config, const DevInfo& dev_info, IReporter& reporter)
     : config_(config)
@@ -45,7 +33,6 @@ IOJitterEstimator::IOJitterEstimator(
     , thread_(&IOJitterEstimator::run_, this)
     , sw_stats_(config, dev_info)
     , hw_stats_(config, dev_info)
-    , buf_stats_(config)
     , reporter_(reporter) {
 }
 
@@ -73,9 +60,8 @@ void IOJitterEstimator::run_() {
     while (auto frame = queue_.wait_pop()) {
         sw_stats_.update(frame->sw_frame_time());
         hw_stats_.update(frame->hw_frame_time());
-        buf_stats_.update(frame->hw_buf_len());
 
-        if (buf_stats_.len_avg.is_full() && report_limiter_.allow() > 0) {
+        if (sw_stats_.dev_avg.is_full() && report_limiter_.allow() > 0) {
             IOJitterReport rep;
 
             rep.swdev_avg = sw_stats_.dev_avg.get();

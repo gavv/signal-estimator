@@ -16,7 +16,7 @@ Signal Estimator
 - [Command-line options](#command-line-options)
 - [Measuring latency](#measuring-latency)
 - [Measuring losses](#measuring-losses)
-- [Measuring I/O jitter](#measuring-io-jitter)
+- [Measuring I/O jitter and delay](#measuring-io-jitter-and-delay)
 - [Multiple input devices](#multiple-input-devices)
 - [JSON output](#json-output)
 - [Dumping streams](#dumping-streams)
@@ -41,7 +41,7 @@ Features:
 * send test signal to output device and receive looped back signal from input device(s)
 * measure signal latency (the shift between output and input signal)
 * measure signal loss ratio (number of glitches per second in the input signal)
-* measure I/O jitter
+* measure I/O jitter and delay
 * print reports in JSON format for easy parsing
 * dump output and input streams in CSV format for later inspection
 
@@ -228,7 +228,7 @@ Options:
 
 Control options:
   -m,--mode TEXT [latency_corr]
-                              Operation mode: latency_corr|latency_step|losses|io_jitter
+                              Operation mode: latency_corr|latency_step|losses|io_jitter|io_delay
   -o,--output TEXT            Output device name
   -i,--input TEXT ...         Input device name(s)
   -d,--duration FLOAT [0]     Limit measurement duration, seconds (zero for no limit)
@@ -252,8 +252,7 @@ Report options:
   --report-sma UINT [5]       Simple Moving Average window for latency reports
 
 Dump options:
-  --dump-out TEXT             File to dump output stream ("-" for stdout)
-  --dump-in TEXT              File to dump input stream ("-" for stdout)
+  -D,--dump-file TEXT         File to dump samples ("-" for stdout)
   --dump-compression UINT [0]
                               Compress dumped samples by given ratio using SMA
 
@@ -288,6 +287,10 @@ I/O jitter estimation options:
                               I/O jitter detection window, number of periods
   --io-jitter-percentile UINT [95]
                               I/O jitter percentile, from 1 to 100
+
+I/O delay estimation options:
+  --io-delay-window UINT [250]
+                              I/O delay detection window, number of periods
 ```
 
 <!-- helpstop -->
@@ -309,21 +312,17 @@ The correlation mode is known to provide improved precision and stability even u
 ```
 $ sudo signal-estimator -vv -m latency_corr -o hw:0 -i hw:0
 [II] opening alsa writer for device hw:0
-[DD] requested_latency: 8000 us
-[DD] requested_buffer_size: 384 samples
-[DD] selected_buffer_time: 8000 us
-[DD] selected_buffer_size: 384 samples
-[DD] selected_period_time: 4000 us
-[DD] selected_period_size: 192 samples
-[DD] selected_channel_count: 2
+[DD] buffer_size: 8000 us (384 samples)
+[DD] period_size: 4000 us (192 samples)
+[DD] sample_rate: 48000 Hz
+[DD] sample_format: s16
+[DD] channel_count: 2
 [II] opening alsa reader for device hw:0
-[DD] requested_latency: 8000 us
-[DD] requested_buffer_size: 384 samples
-[DD] selected_buffer_time: 8000 us
-[DD] selected_buffer_size: 384 samples
-[DD] selected_period_time: 4000 us
-[DD] selected_period_size: 192 samples
-[DD] selected_channel_count: 2
+[DD] buffer_size: 8000 us (384 samples)
+[DD] period_size: 4000 us (192 samples)
+[DD] sample_rate: 48000 Hz
+[DD] sample_format: s16
+[DD] channel_count: 2
 [II] starting measurement
 [DD] successfully enabled real-time scheduling policy
 [DD] successfully enabled real-time scheduling policy
@@ -361,21 +360,17 @@ In the loss estimation mode, the tool generates continuous harmonic and counts f
 ```
 $ sudo signal-estimator -vv -m losses -o hw:0 -i hw:0
 [II] opening alsa writer for device hw:0
-[DD] requested_latency: 8000 us
-[DD] requested_buffer_size: 384 samples
-[DD] selected_buffer_time: 8000 us
-[DD] selected_buffer_size: 384 samples
-[DD] selected_period_time: 4000 us
-[DD] selected_period_size: 192 samples
-[DD] selected_channel_count: 2
+[DD] buffer_size: 8000 us (384 samples)
+[DD] period_size: 4000 us (192 samples)
+[DD] sample_rate: 48000 Hz
+[DD] sample_format: s16
+[DD] channel_count: 2
 [II] opening alsa reader for device hw:0
-[DD] requested_latency: 8000 us
-[DD] requested_buffer_size: 384 samples
-[DD] selected_buffer_time: 8000 us
-[DD] selected_buffer_size: 384 samples
-[DD] selected_period_time: 4000 us
-[DD] selected_period_size: 192 samples
-[DD] selected_channel_count: 2
+[DD] buffer_size: 8000 us (384 samples)
+[DD] period_size: 4000 us (192 samples)
+[DD] sample_rate: 48000 Hz
+[DD] sample_format: s16
+[DD] channel_count: 2
 [II] starting measurement
 [DD] successfully enabled real-time scheduling policy
 [DD] successfully enabled real-time scheduling policy
@@ -403,60 +398,85 @@ These numbers may be rather imprecise.
 
 If you're having troubles, you may need to configure signal gain (`--gain`) and signal and glitch detection parameters (`--signal-xxx` and `--glitch-xxx`).
 
-Measuring I/O jitter
---------------------
+Measuring I/O jitter and delay
+------------------------------
 
-In I/O jitter estimation mode, the tool does not look at the signal itself, but instead measures jitter of I/O operations. This jitter defines how precisely ALSA and OS schedule I/O.
+In **I/O jitter estimation mode**, the tool does not look at the signal itself, but instead measures jitter of I/O operations. This jitter defines how precisely ALSA and OS schedule I/O.
 
 ```
 $ sudo signal-estimator -vv -o hw:0 -m io_jitter
-[II] opening alsa writer for device hw:0
-[DD] requested_latency: 8000 us
-[DD] requested_buffer_size: 384 samples
-[DD] selected_buffer_time: 8000 us
-[DD] selected_buffer_size: 384 samples
-[DD] selected_period_time: 4000 us
-[DD] selected_period_size: 192 samples
-[DD] selected_channel_count: 2
+[II] opening alsa reader for device hw:0
+[DD] buffer_size: 8000 us (384 samples)
+[DD] period_size: 4000 us (192 samples)
+[DD] sample_rate: 48000 Hz
+[DD] sample_format: s16
+[DD] channel_count: 2
 [II] starting measurement
 [DD] successfully enabled real-time scheduling policy
-jitter:  sw avg  0.054ms p95  0.193ms  hw avg  0.007ms p95  0.016ms  buf avg  7.014ms p95  7.167ms
-jitter:  sw avg  0.024ms p95  0.090ms  hw avg  0.006ms p95  0.016ms  buf avg  7.007ms p95  7.000ms
-jitter:  sw avg  0.021ms p95  0.077ms  hw avg  0.006ms p95  0.016ms  buf avg  7.008ms p95  7.000ms
-jitter:  sw avg  0.020ms p95  0.074ms  hw avg  0.006ms p95  0.016ms  buf avg  7.007ms p95  7.000ms
-jitter:  sw avg  0.020ms p95  0.072ms  hw avg  0.006ms p95  0.015ms  buf avg  7.007ms p95  7.000ms
+io_jitter:  sw_avg   0.087ms  sw_p95   0.273ms  hw_avg   0.037ms  hw_p95   0.106ms
+io_jitter:  sw_avg   0.107ms  sw_p95   0.274ms  hw_avg   0.050ms  hw_p95   0.136ms
+io_jitter:  sw_avg   0.102ms  sw_p95   0.272ms  hw_avg   0.052ms  hw_p95   0.142ms
+io_jitter:  sw_avg   0.125ms  sw_p95   0.329ms  hw_avg   0.043ms  hw_p95   0.121ms
+io_jitter:  sw_avg   0.146ms  sw_p95   0.320ms  hw_avg   0.031ms  hw_p95   0.107ms
 ...
 ```
 
 Notation:
 
-* `sw` - software timestamp jitter
+* `sw_avg`, `sw_p95` - software timestamp jitter
 
     Deviation from period size of delta between software timestamps of subsequent frames. **Software timestamp** is the wallclock time when we wrote frame to ALSA ring buffer or read frame from it.
 
-    * `avg` - average deviation
-    * `p95` - 95th percentile of deviation
+    `sw_avg` is average value, and `sw_p95` is 95th percentile (95 is configurable).
 
-* `hw` - hardware timestamp jitter
+* `hw_avg`, `hw_p95` - hardware timestamp jitter
 
     Deviation from period size of delta between hardware timestamps of subsequent frames. **Hardware timestamp** is the estimation of wallclock time when the frame was sent from ALSA ring buffer to hardware, or received from hardware and placed into ring buffer.
 
-    * `avg` - average deviation
-    * `p95` - 95th percentile of deviation
+    `hw_avg` is average value, and `hw_p95` is 95th percentile (95 is configurable).
 
-* `buf` - ring buffer length
+**I/O delay estimation mode** is similar. The tool also does not look at the signal, but instead monitors software and hardware delays reported by ALSA.
 
-    Length of ALSA ring buffer at the time when we wrote or read frame from it.
+```
+$ sudo signal-estimator -vv -o hw:0 -m io_delay
+[II] opening alsa reader for device hw:0
+[DD] buffer_size: 8000 us (384 samples)
+[DD] period_size: 4000 us (192 samples)
+[DD] sample_rate: 48000 Hz
+[DD] sample_format: s16
+[DD] channel_count: 2
+[II] starting measurement
+[DD] successfully enabled real-time scheduling policy
+io_delay:  sw_avg   6.696ms  hw_avg   0.783ms
+io_delay:  sw_avg   6.675ms  hw_avg   0.760ms
+io_delay:  sw_avg   6.701ms  hw_avg   0.824ms
+io_delay:  sw_avg   6.682ms  hw_avg   0.822ms
+io_delay:  sw_avg   6.739ms  hw_avg   0.823ms
+...
+```
 
-    * `avg` - average buffer length
-    * `p95` - 95th percentile of buffer length
+Notation:
 
-`buf` length shows how the jitter affects ALSA ring buffer:
+* `sw_avg` - average ring buffer size (software delay)
 
-* For output devices, we try to keep the ring buffer full. The ideal buffer length would be the same as configured via `--out-latency` or `--in-latency` option.
-* For input devices, we try to keep the ring buffer empty. The ideal buffer length would be zero.
+    Average value of ALSA ring buffer size, measured right after writing or reading frame.
 
-You can configure SMA window and percentile via `--io-jitter-xxx` options.
+    * For output devices, we try to keep the ring buffer full. The ideal buffer length would be the same as configured via `--out-latency` or `--in-latency` option.
+    * For input devices, we try to keep the ring buffer empty. The ideal buffer length would be zero.
+
+* `hw_avg` - average delay between ring buffer and ADC/DAC (hardware delay)
+
+    Average value of delay introduced by link and codec, measured right after writing or reading frame. Hardware delay is reported by ALSA and is driver-dependent. Some drivers may report incomplete values (e.g. don't take codec into account) or even zero.
+
+    Hardware delay is usually constant, but can be variable for some codecs. On USB cards, hardware delay may also depend on period size.
+
+For more details about delays, see [ALSA documentation](https://www.kernel.org/doc/html/v4.10/sound/designs/timestamping.html). ALSA uses terms `avail` and `delay`, which maps to signal-estimator as follows:
+
+* for input device: `software_delay = avail`
+* for output device: `software_delay = buffer_size - avail`
+* `hardware_delay = delay - software_delay`.
+
+You can configure SMA and percentile parameters via `--io-jitter-xxx` and `--io-delay-xxx` options.
 
 Multiple input devices
 ----------------------

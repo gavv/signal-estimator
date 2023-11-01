@@ -19,6 +19,7 @@ enum class Mode {
     LatencyStep,
     Losses,
     IOJitter,
+    IODelay,
 };
 
 enum class Format {
@@ -132,6 +133,9 @@ struct Config {
 
     // percentile for jitter reports, from 0 to 100
     size_t io_jitter_percentile { 95 };
+
+    // running window for delay calculation, number of periods
+    size_t io_delay_window { 250 };
 
     // default number of samples for each frame
     size_t frame_size { 0 };

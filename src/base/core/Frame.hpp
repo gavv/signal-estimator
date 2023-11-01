@@ -45,7 +45,7 @@ public:
 
     // record hw and sw times
     void set_times(nanoseconds_t sw_time, nanoseconds_t hw_time, nanoseconds_t wc_time,
-        nanoseconds_t hw_buf);
+        nanoseconds_t sw_delay, nanoseconds_t hw_delay);
 
     // get time when the frame was passed to or received from the OS
     nanoseconds_t sw_frame_time() const;
@@ -69,8 +69,13 @@ public:
     // of monotonic clock
     nanoseconds_t wc_sample_time(size_t sample_index) const;
 
-    // get hardware buffer length at the time when frame was captured or played
-    nanoseconds_t hw_buf_len() const;
+    // get ring buffer size as reported by ALSA
+    // at the time when frame was captured or played
+    nanoseconds_t sw_delay() const;
+
+    // get hardware delay between ring buffer and ADC/DAC, as reported by ALSA
+    // at the time when frame was captured or played
+    nanoseconds_t hw_delay() const;
 
     // index access
     const sample_t& operator[](const size_t index) const {
@@ -102,7 +107,8 @@ private:
     nanoseconds_t sw_time_ {};
     nanoseconds_t hw_time_ {};
     nanoseconds_t wc_time_ {};
-    nanoseconds_t hw_buf_ {};
+    nanoseconds_t sw_delay_ {};
+    nanoseconds_t hw_delay_ {};
 
     std::atomic<int> refcount_ {};
 };

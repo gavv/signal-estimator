@@ -47,17 +47,6 @@ private:
         void update(nanoseconds_t next_ts);
     };
 
-    struct BufStats {
-        // average hw buffer length
-        MovAvg<double> len_avg;
-        // Nth percentile of hw buffer length
-        MovPercentile<double> len_per;
-
-        BufStats(const Config& config);
-
-        void update(nanoseconds_t buf_len);
-    };
-
     const Config config_;
     const DevInfo dev_info_;
 
@@ -66,7 +55,6 @@ private:
 
     JitterStats sw_stats_;
     JitterStats hw_stats_;
-    BufStats buf_stats_;
 
     RateLimiter report_limiter_ { 2 };
 

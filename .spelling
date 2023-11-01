@@ -11,6 +11,7 @@ libpng
 loopback
 matplotlib
 pipewire
+pkg-config
 prebuilt
 pulseaudio
 qt5

@@ -74,17 +74,23 @@ int AlsaReader::read_(Frame& frame) {
         return (int)err;
     }
 
-    // number of samples in ring buffer available for read
-    const snd_pcm_sframes_t avail = snd_pcm_avail_update(pcm_);
+    // avail: number of samples in ring buffer
+    // delay: delay from ADC to ring buffer
+    snd_pcm_sframes_t avail = 0, delay = 0;
+    if (int err = snd_pcm_avail_delay(pcm_, &avail, &delay); err < 0) {
+        return err;
+    }
 
-    nanoseconds_t sw_time = monotonic_timestamp_ns();
-    nanoseconds_t hw_time = sw_time - config_.frames_to_ns((size_t)avail)
+    const nanoseconds_t sw_time = monotonic_timestamp_ns();
+    const nanoseconds_t hw_time = sw_time - config_.frames_to_ns((size_t)avail)
         - config_.frames_to_ns(samples_per_chan);
-    nanoseconds_t wc_time = wallclock_timestamp_ns() - config_.frames_to_ns((size_t)avail)
-        - config_.frames_to_ns(samples_per_chan);
-    nanoseconds_t hw_buf = config_.frames_to_ns((size_t)avail);
+    const nanoseconds_t wc_time = wallclock_timestamp_ns()
+        - config_.frames_to_ns((size_t)avail) - config_.frames_to_ns(samples_per_chan);
 
-    frame.set_times(sw_time, hw_time, wc_time, hw_buf);
+    const nanoseconds_t sw_delay = config_.frames_to_ns((size_t)avail);
+    const nanoseconds_t hw_delay = config_.frames_to_ns((size_t)delay) - sw_delay;
+
+    frame.set_times(sw_time, hw_time, wc_time, sw_delay, hw_delay);
 
     // read from buffer to frame
     mapper_->map(map_buf_.data(), (uint8_t*)frame.data(), samples_per_chan);

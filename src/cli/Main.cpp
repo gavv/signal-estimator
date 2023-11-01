@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 
     control_opts
         ->add_option("-m,--mode", mode,
-            "Operation mode: latency_corr|latency_step|losses|io_jitter")
+            "Operation mode: latency_corr|latency_step|losses|io_jitter|io_delay")
         ->default_str(mode);
     control_opts->add_option("-o,--output", config.output_dev, "Output device name");
     control_opts->add_option("-i,--input", config.input_devs, "Input device name(s)")
@@ -171,6 +171,13 @@ int main(int argc, char** argv) {
             "I/O jitter percentile, from 1 to 100")
         ->default_val(config.io_jitter_percentile);
 
+    auto iodelay_opts = app.add_option_group("I/O delay estimation options");
+
+    iodelay_opts
+        ->add_option("--io-delay-window", config.io_delay_window,
+            "I/O delay detection window, number of periods")
+        ->default_val(config.io_delay_window);
+
     try {
         app.parse(argc, argv);
     } catch (const CLI::ParseError& e) {
@@ -188,6 +195,7 @@ int main(int argc, char** argv) {
         { "latency_step", Mode::LatencyStep },
         { "losses", Mode::Losses },
         { "io_jitter", Mode::IOJitter },
+        { "io_delay", Mode::IODelay },
     };
 
     if (!mode_map.count(mode)) {
@@ -232,7 +240,7 @@ int main(int argc, char** argv) {
     const bool have_output = !config.output_dev.empty();
     const bool have_input = !config.input_devs.empty();
 
-    if (config.mode == Mode::IOJitter) {
+    if (config.mode == Mode::IOJitter || config.mode == Mode::IODelay) {
         if ((have_output && have_input) || (!have_output && !have_input)) {
             std::cerr << "--mode " << mode << " requires either one --output device OR\n"
                       << "one or more --input devices\n"
@@ -249,7 +257,7 @@ int main(int argc, char** argv) {
     }
 
     if (config.diff_inputs) {
-        if (config.mode == Mode::IOJitter) {
+        if (config.mode == Mode::IOJitter || config.mode == Mode::IODelay) {
             std::cerr << "--mode " << mode << " does not support --diff option\n"
                       << "Run with --help for more information.\n";
             return EXIT_FAILURE;
