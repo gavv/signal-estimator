@@ -1,16 +1,18 @@
 # Changelog
 
-## [v0.0.9][v0.0.9] - ???
+## [v0.0.9][v0.0.9] - 01 Nov 2023
 
 * Improve impulse detection stability in latency_corr mode
-* Support different formats for output and input devices ([gh-78](gh-78))
+* Implement new `io_delay` measurement mode ([gh-74][gh-74])
+* Support arbitrary sample formats for output and input devices ([gh-78](gh-78))
 * Replace two options `--dump-out` and `--dump-in` with one option `--dump-file` ([gh-76][gh-76])
 * Add more info to JSON reports ([gh-65][gh-65])
 * GUI: Show plots with measurement results ([gh-47][gh-47])
 * GUI: Group options by category and add tooltips ([gh-15][gh-15])
-* GUI: Add missing options: impulse settings ([gh-27][gh-27]), input/output ring buffer settings, I/O jitter settings, warmup setting, SCHED_RR option
+* GUI: Add missing options: impulse settings ([gh-27][gh-27]), input/output format and ring buffer settings, I/O jitter and delay settings, warmup setting, SCHED_RR option
 * GUI: Refine option names, tooltips, and units (suffixes)
 * GUI: Change plot window to 15 seconds
+* GUI: Cleanup sizes and paddings
 * GUI: Fix SIGSEGV when exiting during measurement
 
 [v0.0.9]: https://github.com/gavv/signal-estimator/releases/tag/v0.0.9
@@ -19,6 +21,7 @@
 [gh-27]: https://github.com/gavv/signal-estimator/issues/27
 [gh-47]: https://github.com/gavv/signal-estimator/issues/47
 [gh-65]: https://github.com/gavv/signal-estimator/issues/65
+[gh-74]: https://github.com/gavv/signal-estimator/issues/74
 [gh-76]: https://github.com/gavv/signal-estimator/issues/76
 [gh-78]: https://github.com/gavv/signal-estimator/issues/78
 
