@@ -4,7 +4,7 @@
 
 * Improve impulse detection stability in latency_corr mode
 * Implement new `io_delay` measurement mode ([gh-74][gh-74])
-* Support arbitrary sample formats for output and input devices ([gh-78](gh-78))
+* Support arbitrary sample formats for output and input devices ([gh-78][gh-78])
 * Replace two options `--dump-out` and `--dump-in` with one option `--dump-file` ([gh-76][gh-76])
 * Add more info to JSON reports ([gh-65][gh-65])
 * GUI: Show plots with measurement results ([gh-47][gh-47])
