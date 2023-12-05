@@ -180,6 +180,30 @@ include_directories(SYSTEM
   ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-prefix/include
 )
 
+#gtest
+if(WITH_TESTS)
+  ExternalProject_Add(googletest
+    GIT_REPOSITORY    https://github.com/google/googletest.git
+    GIT_TAG           v1.14.0
+    GIT_SHALLOW       ON
+    SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/googletest-src"
+    BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/googletest-build"
+    INSTALL_COMMAND   ""
+    TEST_COMMAND      ""
+    LOG_DOWNLOAD      ON
+    LOG_BUILD         ON
+  )
+
+  include_directories(SYSTEM
+    "${CMAKE_CURRENT_BINARY_DIR}/googletest-src/googletest/include"
+    "${CMAKE_CURRENT_BINARY_DIR}/googletest-src/googlemock/include"
+  )
+
+  find_package(GTest REQUIRED)
+
+  enable_testing()
+endif()
+
 # serialize dependencies
 set(ALL_DEPENDENCIES
   alsa_lib

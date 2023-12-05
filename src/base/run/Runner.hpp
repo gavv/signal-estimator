@@ -11,7 +11,9 @@
 #include "processing/IEstimator.hpp"
 #include "processing/IGenerator.hpp"
 #include "reports/IReporter.hpp"
-#include "reports/JsonReporter.hpp"
+#include "reports/ConsoleSink.hpp"
+#include "reports/JsonPrinter.hpp"
+#include "reports/TextPrinter.hpp"
 
 #include <atomic>
 #include <memory>
@@ -45,7 +47,9 @@ private:
 
     std::unique_ptr<FramePool> frame_pool_;
 
+    ConsoleSink console_sink_;
     std::unique_ptr<JsonPrinter> json_printer_;
+    std::unique_ptr<TextPrinter> text_printer_;
     std::vector<std::unique_ptr<IReporter>> reporters_;
 
     std::unique_ptr<IGenerator> generator_;

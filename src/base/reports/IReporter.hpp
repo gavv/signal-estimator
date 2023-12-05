@@ -34,7 +34,11 @@ struct IODelayReport {
 
 class IReporter {
 public:
+    IReporter() = default;
     virtual ~IReporter() = default;
+
+    IReporter(const IReporter&) = delete;
+    IReporter& operator=(const IReporter&) = delete;
 
     virtual void report(const LatencyReport& rep) = 0;
     virtual void report(const LossReport& rep) = 0;
