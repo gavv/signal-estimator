@@ -126,13 +126,15 @@ External:
 * libpng (for GUI)
 * Qt5 and Qwt (for GUI)
 
-Vendored (git submodules):
+Downloaded automatically:
 
 * [KISS FFT](https://github.com/mborgerding/kissfft)
 * [concurrentqueue](https://github.com/cameron314/concurrentqueue)
 * [intrusive_shared_ptr](https://github.com/gershnik/intrusive_shared_ptr)
 * [spdlog](https://github.com/gabime/spdlog)
 * [CLI11](https://github.com/CLIUtils/CLI11)
+
+Note: when cross-compiling, libasound (ALSA) is also downloaded automatically, so you don't need anything except toolchain.
 
 Installation
 ------------
@@ -143,10 +145,10 @@ Install external dependencies:
 sudo apt install g++ make cmake pkg-config libasound2-dev libpng-dev qtbase5-dev libqwt-qt5-dev
 ```
 
-Clone repo with submodules:
+Clone repo:
 
 ```
-git clone --recurse-submodules https://github.com/gavv/signal-estimator.git
+git clone https://github.com/gavv/signal-estimator.git
 cd signal-estimator
 ```
 

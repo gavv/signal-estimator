@@ -6,23 +6,6 @@ ProcessorCount(CPU_COUNT)
 set(LIBPREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})
 set(LIBSUFFIX ${CMAKE_STATIC_LIBRARY_SUFFIX})
 
-function(checkout_submodule DIRECTORY)
-  if(NOT EXISTS ${DIRECTORY}/.git)
-    if(NOT GIT_EXECUTABLE)
-      find_package(Git REQUIRED)
-    endif()
-    message(STATUS "Checking out ${DIRECTORY}...")
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive .
-      WORKING_DIRECTORY ${DIRECTORY}
-      RESULT_VARIABLE GIT_EXIT_CODE
-      )
-    if(NOT GIT_EXIT_CODE EQUAL "0")
-      message(FATAL_ERROR "Failed to check out ${DIRECTORY}")
-    endif()
-  endif()
-endfunction(checkout_submodule)
-
 # alsa
 if(CMAKE_CROSSCOMPILING)
   ExternalProject_Add(alsa_lib
@@ -70,11 +53,11 @@ else(CMAKE_CROSSCOMPILING)
 endif(CMAKE_CROSSCOMPILING)
 
 # kissfft
-checkout_submodule(
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/kissfft
-)
 ExternalProject_Add(kissfft_lib
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/kissfft
+  GIT_REPOSITORY "https://github.com/mborgerding/kissfft.git"
+  GIT_TAG "131.1.0"
+  GIT_SHALLOW ON
+  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/kissfft-src
   BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/kissfft-build
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/kissfft-prefix
   CMAKE_ARGS
@@ -106,27 +89,47 @@ link_libraries(
 )
 
 # concurrentqueue
-checkout_submodule(
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/concurrentqueue
+ExternalProject_Add(concurrentqueue_lib
+  GIT_REPOSITORY "https://github.com/cameron314/concurrentqueue.git"
+  GIT_TAG "v1.0.3"
+  GIT_SHALLOW ON
+  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/concurrentqueue-src
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  LOG_DOWNLOAD YES
+  LOG_CONFIGURE YES
+  LOG_BUILD YES
+  LOG_INSTALL YES
 )
 include_directories(SYSTEM
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/concurrentqueue
+  ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/concurrentqueue-src
 )
 
-# intrusive_shared_ptr
-checkout_submodule(
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/intrusive_shared_ptr
+# ispr
+ExternalProject_Add(ispr_lib
+  GIT_REPOSITORY "https://github.com/gershnik/intrusive_shared_ptr.git"
+  GIT_TAG "v1.4"
+  GIT_SHALLOW ON
+  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/ispr-src
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  LOG_DOWNLOAD YES
+  LOG_CONFIGURE YES
+  LOG_BUILD YES
+  LOG_INSTALL YES
 )
 include_directories(SYSTEM
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/intrusive_shared_ptr/inc
+  ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/ispr-src/inc
 )
 
 # spdlog
-checkout_submodule(
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/spdlog
-  )
 ExternalProject_Add(spdlog_lib
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/spdlog
+  GIT_REPOSITORY "https://github.com/gabime/spdlog.git"
+  GIT_TAG "v1.12.0"
+  GIT_SHALLOW ON
+  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-src
   BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-build
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/spdlog-prefix
   CMAKE_ARGS
@@ -152,11 +155,11 @@ link_libraries(
 )
 
 # cli11
-checkout_submodule(
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cli11
-)
 ExternalProject_Add(cli11_lib
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cli11
+  GIT_REPOSITORY "https://github.com/CLIUtils/CLI11.git"
+  GIT_TAG "v2.3.2"
+  GIT_SHALLOW ON
+  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-src
   BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-build
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-prefix
   CMAKE_ARGS
@@ -184,6 +187,8 @@ include_directories(SYSTEM
 set(ALL_DEPENDENCIES
   alsa_lib
   kissfft_lib
+  concurrentqueue_lib
+  ispr_lib
   spdlog_lib
   cli11_lib
   )
