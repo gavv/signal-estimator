@@ -1,8 +1,6 @@
 // Copyright (c) Signal Estimator authors
 // Licensed under MIT
 
-#include "ConfigBuilder.hpp"
-#include "DevInfoBuilder.hpp"
 #include "StringSink.hpp"
 
 #include "reports/TextReporter.hpp"
@@ -46,23 +44,18 @@ TEST_P(TextReporterTest, LatencyReport) {
 
 INSTANTIATE_TEST_SUITE_P(TextReporterSuite, TextReporterTest,
     testing::Values(
+        TextReporterParams { se::Config { .diff_inputs = true }, se::DevInfo {},
+            std::string("latency:  sw+hw   +1.23ms  hw   -2.35ms  hw_avg5   +3.46ms\n") },
         TextReporterParams {
-            ConfigBuilder {}.set_show_device_names(false).set_diff_inputs(true).build(),
-            DevInfoBuilder {}.build(),
-            std::string(
-                "latency:  sw+hw   +1.23fms  hw   -2.35fms  hw_avg5   +3.46fms\n") },
+            se::Config { .show_device_names = true, .diff_inputs = false },
+            se::DevInfo {},
+            std::string("latency:  sw+hw    1.23ms  hw   -2.35ms  hw_avg5    3.46ms\n") },
         TextReporterParams {
-            ConfigBuilder {}.set_show_device_names(true).set_diff_inputs(false).build(),
-            DevInfoBuilder {}.build(),
-            std::string(
-                "latency:  sw+hw    1.23fms  hw   -2.35fms  hw_avg5    3.46fms\n") },
+            se::Config { .show_device_names = false, .diff_inputs = false },
+            se::DevInfo { .short_name = "Test Device" },
+            std::string("latency:  sw+hw    1.23ms  hw   -2.35ms  hw_avg5    3.46ms\n") },
         TextReporterParams {
-            ConfigBuilder {}.set_show_device_names(false).set_diff_inputs(false).build(),
-            DevInfoBuilder {}.set_short_name("Test Device").build(),
-            std::string(
-                "latency:  sw+hw    1.23fms  hw   -2.35fms  hw_avg5    3.46fms\n") },
-        TextReporterParams {
-            ConfigBuilder {}.set_show_device_names(true).set_diff_inputs(false).build(),
-            DevInfoBuilder {}.set_short_name("Test Device").build(),
-            std::string("latency[Test Device]:  sw+hw    1.23fms  hw   -2.35fms  hw_avg5 "
-                        "   3.46fms\n") }));
+            se::Config { .show_device_names = true, .diff_inputs = false },
+            se::DevInfo { .short_name = "Test Device" },
+            std::string("latency[Test Device]:  sw+hw    1.23ms  hw   -2.35ms  hw_avg5 "
+                        "   3.46ms\n") }));

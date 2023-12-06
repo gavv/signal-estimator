@@ -28,26 +28,25 @@ public:
     void report(const LatencyReport& rep) override {
         if (sign_) {
             printer_.write("latency{}:"
-                           "  sw+hw {:+7.3}fms  hw {:+7.3}fms  hw_avg{} {:+7.3}fms\n",
-                suffix_, rep.sw_hw, rep.hw, (int)config_.report_sma_window, rep.hw_avg);
+                           "  sw+hw {:+7.3}ms  hw {:+7.3}ms  hw_avg{} {:+7.3}ms\n",
+                suffix_, rep.sw_hw, rep.hw, config_.report_sma_window, rep.hw_avg);
         } else {
             printer_.write("latency{}:"
-                           "  sw+hw {:7.3}fms  hw {:7.3}fms  hw_avg{} {:7.3}fms\n",
-                suffix_, rep.sw_hw, rep.hw, (int)config_.report_sma_window, rep.hw_avg);
+                           "  sw+hw {:7.3}ms  hw {:7.3}ms  hw_avg{} {:7.3}ms\n",
+                suffix_, rep.sw_hw, rep.hw, config_.report_sma_window, rep.hw_avg);
         }
     }
 
     void report(const LossReport& rep) override {
         if (sign_) {
-            printer_.write(
-                "losses{}:"
-                "  rate {:+5.1}f/sec  rate_avg{} {:+5.1}f/sec  ratio {:+6.2f}%\n",
-                suffix_, rep.loss_rate, (int)config_.report_sma_window, rep.loss_rate_avg,
+            printer_.write("losses{}:"
+                           "  rate {:+5.1}/sec  rate_avg{} {:+5.1}/sec  ratio {:+6.2}%\n",
+                suffix_, rep.loss_rate, config_.report_sma_window, rep.loss_rate_avg,
                 rep.loss_ratio);
         } else {
             printer_.write("losses{}:"
-                           "  rate {:5.1}f/sec  rate_avg{} {:5.1}f/sec  ratio {:6.2f}%\n",
-                suffix_, rep.loss_rate, (int)config_.report_sma_window, rep.loss_rate_avg,
+                           "  rate {:5.1}/sec  rate_avg{} {:5.1}/sec  ratio {:6.2}%\n",
+                suffix_, rep.loss_rate, config_.report_sma_window, rep.loss_rate_avg,
                 rep.loss_ratio);
         }
     }
@@ -55,14 +54,14 @@ public:
     void report(const IOJitterReport& rep) override {
         printer_.write(
             "io_jitter{}:"
-            "  sw_avg {:7.3}fms  sw_p{} {:7.3}fms  hw_avg {:7.3}fms  hw_p{} {:7.3}fms\n",
-            suffix_, rep.swdev_avg, (int)config_.io_jitter_percentile, rep.swdev_per,
-            rep.hwdev_avg, (int)config_.io_jitter_percentile, rep.hwdev_per);
+            "  sw_avg {:7.3}ms  sw_p{} {:7.3}ms  hw_avg {:7.3}ms  hw_p{} {:7.3}ms\n",
+            suffix_, rep.swdev_avg, config_.io_jitter_percentile, rep.swdev_per,
+            rep.hwdev_avg, config_.io_jitter_percentile, rep.hwdev_per);
     }
 
     void report(const IODelayReport& rep) override {
         printer_.write("io_delay{}:"
-                       "  sw_avg {:7.3}fms  hw_avg {:7.3}fms\n",
+                       "  sw_avg {:7.3}ms  hw_avg {:7.3}ms\n",
             suffix_, rep.sw_avg, rep.hw_avg);
     }
 
