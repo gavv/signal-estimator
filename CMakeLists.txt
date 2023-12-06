@@ -7,9 +7,9 @@ endif()
 project(SignalEstimator)
 
 option(BUILD_GUI "build Qt GUI" ON)
-
 option(ENABLE_SANITIZERS "enable sanitizers" OFF)
 option(ENABLE_WERROR "enable -Werror" OFF)
+option(WITH_TESTS "build tests" ON)
 
 set(TOOLCHAIN_PREFIX "" CACHE STRING "target host triplet, e.g. aarch64-linux-gnu")
 include("cmake/SetupToolchain.cmake")
@@ -140,9 +140,10 @@ add_library(base_objects OBJECT
   src/base/processing/LossEstimator.cpp
   src/base/processing/StepsGenerator.cpp
   src/base/processing/StepsLatencyEstimator.cpp
-  src/base/reports/JsonPrinter.cpp
-  src/base/reports/JsonReporter.cpp
-  src/base/reports/TextReporter.cpp
+  src/base/reports/ConsoleSink.hpp
+  src/base/reports/JsonPrinter.hpp
+  src/base/reports/JsonReporter.hpp
+  src/base/reports/TextReporter.hpp
   src/base/run/Runner.cpp
 )
 
@@ -326,4 +327,8 @@ if(NOT CMAKE_CROSSCOMPILING)
   add_custom_target(compile_commands ALL
     DEPENDS ${PROJECT_SOURCE_DIR}/compile_commands.json
   )
+endif()
+
+if(WITH_TESTS)
+  add_subdirectory(src/tests)
 endif()

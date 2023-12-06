@@ -3,23 +3,49 @@
 
 #pragma once
 
+#include "reports/ConsoleSink.hpp"
+
+#include <spdlog/fmt/bundled/format.h>
+
 #include <mutex>
 
 namespace signal_estimator {
 
-class JsonPrinter {
+template <typename Sink> class BasicJsonPrinter final {
 public:
-    JsonPrinter();
-    ~JsonPrinter();
+    explicit BasicJsonPrinter(Sink& sink)
+        : sink_(sink) {
+    }
 
-    JsonPrinter(const JsonPrinter&) = delete;
-    JsonPrinter& operator=(const JsonPrinter&) = delete;
+    ~BasicJsonPrinter() {
+        if (!first_output_) {
+            sink_.write("{}", "\n]\n");
+        }
+    }
 
-    __attribute__((format(printf, 2, 3))) void write_line(const char* fmt, ...);
+    BasicJsonPrinter(const BasicJsonPrinter&) = delete;
+    BasicJsonPrinter& operator=(const BasicJsonPrinter&) = delete;
+
+    template <typename... Args>
+    void write(const fmt::format_string<Args...>& fmt, Args&&... args) {
+        std::unique_lock lock(mutex_);
+
+        if (first_output_) {
+            first_output_ = false;
+            sink_.write("{}", "[\n");
+        } else {
+            sink_.write("{}", ",\n");
+        }
+
+        sink_.write(fmt, std::forward<Args>(args)...);
+    }
 
 private:
+    bool first_output_ { true };
+    Sink& sink_;
     std::mutex mutex_;
-    bool first_output_;
 };
+
+using JsonPrinter = BasicJsonPrinter<ConsoleSink>;
 
 } // namespace signal_estimator

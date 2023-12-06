@@ -97,8 +97,14 @@ bool Runner::start() {
         num_estimators = 1;
     }
 
-    if (config_.report_format == Format::Json) {
-        json_printer_ = std::make_unique<JsonPrinter>();
+    switch (config_.report_format) {
+    case Format::Text:
+        text_printer_ = std::make_unique<TextPrinter>(console_sink_);
+        break;
+
+    case Format::Json:
+        json_printer_ = std::make_unique<JsonPrinter>(console_sink_);
+        break;
     }
 
     for (size_t n = 0; n < num_estimators; n++) {
@@ -117,7 +123,7 @@ bool Runner::start() {
 
         switch (config_.report_format) {
         case Format::Text:
-            reporters_.emplace_back(std::make_unique<TextReporter>(config_, dev_info));
+            reporters_.emplace_back(std::make_unique<TextReporter>(config_, dev_info, *text_printer_));
             break;
 
         case Format::Json:
