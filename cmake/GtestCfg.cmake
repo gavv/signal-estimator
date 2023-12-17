@@ -1,0 +1,35 @@
+find_package(GTest REQUIRED)
+include_directories(src/base/processing)
+include_directories(src/base/core)
+include_directories(src/base)
+include_directories(${GTEST_INCLUDE_DIRS})
+
+add_executable(test_MovAvg test/base/processing/test_MovAvg.cpp)
+add_test(NAME MovAvg COMMAND test_MovAvg)
+target_link_libraries(test_MovAvg PRIVATE gtest gtest_main)
+add_dependencies(test_MovAvg ${ALL_DEPENDENCIES})
+
+add_executable(test_MovMax test/base/processing/test_MovMax.cpp)
+add_test(NAME test_MovMax COMMAND test_MovMax)
+target_link_libraries(test_MovMax PRIVATE gtest gtest_main)
+add_dependencies(test_MovMax ${ALL_DEPENDENCIES})
+
+add_executable(test_MovDev test/base/processing/test_MovDev.cpp)
+add_test(NAME test_MovDev COMMAND test_MovDev)
+target_link_libraries(test_MovDev PRIVATE gtest gtest_main)
+add_dependencies(test_MovDev ${ALL_DEPENDENCIES})
+
+add_executable(test_MovGradient test/base/processing/test_MovGradient.cpp)
+add_test(NAME test_MovGradient COMMAND test_MovGradient)
+target_link_libraries(test_MovGradient PRIVATE gtest gtest_main)
+add_dependencies(test_MovGradient ${ALL_DEPENDENCIES})
+
+add_executable(test_MovPercentile test/base/processing/test_MovPercentile.cpp)
+add_test(NAME test_MovPercentile COMMAND test_MovPercentile)
+target_link_libraries(test_MovPercentile PRIVATE gtest gtest_main)
+add_dependencies(test_MovPercentile ${ALL_DEPENDENCIES})
+
+add_executable(test_SchmittTrigger test/base/processing/test_SchmittTrigger.cpp)
+add_test(NAME test_SchmittTrigger COMMAND test_SchmittTrigger)
+target_link_libraries(test_SchmittTrigger PRIVATE gtest gtest_main)
+add_dependencies(test_SchmittTrigger ${ALL_DEPENDENCIES})

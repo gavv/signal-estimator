@@ -1,0 +1,15 @@
+//Lib to install and test running
+$sudo apt-get install libgtest-dev
+
+// Option must be changed to ON mode
+CMakeLists.txt -> option(BUILD_TESTING "Build testing" ON) 
+
+$make
+$cd build/x86_64-linux-gnu
+
+ctest        //to run all tests
+$./test_Name  //to run a specific tests
+
+//If there are errors or problems after option change, test adding, tests building, etc.
+$make clean
+$make 
