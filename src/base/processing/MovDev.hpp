@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "processing/MovAvg.hpp"
+#include "MovAvg.hpp"
 
 #include <algorithm>
 #include <vector>

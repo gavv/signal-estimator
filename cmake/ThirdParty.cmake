@@ -182,16 +182,53 @@ ExternalProject_Add(cli11_lib
 include_directories(SYSTEM
   ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-prefix/include
 )
+#gtests
+
+if(BUILD_TEST)
+  ExternalProject_Add(gtest_lib
+    GIT_REPOSITORY "https://github.com/google/googletest.git"
+    GIT_TAG "release-1.11.0"
+    GIT_SHALLOW ON
+    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/gtest-src
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/gtest-build
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/gtest-prefix
+    CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+      -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+      -DCMAKE_C_COMPILER_TARGET=${CMAKE_C_COMPILER_TARGET}
+      -DCMAKE_CXX_COMPILER_TARGET=${CMAKE_CXX_COMPILER_TARGET}
+      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+      -DCMAKE_AR=${CMAKE_AR}
+      -DCMAKE_RANLIB=${CMAKE_RANLIB}
+      -DCMAKE_STRIP=${CMAKE_STRIP}
+      -DBUILD_GMOCK=OFF
+    LOG_DOWNLOAD YES
+    LOG_CONFIGURE YES
+    LOG_BUILD YES
+    LOG_INSTALL YES
+  )
+  include_directories(SYSTEM
+  ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/gtest-prefix/include
+  )
+
+  enable_testing()
+  endif()
+
 
 # serialize dependencies
-set(ALL_DEPENDENCIES
+  set(ALL_DEPENDENCIES
   alsa_lib
   kissfft_lib
   concurrentqueue_lib
   ispr_lib
   spdlog_lib
   cli11_lib
-  )
+)
+
+if(BUILD_TEST)
+  list(APPEND ALL_DEPENDENCIES gtest_lib)
+endif()
 
 list(REVERSE ALL_DEPENDENCIES)
 
