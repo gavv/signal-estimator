@@ -13,6 +13,21 @@ using namespace signal_estimator;
 
 namespace {
 
+Config makeConfig(bool show_device_names, bool diff_inputs) {
+    Config config;
+    config.show_device_names = show_device_names;
+    config.diff_inputs = diff_inputs;
+
+    return config;
+}
+
+DevInfo makeDevInfo(const std::string& short_name) {
+    DevInfo info;
+    info.short_name = short_name;
+
+    return info;
+}
+
 struct MockConsole : Console {
     void write(const char* str) override {
         buffer += str;
@@ -53,38 +68,27 @@ TEST_P(TextReporterSuite, LatencyReport) {
 INSTANTIATE_TEST_SUITE_P(TextReporterTest, TextReporterSuite,
     testing::Values(
         TextReporterParam {
-            Config {
-                .diff_inputs = true,
-            },
-            DevInfo {},
+            makeConfig(/* show_device_names */ false, /* diff_inputs */ true),
+            makeDevInfo(""),
+            // expected_result:
             "latency:  sw+hw   +1.23ms  hw   -2.35ms  hw_avg5   +3.46ms\n",
         },
         TextReporterParam {
-            Config {
-                .show_device_names = true,
-                .diff_inputs = false,
-            },
-            DevInfo {},
+            makeConfig(/* show_device_names */ false, /* diff_inputs */ false),
+            makeDevInfo(""),
+            // expected_result:
             "latency:  sw+hw    1.23ms  hw   -2.35ms  hw_avg5    3.46ms\n",
         },
         TextReporterParam {
-            Config {
-                .show_device_names = false,
-                .diff_inputs = false,
-            },
-            DevInfo {
-                .short_name = "Test Device",
-            },
+            makeConfig(/* show_device_names */ false, /* diff_inputs */ false),
+            makeDevInfo("Test Device"),
+            // expected_result:
             "latency:  sw+hw    1.23ms  hw   -2.35ms  hw_avg5    3.46ms\n",
         },
         TextReporterParam {
-            Config {
-                .show_device_names = true,
-                .diff_inputs = false,
-            },
-            DevInfo {
-                .short_name = "Test Device",
-            },
+            makeConfig(/* show_device_names */ true, /* diff_inputs */ false),
+            makeDevInfo("Test Device"),
+            // expected_result:
             "latency[Test Device]:  sw+hw    1.23ms  hw   -2.35ms  hw_avg5    3.46ms\n",
         }));
 

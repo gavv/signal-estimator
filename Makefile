@@ -2,7 +2,7 @@ NUM_CPU ?= $(shell nproc --all)
 VARIANT ?= Release
 WERROR ?= OFF
 SANITIZERS ?= OFF
-TESTS ?= OFF
+TESTS ?= ON
 
 MACHINE := $(shell uname -m)-linux-gnu
 
@@ -14,30 +14,25 @@ CMAKE_CMD := cmake \
 
 MAKE_CMD := make -j$(NUM_CPU) --no-print-directory
 
-TEST_CMD := ./bin/$(MACHINE)/signal-estimator-test
-
 DOCKER_CMD := docker run -t --rm \
 	-u "$(shell id -u)" \
 	-v "$(shell pwd):$(shell pwd)" \
-	-w "$(shell pwd)"
+	-w "$(shell pwd)" \
+	-e "CI=${CI}"
 
 all:
 	mkdir -p build/$(MACHINE)
 	cd build/$(MACHINE) && $(CMAKE_CMD) ../..
 	cd build/$(MACHINE) && $(MAKE_CMD)
-ifeq ($(TESTS),ON)
-	@echo Running tests ...
-	$(TEST_CMD)
-endif
 
 no_gui:
 	mkdir -p build/$(MACHINE)
 	cd build/$(MACHINE) && $(CMAKE_CMD) -DBUILD_GUI=NO ../..
 	cd build/$(MACHINE) && $(MAKE_CMD)
-ifeq ($(TESTS),ON)
-	@echo Running tests ...
-	$(TEST_CMD)
-endif
+
+.PHONY: test
+test:
+	./bin/$(MACHINE)/signal-estimator-test
 
 arm32:
 	mkdir -p build/arm-linux-gnueabihf
