@@ -25,7 +25,7 @@ Signal Estimator
 - [Disabling PipeWire](#disabling-pipewire)
 - [Real-time scheduling policy](#real-time-scheduling-policy)
 - [Internals](#internals)
-- [Acknowledgements](#acknowledgements)
+- [Acknowledgments](#acknowledgments)
 - [Authors](#authors)
 - [License](#license)
 
@@ -131,8 +131,10 @@ Downloaded automatically:
 * [KISS FFT](https://github.com/mborgerding/kissfft)
 * [concurrentqueue](https://github.com/cameron314/concurrentqueue)
 * [intrusive_shared_ptr](https://github.com/gershnik/intrusive_shared_ptr)
+* [{fmt}](https://github.com/fmtlib/fmt)
 * [spdlog](https://github.com/gabime/spdlog)
 * [CLI11](https://github.com/CLIUtils/CLI11)
+* [GoogleTest](https://github.com/google/googletest)
 
 Note: when cross-compiling, libasound (ALSA) is also downloaded automatically, so you don't need anything except toolchain.
 
@@ -162,6 +164,12 @@ Build without GUI (in this case Qt and Qwt are not needed):
 
 ```
 make no_gui
+```
+
+Run tests (optionally):
+
+```
+make test
 ```
 
 Executables are now placed into `bin/<toolchain>` directory, where `<toolchain>` is your host toolchain, e.g. `x86_64-linux-gnu`.
@@ -598,7 +606,7 @@ And this one shows interfaces and classes that implement them:
 
 ![](./doc/classes.drawio.png)
 
-Acknowledgements
+Acknowledgments
 ---------------
 
 The development of this tool was heavily sponsored by Samuel Blum at Boring Technologies. Thanks a lot to him for letting the code to be open-sourced!
