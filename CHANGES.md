@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.1.0][v0.1.0] - 07 Oct 2024
+
+* Switch from submodules to downloading dependencies
+* Add google test dependency and some tests ([gh-8][gh-8])
+* Use {fmt} library for text and json reporters ([gh-82][gh-82])
+* CI: debug, release, sanitizers, tests
+
+[v0.1.0]: https://github.com/gavv/signal-estimator/releases/tag/v0.1.0
+
+[gh-8]: https://github.com/gavv/signal-estimator/issues/8
+[gh-82]: https://github.com/gavv/signal-estimator/issues/82
+
 ## [v0.0.9][v0.0.9] - 01 Nov 2023
 
 * Improve impulse detection stability in latency_corr mode
