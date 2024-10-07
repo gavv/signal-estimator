@@ -26,14 +26,13 @@ jobs:
       matrix:
         target: [all, no_gui]
         compiler: [g++, clang++]
+        variant: [debug, release]
 
-    name: linux-x86_64-${{ matrix.target }}-${{ matrix.compiler }}
+    name: linux-x86_64-${{ matrix.target }}-${{ matrix.compiler }}-${{ matrix.variant }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+        uses: actions/checkout@v4
 
       - name: Install base dependencies
         run: |
@@ -44,46 +43,67 @@ jobs:
         run: |
           sudo apt-get install -y qtbase5-dev libqwt-qt5-dev
 
+      - name: Setup
+        run: |
+          if [ ${{ matrix.variant }} == release ]; then
+            echo variant=Release >> $GITHUB_ENV
+            echo sanitizers=OFF >> $GITHUB_ENV
+          else
+            echo variant=Debug >> $GITHUB_ENV
+            echo sanitizers=ON >> $GITHUB_ENV
+          fi
+
       - name: Build
         env:
           CXX: ${{ matrix.compiler }}
           LD: ${{ matrix.compiler }}
-          CXXFLAGS: -Werror
-        run: make ${{ matrix.target }}
+        run: |
+          make ${{ matrix.target }} \
+            VARIANT=${{ env.variant }} \
+            SANITIZERS=${{ env.sanitizers }} \
+            TESTS=ON \
+            WERROR=ON
 
-      - name: Check cli
-        run: ./bin/x86_64-linux-gnu/signal-estimator -h
+      - name: Run tests
+        run: |
+          make test
 
-      - name: Check ui
+      - name: Check binaries
+        run: |
+          test -e ./bin/arm-linux-gnueabihf/signal-estimator
+          ./bin/x86_64-linux-gnu/signal-estimator --help
+
+      - name: Check ui binaries
         if: ${{ matrix.target == 'all' }}
-        run: test -e ./bin/x86_64-linux-gnu/signal-estimator-gui
+        run: |
+          test -e ./bin/x86_64-linux-gnu/signal-estimator-gui
 
   linux-arm32:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+        uses: actions/checkout@v4
 
       - name: Build
-        run: make arm32
+        run: |
+          make arm32
 
-      - name: Check
-        run: test -e ./bin/arm-linux-gnueabihf/signal-estimator
+      - name: Check binaries
+        run: |
+          test -e ./bin/arm-linux-gnueabihf/signal-estimator
 
   linux-arm64:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+        uses: actions/checkout@v4
 
       - name: Build
-        run: make arm64
+        run: |
+          make arm64
 
-      - name: Check
-        run: test -e ./bin/aarch64-linux-gnu/signal-estimator
+      - name: Check binaries
+        run: |
+          test -e ./bin/aarch64-linux-gnu/signal-estimator
