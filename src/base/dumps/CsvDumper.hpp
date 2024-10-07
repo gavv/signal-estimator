@@ -20,9 +20,9 @@ namespace signal_estimator {
 // to reduce file size, can "compress" output by replacing each N
 // samples with an average value among those samples, where N is
 // defined by config.dump_compression
-class CsvDumper : public IDumper {
+class CsvDumper final : public IDumper {
 public:
-    CsvDumper(const Config& config);
+    explicit CsvDumper(const Config& config);
     ~CsvDumper();
 
     CsvDumper(const CsvDumper&) = delete;
