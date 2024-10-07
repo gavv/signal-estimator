@@ -50,7 +50,7 @@ TEST_P(TextReporterSuite, LatencyReport) {
     EXPECT_THAT(console.buffer, testing::StrEq(expected_result));
 }
 
-INSTANTIATE_TEST_SUITE_P(TextReporter, TextReporterSuite,
+INSTANTIATE_TEST_SUITE_P(TextReporterTest, TextReporterSuite,
     testing::Values(
         TextReporterParam {
             Config {

@@ -46,7 +46,7 @@ public:
         for (size_t i = start_; i != end_; i++) {
             ret += std::abs(buff_[i % window_sz_] - mean);
         }
-        ret /= (end_ - start_);
+        ret /= T(end_ - start_);
 
         return ret;
     }
