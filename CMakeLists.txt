@@ -9,7 +9,6 @@ project(SignalEstimator)
 option(BUILD_GUI "build Qt GUI" ON)
 option(ENABLE_SANITIZERS "enable sanitizers" OFF)
 option(ENABLE_WERROR "enable -Werror" OFF)
-option(WITH_TESTS "build tests" ON)
 
 set(TOOLCHAIN_PREFIX "" CACHE STRING "target host triplet, e.g. aarch64-linux-gnu")
 include("cmake/SetupToolchain.cmake")
@@ -28,10 +27,10 @@ endif()
 
 list(APPEND COMPILER_FLAGS
   -pthread
-  )
+)
 list(APPEND LINKER_FLAGS
   -pthread
-  )
+)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(
@@ -60,17 +59,11 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     -Wstrict-null-sentinel
     -Wuninitialized
     # disable
+    -Wno-missing-field-initializers
     -Wno-old-style-cast
     -Wno-psabi
     -Wno-system-headers
-    )
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    list(APPEND COMPILER_FLAGS
-      -D_GLIBCXX_ASSERTIONS
-      -D_GLIBCXX_DEBUG
-      -D_GLIBCXX_SANITIZE_VECTOR
-      )
-  endif()
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -92,26 +85,27 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     -Wunused
     # disable
     -Wno-cast-align
+    -Wno-missing-field-initializers
     -Wno-system-headers
     -Wno-unused-private-field
-    )
+  )
 endif()
 
 if(ENABLE_WERROR)
   list(APPEND COMPILER_FLAGS
     -Werror
-    )
+  )
 endif()
 
 if(ENABLE_SANITIZERS)
   list(APPEND COMPILER_FLAGS
     -fsanitize=address
     -fsanitize=undefined
-    )
+  )
   list(APPEND LINKER_FLAGS
     -fsanitize=address
     -fsanitize=undefined
-    )
+  )
 endif()
 
 add_library(base_objects OBJECT
@@ -140,65 +134,66 @@ add_library(base_objects OBJECT
   src/base/processing/LossEstimator.cpp
   src/base/processing/StepsGenerator.cpp
   src/base/processing/StepsLatencyEstimator.cpp
-  src/base/reports/ConsoleSink.hpp
-  src/base/reports/JsonPrinter.hpp
-  src/base/reports/JsonReporter.hpp
-  src/base/reports/TextReporter.hpp
+  src/base/reports/Console.cpp
+  src/base/reports/JsonPrinter.cpp
+  src/base/reports/JsonReporter.cpp
+  src/base/reports/TextPrinter.cpp
+  src/base/reports/TextReporter.cpp
   src/base/run/Runner.cpp
 )
 
 add_dependencies(base_objects
   ${ALL_DEPENDENCIES}
-  )
+)
 
 target_compile_options(base_objects
   PRIVATE ${COMPILER_FLAGS}
-  )
+)
 
 target_link_options(base_objects
   PRIVATE ${LINKER_FLAGS}
-  )
+)
 
 target_include_directories(base_objects
   PRIVATE src/base
-  )
+)
 
 add_executable(signal-estimator
   src/cli/Format.cpp
   src/cli/Main.cpp
   src/cli/Print.cpp
-  )
+)
 
 add_dependencies(signal-estimator
   ${ALL_DEPENDENCIES}
-  )
+)
 
 set(ALL_EXECUTABLES)
 list(APPEND ALL_EXECUTABLES
   signal-estimator
-  )
+)
 
 target_compile_options(signal-estimator
   PRIVATE ${COMPILER_FLAGS}
-  )
+)
 
 target_link_options(signal-estimator
   PRIVATE ${LINKER_FLAGS}
-  )
+)
 
 target_include_directories(signal-estimator
   PRIVATE src/base
-  )
+)
 
 target_link_libraries(signal-estimator
   base_objects
   m
-  )
+)
 
 install(
   TARGETS signal-estimator
   RUNTIME DESTINATION bin
-  )
+)
 
 if(BUILD_GUI)
   find_package(Qt5Core REQUIRED)
@@ -210,12 +205,12 @@ if(BUILD_GUI)
     src/gui/MainWindow.hpp
     src/gui/NotFoundDialog.hpp
     src/gui/SignalEstimator.hpp
-    )
+  )
 
   set(UI_SOURCES
     src/gui/MainWindow.ui
     src/gui/NotFoundDialog.ui
-    )
+  )
 
   foreach(UI_FILE IN LISTS UI_SOURCES)
     qt5_wrap_ui(GENERATED_SOURCES ${UI_FILE})
@@ -223,15 +218,15 @@ if(BUILD_GUI)
 
   add_library(generated_objects OBJECT
     ${GENERATED_SOURCES}
-    )
+  )
 
   add_dependencies(generated_objects
     ${ALL_DEPENDENCIES}
-    )
+  )
 
   target_include_directories(generated_objects
     PRIVATE src/base
-    )
+  )
 
   add_executable(signal-estimator-gui
     src/gui/ListValidator.cpp
@@ -241,27 +236,27 @@ if(BUILD_GUI)
     src/gui/PointsBuffer.cpp
     src/gui/RightClickPickerMachine.cpp
     src/gui/SignalEstimator.cpp
-    )
+  )
 
   add_dependencies(signal-estimator-gui
     ${ALL_DEPENDENCIES}
-    )
+  )
 
   list(APPEND ALL_EXECUTABLES
     signal-estimator-gui
-    )
+  )
 
   target_compile_options(signal-estimator-gui
     PRIVATE ${COMPILER_FLAGS}
-    )
+  )
 
   target_link_options(signal-estimator-gui
     PRIVATE ${LINKER_FLAGS}
-    )
+  )
 
   target_include_directories(signal-estimator-gui
     PRIVATE src/base
-    )
+  )
 
   foreach(TARGET IN ITEMS generated_objects signal-estimator-gui)
     target_include_directories(${TARGET} SYSTEM PRIVATE
@@ -269,7 +264,7 @@ if(BUILD_GUI)
       ${QWT_INCLUDE_DIR}
       ${Qt5Core_INCLUDE_DIRS}
       ${Qt5Widgets_INCLUDE_DIRS}
-      )
+    )
   endforeach()
 
   target_link_libraries(signal-estimator-gui
@@ -278,13 +273,51 @@ if(BUILD_GUI)
     ${QWT_LIBRARY}
     Qt5::Core
     Qt5::Widgets
-    )
+  )
 
   install(
     TARGETS signal-estimator-gui
     RUNTIME DESTINATION bin
-    )
+  )
 endif(BUILD_GUI)
+
+if(BUILD_TESTING)
+  add_executable(signal-estimator-test
+    test/Main.cpp
+    test/TextReporterTest.cpp
+  )
+
+  add_dependencies(signal-estimator-test
+    ${ALL_DEPENDENCIES}
+  )
+
+  list(APPEND ALL_EXECUTABLES
+    signal-estimator-test
+  )
+
+  target_compile_options(signal-estimator-test
+    PRIVATE ${COMPILER_FLAGS}
+  )
+
+  target_link_options(signal-estimator-test
+    PRIVATE ${LINKER_FLAGS}
+  )
+
+  target_include_directories(signal-estimator-test
+    PRIVATE src/base
+  )
+
+  target_link_libraries(signal-estimator-test
+    base_objects
+    gtest
+  )
+
+  enable_testing()
+  add_test(
+    NAME signal-estimator-test
+    COMMAND signal-estimator-test
+    )
+endif(BUILD_TESTING)
 
 set(BIN_DIR
   bin/${CMAKE_C_COMPILER_TARGET}
@@ -327,8 +360,4 @@ if(NOT CMAKE_CROSSCOMPILING)
   add_custom_target(compile_commands ALL
     DEPENDS ${PROJECT_SOURCE_DIR}/compile_commands.json
   )
-endif()
-
-if(WITH_TESTS)
-  add_subdirectory(src/tests)
 endif()

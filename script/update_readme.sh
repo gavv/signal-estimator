@@ -11,15 +11,7 @@ if ! which markdown-toc >/dev/null 2>&1; then
     echo "you can install it using 'npm install --save markdown-toc'" >&2
 fi
 
-if ! which mdspell >/dev/null 2>&1; then
-    echo "error: mdspell not found in PATH" >&2
-    echo "you can install it using 'npm install --save markdown-spellcheck'" >&2
-fi
-
 cd "$(dirname "$0")"/..
-
-run mdspell -n -a README.md
-run sort .spelling -o .spelling
 
 run markdown-toc -i README.md
 

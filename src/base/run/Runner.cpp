@@ -99,11 +99,11 @@ bool Runner::start() {
 
     switch (config_.report_format) {
     case Format::Text:
-        text_printer_ = std::make_unique<TextPrinter>(console_sink_);
+        text_printer_ = std::make_unique<TextPrinter>(console_);
         break;
 
     case Format::Json:
-        json_printer_ = std::make_unique<JsonPrinter>(console_sink_);
+        json_printer_ = std::make_unique<JsonPrinter>(console_);
         break;
     }
 
@@ -123,7 +123,8 @@ bool Runner::start() {
 
         switch (config_.report_format) {
         case Format::Text:
-            reporters_.emplace_back(std::make_unique<TextReporter>(config_, dev_info, *text_printer_));
+            reporters_.emplace_back(
+                std::make_unique<TextReporter>(config_, dev_info, *text_printer_));
             break;
 
         case Format::Json:

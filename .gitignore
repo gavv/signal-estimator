@@ -2,7 +2,7 @@
 .cache
 .dir-locals.el
 .gdb_history
-GNUmakefile
+.justfile
 TODO.org
 bin
 build

@@ -3,49 +3,41 @@
 
 #pragma once
 
-#include "reports/ConsoleSink.hpp"
+#include "reports/Console.hpp"
 
 #include <spdlog/fmt/bundled/format.h>
 
 #include <mutex>
+#include <utility>
 
 namespace signal_estimator {
 
-template <typename Sink> class BasicJsonPrinter final {
+class JsonPrinter final {
 public:
-    explicit BasicJsonPrinter(Sink& sink)
-        : sink_(sink) {
-    }
+    explicit JsonPrinter(Console& console);
+    ~JsonPrinter();
 
-    ~BasicJsonPrinter() {
-        if (!first_output_) {
-            sink_.write("{}", "\n]\n");
-        }
-    }
-
-    BasicJsonPrinter(const BasicJsonPrinter&) = delete;
-    BasicJsonPrinter& operator=(const BasicJsonPrinter&) = delete;
+    JsonPrinter(const JsonPrinter&) = delete;
+    JsonPrinter& operator=(const JsonPrinter&) = delete;
 
     template <typename... Args>
-    void write(const fmt::format_string<Args...>& fmt, Args&&... args) {
+    void println(const fmt::format_string<Args...>& fmt, Args&&... args) {
         std::unique_lock lock(mutex_);
 
-        if (first_output_) {
-            first_output_ = false;
-            sink_.write("{}", "[\n");
-        } else {
-            sink_.write("{}", ",\n");
-        }
+        auto result = fmt::format_to_n(
+            fmt_buf_, sizeof(fmt_buf_), fmt, std::forward<Args>(args)...);
+        *result.out = '\0';
 
-        sink_.write(fmt, std::forward<Args>(args)...);
+        println_(fmt_buf_);
     }
 
 private:
+    void println_(const char* str);
+
+    Console& console_;
     bool first_output_ { true };
-    Sink& sink_;
+    char fmt_buf_[512];
     std::mutex mutex_;
 };
-
-using JsonPrinter = BasicJsonPrinter<ConsoleSink>;
 
 } // namespace signal_estimator

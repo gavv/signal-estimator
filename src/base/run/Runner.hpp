@@ -10,8 +10,8 @@
 #include "io/IDeviceWriter.hpp"
 #include "processing/IEstimator.hpp"
 #include "processing/IGenerator.hpp"
+#include "reports/Console.hpp"
 #include "reports/IReporter.hpp"
-#include "reports/ConsoleSink.hpp"
 #include "reports/JsonPrinter.hpp"
 #include "reports/TextPrinter.hpp"
 
@@ -47,7 +47,7 @@ private:
 
     std::unique_ptr<FramePool> frame_pool_;
 
-    ConsoleSink console_sink_;
+    Console console_;
     std::unique_ptr<JsonPrinter> json_printer_;
     std::unique_ptr<TextPrinter> text_printer_;
     std::vector<std::unique_ptr<IReporter>> reporters_;

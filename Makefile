@@ -2,12 +2,19 @@ NUM_CPU ?= $(shell nproc --all)
 VARIANT ?= Release
 WERROR ?= OFF
 SANITIZERS ?= OFF
+TESTS ?= OFF
 
 MACHINE := $(shell uname -m)-linux-gnu
 
-CMAKE_CMD := cmake -DCMAKE_BUILD_TYPE=$(VARIANT) \
-	-DENABLE_WERROR=$(WERROR) -DENABLE_SANITIZERS=$(SANITIZERS)
+CMAKE_CMD := cmake \
+	-DCMAKE_BUILD_TYPE=$(VARIANT) \
+	-DBUILD_TESTING=$(TESTS) \
+	-DENABLE_WERROR=$(WERROR) \
+	-DENABLE_SANITIZERS=$(SANITIZERS)
+
 MAKE_CMD := make -j$(NUM_CPU) --no-print-directory
+
+TEST_CMD := ./bin/$(MACHINE)/signal-estimator-test
 
 DOCKER_CMD := docker run -t --rm \
 	-u "$(shell id -u)" \
@@ -18,11 +25,19 @@ all:
 	mkdir -p build/$(MACHINE)
 	cd build/$(MACHINE) && $(CMAKE_CMD) ../..
 	cd build/$(MACHINE) && $(MAKE_CMD)
+ifeq ($(TESTS),ON)
+	@echo Running tests ...
+	$(TEST_CMD)
+endif
 
 no_gui:
 	mkdir -p build/$(MACHINE)
 	cd build/$(MACHINE) && $(CMAKE_CMD) -DBUILD_GUI=NO ../..
 	cd build/$(MACHINE) && $(MAKE_CMD)
+ifeq ($(TESTS),ON)
+	@echo Running tests ...
+	$(TEST_CMD)
+endif
 
 arm32:
 	mkdir -p build/arm-linux-gnueabihf

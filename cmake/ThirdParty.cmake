@@ -94,6 +94,7 @@ ExternalProject_Add(concurrentqueue_lib
   GIT_TAG "v1.0.3"
   GIT_SHALLOW ON
   SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/concurrentqueue-src
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/concurrentqueue-prefix
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
@@ -112,6 +113,7 @@ ExternalProject_Add(ispr_lib
   GIT_TAG "v1.4"
   GIT_SHALLOW ON
   SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/ispr-src
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/ispr-prefix
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
@@ -183,29 +185,39 @@ include_directories(SYSTEM
   ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/cli11-prefix/include
 )
 
-#gtest
-if(WITH_TESTS)
-  ExternalProject_Add(googletest
-    GIT_REPOSITORY    https://github.com/google/googletest.git
-    GIT_TAG           v1.14.0
-    GIT_SHALLOW       ON
-    SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/googletest-src"
-    BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/googletest-build"
-    INSTALL_COMMAND   ""
-    TEST_COMMAND      ""
-    LOG_DOWNLOAD      ON
-    LOG_BUILD         ON
+# googletest
+if(BUILD_TESTING)
+  ExternalProject_Add(googletest_lib
+    GIT_REPOSITORY "https://github.com/google/googletest.git"
+    GIT_TAG "v1.15.2"
+    GIT_SHALLOW ON
+    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/googletest-src
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/googletest-build
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/googletest-prefix
+    CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+      -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+      -DCMAKE_C_COMPILER_TARGET=${CMAKE_C_COMPILER_TARGET}
+      -DCMAKE_CXX_COMPILER_TARGET=${CMAKE_CXX_COMPILER_TARGET}
+      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+      -DCMAKE_AR=${CMAKE_AR}
+      -DCMAKE_RANLIB=${CMAKE_RANLIB}
+      -DCMAKE_STRIP=${CMAKE_STRIP}
+      -DCLI11_BUILD_TESTS=OFF
+      -DCLI11_BUILD_EXAMPLES=OFF
+    LOG_DOWNLOAD YES
+    LOG_CONFIGURE YES
+    LOG_BUILD YES
+    LOG_INSTALL YES
   )
-
   include_directories(SYSTEM
-    "${CMAKE_CURRENT_BINARY_DIR}/googletest-src/googletest/include"
-    "${CMAKE_CURRENT_BINARY_DIR}/googletest-src/googlemock/include"
+    ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/googletest-prefix/include
   )
-
-  find_package(GTest REQUIRED)
-
-  enable_testing()
-endif()
+  link_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/googletest-prefix/lib
+  )
+endif(BUILD_TESTING)
 
 # serialize dependencies
 set(ALL_DEPENDENCIES
@@ -215,7 +227,13 @@ set(ALL_DEPENDENCIES
   ispr_lib
   spdlog_lib
   cli11_lib
+)
+
+if(BUILD_TESTING)
+  list(APPEND ALL_DEPENDENCIES
+    googletest_lib
   )
+endif()
 
 list(REVERSE ALL_DEPENDENCIES)
 

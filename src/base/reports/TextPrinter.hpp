@@ -3,34 +3,39 @@
 
 #pragma once
 
-#include "reports/ConsoleSink.hpp"
+#include "reports/Console.hpp"
 
 #include <spdlog/fmt/bundled/format.h>
 
 #include <mutex>
+#include <utility>
 
 namespace signal_estimator {
 
-template <typename Sink> class BasicTextPrinter final {
+class TextPrinter final {
 public:
-    explicit BasicTextPrinter(Sink& sink)
-        : sink_(sink) {
-    }
+    explicit TextPrinter(Console& console);
 
-    BasicTextPrinter(const BasicTextPrinter&) = delete;
-    BasicTextPrinter& operator=(const BasicTextPrinter&) = delete;
+    TextPrinter(const TextPrinter&) = delete;
+    TextPrinter& operator=(const TextPrinter&) = delete;
 
     template <typename... Args>
-    void write(const fmt::format_string<Args...>& fmt, Args&&... args) {
+    void println(const fmt::format_string<Args...>& fmt, Args&&... args) {
         std::unique_lock lock(mutex_);
-        sink_.write(fmt, std::forward<Args>(args)...);
+
+        auto result = fmt::format_to_n(
+            fmt_buf_, sizeof(fmt_buf_), fmt, std::forward<Args>(args)...);
+        *result.out = '\0';
+
+        println_(fmt_buf_);
     }
 
 private:
-    Sink& sink_;
+    void println_(const char* str);
+
+    Console& console_;
+    char fmt_buf_[512];
     std::mutex mutex_;
 };
-
-using TextPrinter = BasicTextPrinter<ConsoleSink>;
 
 } // namespace signal_estimator
