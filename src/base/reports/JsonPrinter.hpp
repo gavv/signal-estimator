@@ -5,7 +5,7 @@
 
 #include "reports/Console.hpp"
 
-#include <spdlog/fmt/bundled/format.h>
+#include <fmt/format.h>
 
 #include <mutex>
 #include <utility>
