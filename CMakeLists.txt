@@ -284,7 +284,13 @@ endif(BUILD_GUI)
 if(BUILD_TESTING)
   add_executable(signal-estimator-test
     test/Main.cpp
-    test/TextReporterTest.cpp
+    test/TestMovAvg.cpp
+    test/TestMovDev.cpp
+    test/TestMovGradient.cpp
+    test/TestMovMax.cpp
+    test/TestMovPercentile.cpp
+    test/TestSchmittTrigger.cpp
+    test/TestTextReporter.cpp
   )
 
   add_dependencies(signal-estimator-test
