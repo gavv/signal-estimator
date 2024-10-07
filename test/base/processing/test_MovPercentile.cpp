@@ -1,8 +1,13 @@
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
+
+#include "processing/MovPercentile.hpp"
+
 #include <gtest/gtest.h>
-#include "MovPercentile.hpp"
 
 using namespace signal_estimator;
 
+namespace {
 
 TEST(MovPercentileTest, AddSingleValue) {
     MovPercentile<double> percentile(5, 0.5);
@@ -63,7 +68,4 @@ TEST(MovPercentileTest, AddValuesInAscendingOrder) {
     EXPECT_EQ(20.0, percentile.get());
 }
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+} // namespace

@@ -1,7 +1,13 @@
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
+
+#include "processing/SchmittTrigger.hpp"
+
 #include <gtest/gtest.h>
-#include "SchmittTrigger.hpp"
 
 using namespace signal_estimator;
+
+namespace {
 
 TEST(SchmittTriggerTest, InitialState) {
     SchmittTrigger<double> schmittTrigger(0.5);
@@ -76,7 +82,4 @@ TEST(SchmittTriggerTest, NoTriggerOnTransitionWithinHysteresis) {
     EXPECT_FALSE(schmittTrigger.get());
 }
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+} // namespace

@@ -1,7 +1,13 @@
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
+
+#include "processing/MovGradient.hpp"
+
 #include <gtest/gtest.h>
-#include "MovGradient.hpp"
 
 using namespace signal_estimator;
+
+namespace {
 
 TEST(MovGradientTest, InitialState) {
     MovGradient<double> gradient;
@@ -39,7 +45,4 @@ TEST(MovGradientTest, MoreValues) {
     EXPECT_EQ((20.0 - 10.0) / 2, gradient.get());
 }
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+} // namespace

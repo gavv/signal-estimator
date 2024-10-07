@@ -1,24 +1,33 @@
-#include <gtest/gtest.h>
-#include "MovMax.hpp"
+// Copyright (c) Signal Estimator authors
+// Licensed under MIT
 
-//One obj value MovMax init test
+#include "processing/MovMax.hpp"
+
+#include <gtest/gtest.h>
+
+using namespace signal_estimator;
+
+namespace {
+
+// One obj value MovMax init test
 TEST(MovMaxTest, EmptyMovMax) {
-    signal_estimator::MovMax<int> movmax(5);
-    movmax.add(42); 
+    MovMax<int> movmax(5);
+    movmax.add(42);
     EXPECT_EQ(movmax.get(), 42);
 }
 
-//Test for large values
+// Test for large values
 TEST(MovMaxTest, LargeMovMax) {
-    signal_estimator::MovMax<double> movmax(10);
+    MovMax<double> movmax(10);
     for (int i = 1; i <= 10; ++i) {
         EXPECT_EQ(movmax(i), i);
     }
 }
 
-//The test checks that MovMax correctly adds values and returns the maximum value among added values.
+// The test checks that MovMax correctly adds values and returns the maximum value among
+// added values.
 TEST(MovMaxTest, AddAndGetMax) {
-    signal_estimator::MovMax<double, false> movmax(5);
+    MovMax<double, false> movmax(5);
 
     movmax.add(5.0);
     movmax.add(10.0);
@@ -27,9 +36,10 @@ TEST(MovMaxTest, AddAndGetMax) {
     ASSERT_EQ(movmax.get(), 10.0);
 }
 
-//The test checks that MovMax correctly adds values and returns the maximum value among added values with preload.
+// The test checks that MovMax correctly adds values and returns the maximum value among
+// added values with preload.
 TEST(MovMaxTest, PreloadedAddAndGetMax) {
-    signal_estimator::MovMax<double, true> movmax(3);
+    MovMax<double, true> movmax(3);
 
     movmax.add(2.0);
     movmax.add(8.0);
@@ -37,16 +47,13 @@ TEST(MovMaxTest, PreloadedAddAndGetMax) {
     ASSERT_EQ(movmax.get(), 8.0);
 }
 
-//Different types test
+// Different types test
 TEST(MovMaxTest, MixedTypeMovMax) {
-    signal_estimator::MovMax<float> movmax(4);
+    MovMax<float> movmax(4);
     EXPECT_EQ(movmax(5.5f), 5.5f);
     EXPECT_EQ(movmax(2), 5.5f);
     EXPECT_EQ(movmax(8.5), 8.5);
     EXPECT_EQ(movmax(3.3f), 8.5);
 }
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+} // namespace
