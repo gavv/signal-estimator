@@ -70,7 +70,7 @@ jobs:
 
       - name: Check binaries
         run: |
-          test -e ./bin/arm-linux-gnueabihf/signal-estimator
+          test -e ./bin/x86_64-linux-gnu/signal-estimator
           ./bin/x86_64-linux-gnu/signal-estimator --help
 
       - name: Check ui binaries
