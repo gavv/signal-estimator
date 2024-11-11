@@ -17,6 +17,7 @@
 #include "processing/LossEstimator.hpp"
 #include "processing/StepsGenerator.hpp"
 #include "processing/StepsLatencyEstimator.hpp"
+#include "processing/MinMaxEstimator.hpp"
 #include "reports/JsonReporter.hpp"
 #include "reports/TextReporter.hpp"
 
@@ -141,12 +142,14 @@ bool Runner::start() {
 
         case Mode::LatencyStep:
             estimators_.emplace_back(
-                std::make_unique<StepsLatencyEstimator>(config_, *reporters_[n]));
+                std::make_unique<MinMaxEstimator>(config_,
+                    std::make_unique<StepsLatencyEstimator>(config_, *reporters_[n])));
             break;
 
         case Mode::Losses:
             estimators_.emplace_back(
-                std::make_unique<LossEstimator>(config_, *reporters_[n]));
+                std::make_unique<MinMaxEstimator>(config_,
+                    std::make_unique<LossEstimator>(config_, *reporters_[n])));
             break;
 
         case Mode::IOJitter:

@@ -126,4 +126,11 @@ nanoseconds_t Frame::hw_delay() const {
     return hw_delay_;
 }
 
+bool Frame::has_impulse() const{
+    return has_impulse_;
+}
+
+void Frame::set_has_impulse(bool has_impulse){
+    has_impulse_ = has_impulse;
+}
 } // namespace signal_estimator

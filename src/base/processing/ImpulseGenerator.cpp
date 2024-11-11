@@ -14,6 +14,7 @@ void ImpulseGenerator::generate(Frame& frame) {
 
     size_t i_frame = 0;
 
+// TODO set flag for frame-> set_has_impulse
     do {
         for (; i_frame < frame.size() && counter_ < impulse_size_
              && counter_ < impulse_interval_;

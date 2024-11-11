@@ -142,6 +142,12 @@ struct Config {
 
     // number of pre-allocated frames in frame pool
     size_t frame_pool_size { 128 };
+    
+    // minimum latency time of a time window measurement in nanoseconds
+    unsigned int min_latency {0u};
+
+    // maximum latency time of a time window measurement in nanoseconds
+    unsigned int max_latency {static_cast<unsigned>(-1)};
 
     // get warmup duration in samples
     size_t warmup_samples() const {

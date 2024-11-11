@@ -55,6 +55,15 @@ int main(int argc, char** argv) {
         ->add_option("-w,--warmup", config.warmup_duration,
             "Warmup duration, seconds (zero for no warmup)")
         ->default_val(config.warmup_duration);
+    control_opts
+        ->add_option("--min-latency", config.min_latency, 
+            "Minimum latency time window, microseconds (zero for no latency)")
+        ->default_val(config.min_latency);
+    
+    control_opts
+        ->add_option("--max-latency", config.max_latency, 
+            "Maximum latency time window, microseconds (zero for no maximum)")
+        ->default_val(config.max_latency);
 
     auto io_opts = app.add_option_group("I/O options");
 

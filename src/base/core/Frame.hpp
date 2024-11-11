@@ -77,6 +77,12 @@ public:
     // at the time when frame was captured or played
     nanoseconds_t hw_delay() const;
 
+    // get whether frame contains impulse
+    bool has_impulse() const;
+
+    // record whether frame contains impulse
+    void set_has_impulse(bool has_impulse);
+
     // index access
     const sample_t& operator[](const size_t index) const {
         assert(index < data_.size());
@@ -110,6 +116,7 @@ private:
     nanoseconds_t sw_delay_ {};
     nanoseconds_t hw_delay_ {};
 
+    bool has_impulse_ {};
     std::atomic<int> refcount_ {};
 };
 

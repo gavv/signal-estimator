@@ -134,6 +134,7 @@ add_library(base_objects OBJECT
   src/base/processing/LossEstimator.cpp
   src/base/processing/StepsGenerator.cpp
   src/base/processing/StepsLatencyEstimator.cpp
+  src/base/processing/MinMaxEstimator.cpp
   src/base/reports/Console.cpp
   src/base/reports/JsonPrinter.cpp
   src/base/reports/JsonReporter.cpp

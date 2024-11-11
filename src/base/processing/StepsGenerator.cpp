@@ -15,6 +15,7 @@ StepsGenerator::StepsGenerator(const Config& config)
     , warmup_countdown_(config.output_info.period_count) {
 }
 
+// TODO set flag for frame-> set_has_impulse
 void StepsGenerator::generate(Frame& frame) {
     std::fill_n(frame.data(), frame.size(), 0);
 
