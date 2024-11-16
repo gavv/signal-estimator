@@ -15,6 +15,7 @@
 
 using namespace signal_estimator;
 
+    
 int main(int argc, char** argv) {
     Config config;
     std::string mode = "latency_corr";
@@ -23,11 +24,15 @@ int main(int argc, char** argv) {
                 output_format = PcmFormat().to_string();
     int verbosity = 0;
     bool list_supported = false;
+    bool show_version = false;
 
     CLI::App app { "Measure characteristics of a looped back signal",
         "signal-estimator" };
 
-    app.formatter(std::make_shared<Formatter>());
+    app.formatter(std::make_shared<Formatter>()); 
+
+    app.add_flag(
+        "-V,--version",show_version, "Show software version");   
 
     app.add_flag(
         "-L,--list-supported", list_supported, "Print supported features and exit");
@@ -186,6 +191,11 @@ int main(int argc, char** argv) {
 
     if (list_supported) {
         print_supported_formats(std::cerr);
+        return EXIT_SUCCESS;
+    }
+
+    if(show_version){
+        print_compilation_information(std::cerr);
         return EXIT_SUCCESS;
     }
 

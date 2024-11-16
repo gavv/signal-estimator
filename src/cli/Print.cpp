@@ -35,5 +35,8 @@ void print_supported_formats(std::ostream& out) {
         }
     }
 }
-
-} // namespace signal_estimator
+void print_compilation_information(std::ostream& out) {
+    out<<"Signal Estimator "<< PROJECT_VERSION << "\n";
+    out << "Built for " << TARGET_TRIPLET <<" at "<<BUILD_DATE<<" "<<BUILD_TIME << "\n";
+}
+}

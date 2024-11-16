@@ -7,3 +7,4 @@ TODO.org
 bin
 build
 compile_commands.json
+.vscode/settings.json

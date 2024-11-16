@@ -6,11 +6,32 @@ endif()
 
 project(SignalEstimator)
 
+set(PROJECT_VERSION 0.1.0)
+
+# Compilation information 
 option(BUILD_GUI "build Qt GUI" ON)
 option(ENABLE_SANITIZERS "enable sanitizers" OFF)
 option(ENABLE_WERROR "enable -Werror" OFF)
 
+execute_process(
+    COMMAND ${CMAKE_C_COMPILER} -dumpmachine
+    OUTPUT_VARIABLE GCC_TRIPLET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 set(TOOLCHAIN_PREFIX "" CACHE STRING "target host triplet, e.g. aarch64-linux-gnu")
+
+string(TIMESTAMP CURRENT_DATE "%b %d %Y")
+string(TIMESTAMP CURRENT_TIME "%H:%M:%S")
+
+add_compile_definitions(
+    PROJECT_VERSION="${PROJECT_VERSION}"
+    TARGET_TRIPLET="${GCC_TRIPLET}"
+    BUILD_DATE="${CURRENT_DATE}"
+    BUILD_TIME="${CURRENT_TIME}"
+)
+
+
 include("cmake/SetupToolchain.cmake")
 include("cmake/ThirdParty.cmake")
 
