@@ -19,6 +19,8 @@ int main(int argc, char** argv) {
     Config config;
     std::string mode = "latency_corr";
     std::string report_format = "text";
+    std::string report_file="-";
+    
     std::string input_format = PcmFormat().to_string(),
                 output_format = PcmFormat().to_string();
     int verbosity = 0;
@@ -95,6 +97,9 @@ int main(int argc, char** argv) {
     report_opts
         ->add_option("-f,--report-format", report_format, "Report format: text|json")
         ->default_str(report_format);
+    report_opts
+        ->add_option("--report-file", report_file, "File to save report to. Default stdout")
+        ->default_str(report_file);
     report_opts
         ->add_option("--report-sma", config.report_sma_window,
             "Simple Moving Average window for latency reports")
@@ -219,6 +224,9 @@ int main(int argc, char** argv) {
     }
 
     config.report_format = format_map.at(report_format);
+
+    // get report file path
+    config.report_file = report_file;
 
     // parse io formats
     if (auto fmt = PcmFormat::from_string(input_format)) {

@@ -47,7 +47,7 @@ private:
 
     std::unique_ptr<FramePool> frame_pool_;
 
-    Console console_;
+    std::unique_ptr <Console> console_;
     std::unique_ptr<JsonPrinter> json_printer_;
     std::unique_ptr<TextPrinter> text_printer_;
     std::vector<std::unique_ptr<IReporter>> reporters_;
