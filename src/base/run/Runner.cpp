@@ -20,6 +20,7 @@
 #include "reports/JsonReporter.hpp"
 #include "reports/TextReporter.hpp"
 
+
 #include <algorithm>
 
 namespace signal_estimator {
@@ -97,15 +98,26 @@ bool Runner::start() {
         num_estimators = 1;
     }
 
+    //choosing report output to file or stdout must be before choosing report_format? 
+    if( config_.report_file==""){
+        console_= std::make_unique<Console>();
+    }
+    else{ 
+        console_= std::make_unique<FileConsole>(config_.report_file);
+    }
+
     switch (config_.report_format) {
     case Format::Text:
-        text_printer_ = std::make_unique<TextPrinter>(console_);
+        text_printer_ = std::make_unique<TextPrinter>(*console_);
         break;
 
     case Format::Json:
-        json_printer_ = std::make_unique<JsonPrinter>(console_);
+        json_printer_ = std::make_unique<JsonPrinter>(*console_);
         break;
     }
+
+    
+    
 
     for (size_t n = 0; n < num_estimators; n++) {
         DevInfo dev_info;

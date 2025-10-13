@@ -33,6 +33,9 @@ struct Config {
 
     // report format
     Format report_format { Format::Text };
+    
+    //path to file we save raport to
+    std::string report_file;
 
     // whether to show device names in reports and dumps
     bool show_device_names { false };
