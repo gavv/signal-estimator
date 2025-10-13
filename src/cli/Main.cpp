@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     Config config;
     std::string mode = "latency_corr";
     std::string report_format = "text";
-    std::string report_file="";
+    std::string report_file="-";
     
     std::string input_format = PcmFormat().to_string(),
                 output_format = PcmFormat().to_string();

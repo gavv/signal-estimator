@@ -99,7 +99,7 @@ bool Runner::start() {
     }
 
     //choosing report output to file or stdout must be before choosing report_format? 
-    if( config_.report_file==""){
+    if( config_.report_file=="-"){
         console_= std::make_unique<Console>();
     }
     else{ 
