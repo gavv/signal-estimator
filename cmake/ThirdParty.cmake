@@ -214,7 +214,7 @@ add_definitions(
 # cli11
 ExternalProject_Add(cli11_lib
   GIT_REPOSITORY "https://github.com/CLIUtils/CLI11.git"
-  GIT_TAG "v2.3.2"
+  GIT_TAG "v2.4.0"
   GIT_SHALLOW ON
   GIT_PROGRESS ON
   UPDATE_DISCONNECTED ON
